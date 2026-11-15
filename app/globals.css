@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Identidade JUST RUBY: preto e dourado-antigo, com tons de pedra. */
+@theme {
+  --color-preto: #000000;
+  --color-rocha: #23211e; /* xisto escuro, fundo dos painéis sem foto */
+  --color-xisto: #2e2c29; /* texto principal */
+  --color-cinza: #66625c; /* texto secundário */
+  --color-pedra: #e8e5df; /* calcário, fundo das secções claras */
+  --color-ouro: #b08d3c; /* botões e filetes */
+  --color-ouro-claro: #d6b56a; /* dourado sobre preto */
+  --color-ouro-escuro: #7a5f22; /* dourado sobre branco (legível) */
+  --color-nevoa: #cfcac2; /* texto secundário sobre preto */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-marcellus), Georgia, "Times New Roman", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-xisto);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: 0.005em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ouro);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-ouro-claro);
+    color: #000;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Painel de pedra: aparece no lugar da foto enquanto não houver fotografias. */
+  .pedra {
+    background-color: var(--color-rocha);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E"),
+      radial-gradient(120% 90% at 20% 10%, #34312c 0%, transparent 60%),
+      radial-gradient(90% 80% at 90% 100%, #171614 0%, transparent 70%);
+  }
+
+  /* Nome da terra "gravado" na pedra, no painel sem foto. */
+  .gravado {
+    color: #1c1a17;
+    text-shadow:
+      0 1px 0 rgb(255 255 255 / 0.07),
+      0 -1px 0 rgb(0 0 0 / 0.55);
+    user-select: none;
+  }
+
+  /* Filete dourado sob o título principal: o único movimento automático do site. */
+  .filete {
+    display: block;
+    height: 1px;
+    width: 7rem;
+    background: var(--color-ouro);
+    transform-origin: left;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .filete {
+      animation: filete 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    }
+  }
+
+  @keyframes filete {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
 }

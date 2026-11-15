@@ -1,43 +1,124 @@
-import Header from "./components/Header";
+import type { Metadata } from "next";
+import Link from "next/link";
+import CasaVisual from "./components/CasaVisual";
+import PedidoForm from "./components/PedidoForm";
+import { casas, site } from "./site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (
     <>
-      <Header />
-
-      <main className="min-h-screen bg-white">
-        <section className="flex min-h-[85vh] flex-col items-center justify-center bg-gradient-to-b from-black to-zinc-900 px-6 text-center text-white">
-          <p className="mb-4 text-sm uppercase tracking-[0.4em] text-yellow-500">
-            JUST RUBY LDA
-          </p>
-
-          <h1 className="mb-6 max-w-4xl text-5xl font-bold leading-tight md:text-7xl">
-            Turismo Rural com Elegância e Autenticidade
+      {/* Abertura: o título e, logo abaixo, as duas casas lado a lado. */}
+      <section className="bg-preto text-white">
+        <div className="mx-auto max-w-7xl px-5 pb-12 pt-14 md:px-8 md:pb-16 md:pt-20">
+          <h1 className="max-w-4xl text-5xl md:text-7xl lg:text-[5.25rem]">
+            Duas casas para abrandar no centro de Portugal
           </h1>
-
-          <p className="mb-10 max-w-2xl text-lg text-zinc-300">
-            Descubra experiências únicas em alojamentos cuidadosamente
-            preparados para proporcionar conforto, tranquilidade e contacto com
-            a natureza.
+          <span className="filete mt-8" aria-hidden="true" />
+          <p className="mt-8 max-w-2xl text-lg text-nevoa md:text-xl">
+            Uma quinta com piscina perto de Tomar e uma vivenda na Várzea, em Santarém.
+            Cuidamos de ambas pessoalmente.
           </p>
+        </div>
 
-          <div className="flex gap-4">
-            <a
-              href="#"
-              className="rounded-full bg-yellow-500 px-8 py-4 font-semibold text-black transition hover:bg-yellow-400"
+        <div className="grid md:grid-cols-2">
+          {casas.map((c, i) => (
+            <Link
+              key={c.slug}
+              href={`/alojamentos/${c.slug}`}
+              className={`group relative block min-h-[26rem] md:min-h-[34rem] lg:min-h-[38rem] ${
+                i > 0 ? "border-t border-ouro/40 md:border-l md:border-t-0" : ""
+              }`}
             >
-              Descobrir
-            </a>
+              <CasaVisual
+                casa={c}
+                sizes="(min-width: 768px) 50vw, 100vw"
+                prioridade
+                className="absolute inset-0"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-t from-preto/85 via-preto/20 to-transparent"
+              />
+              <div className="relative flex h-full min-h-[inherit] flex-col justify-end p-8 md:p-12">
+                <p className="text-ouro-claro">{c.cidade}</p>
+                <h2 className="mt-2 text-4xl md:text-5xl">{c.nome}</h2>
+                <p className="mt-3 max-w-md text-nevoa">{c.frase}</p>
+                <span className="mt-6 inline-block self-start border-b border-ouro pb-1 font-semibold text-white transition-colors group-hover:border-ouro-claro group-hover:text-ouro-claro">
+                  {c.piscina ? "Ver a quinta" : "Ver a casa"}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-            <a
-              href="#"
-              className="rounded-full border border-yellow-500 px-8 py-4 font-semibold text-yellow-500 transition hover:bg-yellow-500 hover:text-black"
-            >
-              Contactar
-            </a>
+      {/* Quem recebe */}
+      <section className="mx-auto grid max-w-7xl gap-10 px-5 py-20 md:grid-cols-[1fr_1.4fr] md:gap-16 md:px-8 md:py-28">
+        <h2 className="text-4xl md:text-5xl">Uma casa de família, aberta a quem chega</h2>
+        <div className="max-w-2xl space-y-5 text-lg">
+          <p>
+            Somos {site.anfitrioes}. A JUST RUBY é a nossa empresa e estas são as casas de
+            que cuidamos: preparamos cada uma antes de chegar e estamos contactáveis durante
+            toda a estadia.
+          </p>
+          <p>
+            Ao reservar connosco fala diretamente com quem conhece a casa, o caminho até lá e
+            os melhores sítios à volta.
+          </p>
+          <Link
+            href="/sobre"
+            className="inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
+          >
+            Conhecer a JUST RUBY
+          </Link>
+        </div>
+      </section>
+
+      {/* A região à volta de cada casa */}
+      <section className="bg-pedra">
+        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
+          <h2 className="max-w-3xl text-4xl md:text-5xl">O que fica perto</h2>
+          <div className="mt-12 grid gap-14 md:grid-cols-2 md:gap-16">
+            {casas.map((c) => (
+              <div key={c.slug}>
+                <h3 className="border-b border-ouro/60 pb-3 text-3xl">{c.cidade}</h3>
+                <ul className="mt-6 space-y-5">
+                  {c.perto.map((p) => (
+                    <li key={p.nome}>
+                      <p className="font-semibold">{p.nome}</p>
+                      <p className="text-cinza">{p.nota}</p>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/alojamentos/${c.slug}`}
+                  className="mt-8 inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
+                >
+                  Ver {c.nome}
+                </Link>
+              </div>
+            ))}
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+
+      {/* Pedido de disponibilidade */}
+      <section id="pedido" className="scroll-mt-20 bg-preto text-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-[1fr_1.3fr] md:gap-16 md:px-8 md:py-28">
+          <div>
+            <h2 className="text-4xl md:text-5xl">Tem datas em mente?</h2>
+            <p className="mt-6 max-w-md text-lg text-nevoa">
+              Diga-nos quando quer vir e quantas pessoas são. Respondemos com a
+              disponibilidade e o preço.
+            </p>
+          </div>
+          <PedidoForm />
+        </div>
+      </section>
     </>
   );
 }

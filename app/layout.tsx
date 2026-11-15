@@ -1,20 +1,56 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Figtree, Marcellus } from "next/font/google";
 import "./globals.css";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import JsonLd from "./components/JsonLd";
+import WhatsAppButton from "./components/WhatsAppButton";
+import { site } from "./site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Marcellus: letra de inscrição, lembra a pedra gravada. Figtree: texto corrido.
+const marcellus = Marcellus({
+  variable: "--font-marcellus",
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
 });
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const figtree = Figtree({
+  variable: "--font-figtree",
+  subsets: ["latin", "latin-ext"],
 });
 
 export const metadata: Metadata = {
-  title: "JUST RUBY | Turismo Rural em Tomar e Santarém",
+  metadataBase: new URL(site.url),
+  title: {
+    default: "JUST RUBY | Turismo Rural em Tomar e Santarém",
+    template: "%s | JUST RUBY",
+  },
   description:
-    "Alojamentos de turismo rural com piscina, natureza e autenticidade em Tomar e Santarém. Descubra o Kingdom of Stone e reserve a sua estadia.",
+    "Alojamentos de turismo rural em Tomar e Santarém: o Kingdom of Stone, quinta com piscina em Olalhas, e O Nosso Cantinho, vivenda na Várzea. Peça disponibilidade.",
+  openGraph: {
+    type: "website",
+    locale: "pt_PT",
+    siteName: site.nome,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+};
+
+const organizacao = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: site.nome,
+  legalName: site.empresa,
+  url: site.url,
+  email: site.email,
+  taxID: site.nif,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Várzea",
+    addressRegion: "Santarém",
+    addressCountry: "PT",
+  },
 };
 
 export default function RootLayout({
@@ -23,11 +59,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="pt-PT" className={`${marcellus.variable} ${figtree.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">
+        <JsonLd data={organizacao} />
+        <Header />
+        <main id="conteudo" className="flex-1">
+          {children}
+        </main>
+        <Footer />
+        <WhatsAppButton />
+      </body>
     </html>
   );
 }

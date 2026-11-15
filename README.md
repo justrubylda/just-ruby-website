@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JUST RUBY — justruby.pt
 
-## Getting Started
+Site da JUST RUBY LDA (turismo rural em Tomar e Santarém), feito em Next.js e publicado na Vercel.
+Cada alteração enviada para o ramo `main` no GitHub fica online sozinha em 1 a 2 minutos.
 
-First, run the development server:
+## Editar textos, contactos e alojamentos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Quase tudo está num único ficheiro: **`app/site.ts`**. No GitHub, abra o ficheiro, carregue no lápis (Edit), altere e carregue em **Commit changes**.
+
+- **WhatsApp e telefone**: só algarismos, com indicativo. Ex.: `whatsapp: "351912345678"`. Enquanto estiver vazio, os botões de WhatsApp não aparecem.
+- **Airbnb e Booking**: cole o link do anúncio em `airbnb` e `booking` de cada casa. Aparece a opção "Também pode reservar no Airbnb ou no Booking.com".
+- **Registo de Alojamento Local**: preencha `rnal` de cada casa. O número aparece na página da casa e no rodapé.
+- **Capacidade**: ex.: `capacidade: "Até 8 hóspedes"`.
+- **Textos**: `frase`, `descricao`, `destaques` e `perto` de cada casa.
+
+Campos vazios (`""`) ficam escondidos no site.
+
+## Pôr fotografias
+
+1. No GitHub, abra a pasta `public/fotos` e carregue as fotos (**Add file → Upload files**). Use nomes simples, sem espaços nem acentos, ex.: `kos-piscina.jpg`.
+2. Em `app/site.ts`, na casa certa, preencha `fotos` (a primeira é a capa):
+
+```ts
+fotos: [
+  { src: "/fotos/kos-piscina.jpg", alt: "Piscina da quinta ao fim da tarde" },
+  { src: "/fotos/kos-sala.jpg", alt: "Sala com lareira" },
+],
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O `alt` descreve a foto em poucas palavras (ajuda o Google e quem usa leitores de ecrã).
+As fotos aparecem logo na página inicial, na página da casa e na Galeria.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Para programadores
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev   # http://localhost:3000
+npm run build
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Páginas em `app/`: início, `alojamentos/` (e uma página por casa em `alojamentos/[slug]`), `sobre/`, `galeria/`, `contactos/`, `privacidade/`. O sitemap, o robots.txt, o ícone e a imagem de partilha são gerados pelos ficheiros `app/sitemap.ts`, `app/robots.ts`, `app/icon.svg` e `app/opengraph-image.tsx`.

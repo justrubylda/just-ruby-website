@@ -1,45 +1,114 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { menu, site } from "../site";
+
 export default function Header() {
+  const pathname = usePathname();
+  const [aberto, setAberto] = useState(false);
+
+  const ativo = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  useEffect(() => {
+    if (!aberto) return;
+    const fechar = (e: KeyboardEvent) => e.key === "Escape" && setAberto(false);
+    window.addEventListener("keydown", fechar);
+    return () => window.removeEventListener("keydown", fechar);
+  }, [aberto]);
+
   return (
-    <header className="w-full bg-black text-white border-b border-yellow-600">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <h1 className="text-2xl font-bold tracking-wide text-yellow-500">
-          JUST RUBY
-        </h1>
+    <header className="sticky top-0 z-40 w-full border-b border-ouro/40 bg-preto text-white">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-ouro focus:px-4 focus:py-2 focus:text-preto"
+      >
+        Saltar para o conteúdo
+      </a>
 
-        <nav>
-          <ul className="flex gap-8 text-sm uppercase tracking-wide">
-            <li>
-              <a href="#" className="hover:text-yellow-500 transition-colors">
-                Início
-              </a>
-            </li>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 md:px-8">
+        <Link
+          href="/"
+          className="font-display text-xl tracking-[0.2em] text-ouro-claro"
+          onClick={() => setAberto(false)}
+        >
+          {site.nome}
+        </Link>
 
-            <li>
-              <a href="#" className="hover:text-yellow-500 transition-colors">
-                Alojamentos
-              </a>
-            </li>
+        <nav aria-label="Menu principal" className="hidden lg:block">
+          <ul className="flex items-center gap-8 text-[0.95rem]">
+            {menu.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  aria-current={ativo(item.href) ? "page" : undefined}
+                  className={`border-b py-1 transition-colors hover:text-ouro-claro ${
+                    ativo(item.href)
+                      ? "border-ouro text-ouro-claro"
+                      : "border-transparent text-white/85"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-            <li>
-              <a href="#" className="hover:text-yellow-500 transition-colors">
-                Sobre
-              </a>
-            </li>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/contactos#pedido"
+            className="hidden rounded-sm bg-ouro px-4 py-2.5 text-sm font-semibold text-preto transition-colors hover:bg-ouro-claro sm:inline-block"
+          >
+            Pedir disponibilidade
+          </Link>
 
-            <li>
-              <a href="#" className="hover:text-yellow-500 transition-colors">
-                Galeria
-              </a>
-            </li>
+          <button
+            type="button"
+            className="rounded-sm p-2 text-ouro-claro lg:hidden"
+            aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={aberto}
+            aria-controls="menu-movel"
+            onClick={() => setAberto((v) => !v)}
+          >
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+              {aberto ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M3 7h18M3 12h18M3 17h18" />}
+            </svg>
+          </button>
+        </div>
+      </div>
 
-            <li>
-              <a href="#" className="hover:text-yellow-500 transition-colors">
-                Contactos
-              </a>
+      {aberto && (
+        <nav id="menu-movel" aria-label="Menu principal" className="border-t border-white/10 lg:hidden">
+          <ul className="mx-auto flex max-w-7xl flex-col px-5 py-3 md:px-8">
+            {menu.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setAberto(false)}
+                  aria-current={ativo(item.href) ? "page" : undefined}
+                  className={`block py-3 font-display text-2xl ${
+                    ativo(item.href) ? "text-ouro-claro" : "text-white"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+            <li className="pb-3 pt-4 sm:hidden">
+              <Link
+                href="/contactos#pedido"
+                onClick={() => setAberto(false)}
+                className="block rounded-sm bg-ouro px-4 py-3 text-center font-semibold text-preto"
+              >
+                Pedir disponibilidade
+              </Link>
             </li>
           </ul>
         </nav>
-      </div>
+      )}
     </header>
   );
 }
