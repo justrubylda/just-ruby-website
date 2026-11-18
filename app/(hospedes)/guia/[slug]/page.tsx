@@ -277,6 +277,11 @@ export default async function GuiaPage({
                 </div>
               )}
             </dl>
+            {guia.avisoChegada && (
+              <p className="mt-3 border-l-2 border-ouro pl-4">
+                <T t={guia.avisoChegada} />
+              </p>
+            )}
             <ComCodigo>
               <a
                 href={guia.mapa}

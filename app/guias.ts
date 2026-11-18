@@ -27,6 +27,7 @@ export type Guia = {
   checkIn: L;
   checkInNota?: L;
   checkOut?: L; // ex.: { pt: "até às 11h00", ... }. Vazio = não aparece.
+  avisoChegada?: L; // ex.: caução. Vazio = não aparece.
   mapa: string;
   mapaNota: L;
   passos: Passo[];
@@ -225,6 +226,8 @@ export const guias: Guia[] = [
     },
     casa: [
       { pt: "Piscina", en: "Swimming pool", es: "Piscina", fr: "Piscine" },
+      { pt: "4 quartos e 2 casas de banho", en: "4 bedrooms and 2 bathrooms", es: "4 dormitorios y 2 baños", fr: "4 chambres et 2 salles de bain" },
+      { pt: "Ar condicionado e sala de estar", en: "Air conditioning and living room", es: "Aire acondicionado y salón", fr: "Climatisation et salon" },
       { pt: "Forno a lenha e churrasqueira", en: "Wood-fired oven and barbecue", es: "Horno de leña y barbacoa", fr: "Four à bois et barbecue" },
       { pt: "Quinta com cerca de 5 hectares", en: "A farm of about 5 hectares", es: "Finca de unas 5 hectáreas", fr: "Domaine d’environ 5 hectares" },
       {
@@ -283,6 +286,13 @@ export const guias: Guia[] = [
     capa: { src: "/guia/cantinho-piscina.jpg", alt: "Piscina d’O Nosso Cantinho com a casa amarela à volta" },
     checkIn: checkIn17,
     checkInNota: salvoCombinado,
+    checkOut: { pt: "até às 11h00", en: "by 11:00 am", es: "hasta las 11:00", fr: "avant 11h00" },
+    avisoChegada: {
+      pt: "É pedida uma caução de 300 € em numerário à chegada, devolvida na saída depois de vermos a casa.",
+      en: "A €300 cash deposit is required on arrival and returned at check-out after we check the house.",
+      es: "Se pide una fianza de 300 € en efectivo a la llegada, que se devuelve a la salida tras revisar la casa.",
+      fr: "Une caution de 300 € en espèces est demandée à l’arrivée et rendue au départ après vérification de la maison.",
+    },
     mapa: "https://goo.gl/maps/2QRChiywW912",
     mapaNota: {
       pt: "Para evitar enganos no caminho, siga sempre pela localização exata.",
@@ -351,6 +361,7 @@ export const guias: Guia[] = [
       { pt: "Jardim e churrasqueira", en: "Garden and barbecue", es: "Jardín y barbacoa", fr: "Jardin et barbecue" },
       { pt: "Ar condicionado e lareira", en: "Air conditioning and fireplace", es: "Aire acondicionado y chimenea", fr: "Climatisation et cheminée" },
       { pt: "Estacionamento privado gratuito", en: "Free private parking", es: "Aparcamiento privado gratuito", fr: "Parking privé gratuit" },
+      { pt: "Berço gratuito mediante pedido (0 a 3 anos)", en: "Free cot on request (ages 0–3)", es: "Cuna gratuita bajo petición (0 a 3 años)", fr: "Lit bébé gratuit sur demande (0 à 3 ans)" },
     ],
     regras: regrasBase,
     saida: saidaBase,
