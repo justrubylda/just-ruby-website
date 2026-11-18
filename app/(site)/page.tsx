@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import CasaVisual from "./components/CasaVisual";
-import PedidoForm from "./components/PedidoForm";
-import { casas, site } from "./site";
+import CasaVisual from "@/app/components/CasaVisual";
+import PedidoForm from "@/app/components/PedidoForm";
+import { ocupacaoTodas } from "@/app/lib/disponibilidade";
+import { casas, site } from "@/app/site";
+
+// A disponibilidade (Airbnb + Booking) é revista de hora a hora.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function Home() {
+export default async function Home() {
   return (
     <>
       {/* Abertura: o título e, logo abaixo, as duas casas lado a lado. */}
@@ -19,8 +23,8 @@ export default function Home() {
           </h1>
           <span className="filete mt-8" aria-hidden="true" />
           <p className="mt-8 max-w-2xl text-lg text-nevoa md:text-xl">
-            Uma quinta com piscina perto de Tomar e uma vivenda na Várzea, em Santarém.
-            Cuidamos de ambas pessoalmente.
+            Uma quinta perto de Tomar e uma vivenda na Várzea, em Santarém, ambas com
+            piscina. Cuidamos de cada uma pessoalmente.
           </p>
         </div>
 
@@ -48,7 +52,7 @@ export default function Home() {
                 <h2 className="mt-2 text-4xl md:text-5xl">{c.nome}</h2>
                 <p className="mt-3 max-w-md text-nevoa">{c.frase}</p>
                 <span className="mt-6 inline-block self-start border-b border-ouro pb-1 font-semibold text-white transition-colors group-hover:border-ouro-claro group-hover:text-ouro-claro">
-                  {c.piscina ? "Ver a quinta" : "Ver a casa"}
+                  {c.verLabel}
                 </span>
               </div>
             </Link>
@@ -116,7 +120,7 @@ export default function Home() {
               disponibilidade e o preço.
             </p>
           </div>
-          <PedidoForm />
+          <PedidoForm ocupado={await ocupacaoTodas()} />
         </div>
       </section>
     </>

@@ -7,9 +7,9 @@
   --color-xisto: #2e2c29; /* texto principal */
   --color-cinza: #66625c; /* texto secundário */
   --color-pedra: #e8e5df; /* calcário, fundo das secções claras */
-  --color-ouro: #b08d3c; /* botões e filetes */
-  --color-ouro-claro: #d6b56a; /* dourado sobre preto */
-  --color-ouro-escuro: #7a5f22; /* dourado sobre branco (legível) */
+  --color-ouro: #c29a58; /* dourado do logótipo: botões e filetes */
+  --color-ouro-claro: #d8b77a; /* dourado sobre preto */
+  --color-ouro-escuro: #7d5f2a; /* dourado sobre branco (legível) */
   --color-nevoa: #cfcac2; /* texto secundário sobre preto */
 }
 
@@ -81,7 +81,18 @@
     user-select: none;
   }
 
-  /* Filete dourado sob o título principal: o único movimento automático do site. */
+  /* Guia do hóspede: mostra só a língua escolhida. */
+[data-lingua] .tl {
+  display: none;
+}
+[data-lingua="pt"] .tl-pt,
+[data-lingua="en"] .tl-en,
+[data-lingua="es"] .tl-es,
+[data-lingua="fr"] .tl-fr {
+  display: inline;
+}
+
+/* Filete dourado sob o título principal: o único movimento automático do site. */
   .filete {
     display: block;
     height: 1px;

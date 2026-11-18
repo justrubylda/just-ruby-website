@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PageIntro from "../components/PageIntro";
-import { casas, site } from "../site";
+import PageIntro from "@/app/components/PageIntro";
+import { casas, site } from "@/app/site";
 
 export const metadata: Metadata = {
   title: "Sobre nós",

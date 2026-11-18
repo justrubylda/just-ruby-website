@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
-import PageIntro from "../components/PageIntro";
-import PedidoForm from "../components/PedidoForm";
-import { casas, site, whatsappLink } from "../site";
+import PageIntro from "@/app/components/PageIntro";
+import PedidoForm from "@/app/components/PedidoForm";
+import { ocupacaoTodas } from "@/app/lib/disponibilidade";
+import { casas, site, whatsappLink } from "@/app/site";
+
+// A disponibilidade (Airbnb + Booking) é revista de hora a hora.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Contactos",
@@ -10,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contactos" },
 };
 
-export default function ContactosPage() {
+export default async function ContactosPage() {
   const wa = whatsappLink();
 
   return (
@@ -73,7 +77,7 @@ export default function ContactosPage() {
         <section id="pedido" className="scroll-mt-24 bg-preto p-6 text-white md:p-10">
           <h2 className="text-3xl md:text-4xl">Pedir disponibilidade</h2>
           <div className="mt-8">
-            <PedidoForm />
+            <PedidoForm ocupado={await ocupacaoTodas()} />
           </div>
         </section>
       </div>

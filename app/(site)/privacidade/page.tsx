@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import PageIntro from "../components/PageIntro";
-import { site } from "../site";
+import PageIntro from "@/app/components/PageIntro";
+import { site } from "@/app/site";
 
 export const metadata: Metadata = {
   title: "Política de privacidade",

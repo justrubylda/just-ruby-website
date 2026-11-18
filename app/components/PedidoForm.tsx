@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
+import type { Ocupacao } from "../lib/disponibilidade";
 import { casas, emailLink, site, whatsappLink } from "../site";
 
 // Formulário de pedido de disponibilidade.
@@ -9,9 +10,11 @@ import { casas, emailLink, site, whatsappLink } from "../site";
 export default function PedidoForm({
   casaInicial = "",
   tema = "escuro",
+  ocupado = {},
 }: {
   casaInicial?: string;
   tema?: "escuro" | "claro";
+  ocupado?: Ocupacao; // noites reservadas no Airbnb/Booking, por casa
 }) {
   const id = useId();
   const [erro, setErro] = useState("");
@@ -44,6 +47,9 @@ export default function PedidoForm({
     if (!chegada || !partida) return setErro("Indique as datas de chegada e de partida.");
     if (chegada < hoje) return setErro("A data de chegada já passou. Escolha uma data a partir de hoje.");
     if (partida <= chegada) return setErro("A data de partida tem de ser depois da data de chegada.");
+    const reservado = (ocupado[casa.slug] ?? []).some((i) => chegada < i.fim && partida > i.inicio);
+    if (reservado)
+      return setErro("Essas datas já estão ocupadas. Veja o calendário de disponibilidade ou escolha outras datas.");
     if (!hospedes || Number(hospedes) < 1) return setErro("Indique quantas pessoas vêm.");
     setErro("");
 

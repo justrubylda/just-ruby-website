@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import CasaVisual from "../components/CasaVisual";
-import PageIntro from "../components/PageIntro";
-import { casas } from "../site";
+import CasaVisual from "@/app/components/CasaVisual";
+import PageIntro from "@/app/components/PageIntro";
+import { casas } from "@/app/site";
 
 export const metadata: Metadata = {
   title: "Alojamentos",
   description:
-    "Kingdom of Stone, quinta com piscina em Olalhas (Tomar), e O Nosso Cantinho, vivenda T4 na Várzea (Santarém). Escolha a sua estadia e peça disponibilidade.",
+    "Kingdom of Stone, quinta com piscina em Olalhas (Tomar), e O Nosso Cantinho, vivenda T4 com piscina privada na Várzea (Santarém). Escolha a sua estadia e peça disponibilidade.",
   alternates: { canonical: "/alojamentos" },
 };
 

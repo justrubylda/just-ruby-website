@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -28,13 +29,16 @@ export default function Header() {
         Saltar para o conteúdo
       </a>
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 md:px-8">
-        <Link
-          href="/"
-          className="font-display text-xl tracking-[0.2em] text-ouro-claro"
-          onClick={() => setAberto(false)}
-        >
-          {site.nome}
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3 md:px-8">
+        <Link href="/" className="block shrink-0" onClick={() => setAberto(false)}>
+          <Image
+            src="/logo-just-ruby.png"
+            alt={`${site.nome}, página inicial`}
+            width={748}
+            height={294}
+            loading="eager"
+            className="h-10 w-auto md:h-11"
+          />
         </Link>
 
         <nav aria-label="Menu principal" className="hidden lg:block">

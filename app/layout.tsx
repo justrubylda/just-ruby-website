@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Marcellus } from "next/font/google";
 import "./globals.css";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
 import JsonLd from "./components/JsonLd";
-import WhatsAppButton from "./components/WhatsAppButton";
 import { site } from "./site";
 
 // Marcellus: letra de inscrição, lembra a pedra gravada. Figtree: texto corrido.
@@ -25,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | JUST RUBY",
   },
   description:
-    "Alojamentos de turismo rural em Tomar e Santarém: o Kingdom of Stone, quinta com piscina em Olalhas, e O Nosso Cantinho, vivenda na Várzea. Peça disponibilidade.",
+    "Alojamentos de turismo rural em Tomar e Santarém: o Kingdom of Stone, quinta com piscina em Olalhas, e O Nosso Cantinho, vivenda com piscina na Várzea. Peça disponibilidade.",
   openGraph: {
     type: "website",
     locale: "pt_PT",
@@ -59,15 +56,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-PT" className={`${marcellus.variable} ${figtree.variable} h-full antialiased`}>
+    <html
+      lang="pt-PT"
+      className={`${marcellus.variable} ${figtree.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col">
         <JsonLd data={organizacao} />
-        <Header />
-        <main id="conteudo" className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <WhatsAppButton />
+        {children}
       </body>
     </html>
   );

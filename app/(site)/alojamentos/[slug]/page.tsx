@@ -2,12 +2,16 @@ import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import CasaVisual from "../../components/CasaVisual";
-import JsonLd from "../../components/JsonLd";
-import PedidoForm from "../../components/PedidoForm";
-import { casas, getCasa, site } from "../../site";
+import Calendario from "@/app/components/Calendario";
+import CasaVisual from "@/app/components/CasaVisual";
+import JsonLd from "@/app/components/JsonLd";
+import PedidoForm from "@/app/components/PedidoForm";
+import { ocupacaoDe, temCalendario } from "@/app/lib/disponibilidade";
+import { casas, getCasa, site } from "@/app/site";
 
 export const dynamicParams = false;
+// A disponibilidade (Airbnb + Booking) é revista de hora a hora.
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return casas.map((c) => ({ slug: c.slug }));
@@ -55,6 +59,8 @@ export default async function CasaPage({
   if (!casa) notFound();
 
   const outra = casas.find((c) => c.slug !== casa.slug);
+  const comCalendario = temCalendario(casa.slug);
+  const ocupado = comCalendario ? await ocupacaoDe(casa.slug) : [];
   const galeria = casa.fotos.slice(1);
 
   const dadosGoogle = {
@@ -143,6 +149,15 @@ export default async function CasaPage({
             </ul>
           </section>
 
+          {comCalendario && (
+            <section id="disponibilidade" className="scroll-mt-24">
+              <h2 className="text-3xl md:text-4xl">Disponibilidade</h2>
+              <div className="mt-6 max-w-2xl">
+                <Calendario intervalos={ocupado} />
+              </div>
+            </section>
+          )}
+
           <section>
             <h2 className="text-3xl md:text-4xl">Na zona</h2>
             <ul className="mt-6 max-w-2xl divide-y divide-xisto/15 border-y border-xisto/15">
@@ -198,7 +213,7 @@ export default async function CasaPage({
           <h2 className="text-3xl">Pedir disponibilidade</h2>
           <p className="mt-3 text-cinza">Diga-nos as datas e respondemos com o preço.</p>
           <div className="mt-6">
-            <PedidoForm casaInicial={casa.slug} tema="claro" />
+            <PedidoForm casaInicial={casa.slug} tema="claro" ocupado={comCalendario ? { [casa.slug]: ocupado } : {}} />
           </div>
         </aside>
       </div>

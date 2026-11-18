@@ -14,7 +14,7 @@ export const site = {
   anfitrioes: "o Bruno e a Rúbia", // aparece em "Somos o Bruno e a Rúbia"
   url: "https://www.justruby.pt",
   descricao:
-    "Turismo rural no centro de Portugal: o Kingdom of Stone, uma quinta com piscina em Tomar, e O Nosso Cantinho, uma vivenda na Várzea, em Santarém.",
+    "Turismo rural no centro de Portugal: o Kingdom of Stone, uma quinta com piscina em Tomar, e O Nosso Cantinho, uma vivenda com piscina na Várzea, em Santarém.",
 
   email: "just_ruby@outlook.pt",
 
@@ -53,6 +53,7 @@ export type Casa = {
   destaques: string[];
   capacidade: string; // ex.: "Até 8 hóspedes". Vazio = não aparece.
   piscina: boolean;
+  verLabel: string; // texto do link "Ver a quinta" / "Ver a casa"
   perto: { nome: string; nota: string }[];
 
   // Fotos: coloque os ficheiros em /public/fotos/ e escreva aqui o caminho.
@@ -87,6 +88,7 @@ export const casas: Casa[] = [
     ],
     capacidade: "",
     piscina: true,
+    verLabel: "Ver a quinta",
     perto: [
       {
         nome: "Convento de Cristo",
@@ -113,21 +115,22 @@ export const casas: Casa[] = [
     cidade: "Santarém",
     local: "Várzea, Santarém",
     freguesia: "Várzea",
-    tipo: "Vivenda T4 com anexos",
-    frase: "Uma vivenda com espaço para a família, na Várzea, às portas de Santarém.",
+    tipo: "Vivenda com piscina privada",
+    frase: "Uma vivenda com piscina privada e espaço para a família, na Várzea, às portas de Santarém.",
     descricao: [
-      "O Nosso Cantinho é uma vivenda T4 com anexos na Várzea, uma aldeia tranquila às portas de Santarém.",
-      "Tem espaço para famílias e grupos, com o conforto de uma casa a sério e a cidade a poucos minutos.",
+      "O Nosso Cantinho é uma vivenda T4 com anexos e piscina privada na Várzea, uma aldeia tranquila às portas de Santarém.",
+      "Tem espaço para famílias e grupos: 4 quartos, 2 casas de banho, jardim, churrasqueira e estacionamento privado.",
       "É uma boa base para conhecer Santarém, a lezíria e o resto do Ribatejo.",
     ],
     destaques: [
-      "Vivenda T4 com anexos",
-      "Espaço para famílias e grupos",
-      "Aldeia calma",
+      "Piscina privada",
+      "4 quartos e 2 casas de banho",
+      "Jardim e churrasqueira",
       "Perto do centro de Santarém",
     ],
     capacidade: "",
-    piscina: false,
+    piscina: true,
+    verLabel: "Ver a casa",
     perto: [
       {
         nome: "Jardim das Portas do Sol",

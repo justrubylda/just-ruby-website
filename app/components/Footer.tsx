@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { casas, menu, site } from "../site";
 
@@ -8,7 +9,7 @@ export default function Footer() {
     <footer className="bg-preto text-nevoa">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr] md:px-8">
         <div>
-          <p className="font-display text-2xl tracking-[0.2em] text-ouro-claro">{site.nome}</p>
+          <Image src="/logo-just-ruby.png" alt={site.nome} width={748} height={294} className="h-16 w-auto" />
           <p className="mt-4 max-w-sm">
             Turismo rural em Tomar e Santarém. Recebemos cada hóspede pessoalmente.
           </p>

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import PageIntro from "../components/PageIntro";
-import { casas, emailLink, whatsappLink } from "../site";
+import PageIntro from "@/app/components/PageIntro";
+import { casas, emailLink, whatsappLink } from "@/app/site";
 
 export const metadata: Metadata = {
   title: "Galeria",
