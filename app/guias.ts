@@ -143,7 +143,7 @@ export const guias: Guia[] = [
   {
     slug: "kingdom-of-stone",
     local: { pt: "Olalhas, Tomar", en: "Olalhas, Tomar", es: "Olalhas, Tomar", fr: "Olalhas, Tomar" },
-    capa: { src: "/guia/kos-piscina.jpg", alt: "Piscina do Kingdom of Stone com a casa ao fundo" },
+    capa: { src: "/fotos/kos-piscina-casa.jpg", alt: "Piscina do Kingdom of Stone com a casa ao fundo" },
     checkIn: checkIn17,
     checkInNota: salvoCombinado,
     mapa: "https://maps.app.goo.gl/41xUhWKytGMnzdKv6",
@@ -224,6 +224,11 @@ export const guias: Guia[] = [
       es: "Ahí están las llaves de su Reino. Vuelvan a cerrar la caja y mezclen los dígitos.",
       fr: "Voici les clés de votre Royaume. Refermez la boîte et brouillez les chiffres.",
     },
+    galeria: [
+      { src: "/fotos/kos-sala.jpg", alt: "Sala com lareira e paredes de pedra" },
+      { src: "/fotos/kos-pergula.jpg", alt: "Pérgula com videira em frente à casa" },
+      { src: "/fotos/kos-forno-churrasqueira.jpg", alt: "Forno a lenha e churrasqueira" },
+    ],
     casa: [
       { pt: "Piscina", en: "Swimming pool", es: "Piscina", fr: "Piscine" },
       { pt: "4 quartos e 2 casas de banho", en: "4 bedrooms and 2 bathrooms", es: "4 dormitorios y 2 baños", fr: "4 chambres et 2 salles de bain" },
@@ -283,7 +288,7 @@ export const guias: Guia[] = [
   {
     slug: "o-nosso-cantinho",
     local: { pt: "Várzea, Santarém", en: "Várzea, Santarém", es: "Várzea, Santarém", fr: "Várzea, Santarém" },
-    capa: { src: "/guia/cantinho-piscina.jpg", alt: "Piscina d’O Nosso Cantinho com a casa amarela à volta" },
+    capa: { src: "/fotos/cantinho-piscina.jpg", alt: "Piscina d’O Nosso Cantinho com a casa amarela à volta" },
     checkIn: checkIn17,
     checkInNota: salvoCombinado,
     checkOut: { pt: "até às 11h00", en: "by 11:00 am", es: "hasta las 11:00", fr: "avant 11h00" },
@@ -351,9 +356,9 @@ export const guias: Guia[] = [
       fr: "Une fois les clés récupérées, refermez la boîte et brouillez les chiffres.",
     },
     galeria: [
-      { src: "/guia/cantinho-piscina-2.jpg", alt: "Piscina com escadas" },
-      { src: "/guia/cantinho-terraco.jpg", alt: "Terraço com espreguiçadeiras e chapéu de sol" },
-      { src: "/guia/cantinho-exterior.jpg", alt: "Exterior da casa junto à piscina" },
+      { src: "/fotos/cantinho-esplanada.jpg", alt: "Mesa exterior junto à piscina" },
+      { src: "/fotos/cantinho-sala-lareira.jpg", alt: "Sala com lareira" },
+      { src: "/fotos/cantinho-cozinha.jpg", alt: "Cozinha equipada" },
     ],
     casa: [
       { pt: "Piscina privada (sazonal)", en: "Private pool (seasonal)", es: "Piscina privada (de temporada)", fr: "Piscine privée (saisonnière)" },

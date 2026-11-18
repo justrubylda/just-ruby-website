@@ -453,8 +453,8 @@ export default async function GuiaPage({
                     key={f.src}
                     src={f.src}
                     alt={f.alt}
-                    width={198}
-                    height={147}
+                    width={1200}
+                    height={900}
                     sizes="33vw"
                     className="aspect-[4/3] h-auto w-full rounded-sm object-cover"
                   />
