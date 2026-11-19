@@ -6,7 +6,8 @@ import type { Ocupacao } from "../lib/disponibilidade";
 import { casas, emailLink, site, whatsappLink } from "../site";
 
 // Formulário de pedido de disponibilidade.
-// Não guarda nada: prepara a mensagem e abre o WhatsApp ou o email do hóspede.
+// Prepara a mensagem e abre o WhatsApp ou o email do hóspede. Uma cópia do pedido
+// fica registada na área de gestão (/gestao/pedidos) para não se perder nenhum.
 export default function PedidoForm({
   casaInicial = "",
   tema = "escuro",
@@ -64,6 +65,27 @@ export default function PedidoForm({
     if (mensagem) linhas.push("", mensagem);
     const texto = linhas.join("\n");
 
+    // Regista o pedido na área de gestão (não bloqueia nem atrasa o envio).
+    try {
+      fetch("/api/pedidos", {
+        method: "POST",
+        keepalive: true,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          casa: casa.slug,
+          chegada,
+          partida,
+          hospedes,
+          nome,
+          mensagem,
+          via,
+          site: String(dados.get("site_web") ?? ""),
+        }),
+      }).catch(() => {});
+    } catch {
+      /* sem rede: o pedido segue na mesma por email/WhatsApp */
+    }
+
     if (via === "whatsapp" && site.whatsapp) {
       window.open(whatsappLink(texto), "_blank", "noopener,noreferrer");
     } else {
@@ -73,6 +95,13 @@ export default function PedidoForm({
 
   return (
     <form onSubmit={enviar} noValidate aria-describedby={`${id}-nota`}>
+      {/* Campo-armadilha para robôs: escondido das pessoas e dos leitores de ecrã. */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
+        <label>
+          Não preencher
+          <input name="site_web" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+        </label>
+      </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor={`${id}-casa`} className={rotulo}>
@@ -177,8 +206,8 @@ export default function PedidoForm({
 
       <p id={`${id}-nota`} className={`mt-4 text-sm ${escuro ? "text-nevoa/80" : "text-cinza"}`}>
         O pedido abre no seu {site.whatsapp ? "WhatsApp ou " : ""}email, já escrito, para
-        confirmar antes de enviar. Respondemos com a disponibilidade e o preço. Os seus dados
-        só servem para responder ao pedido (
+        confirmar antes de enviar. Respondemos com a disponibilidade e o preço. Guardamos o
+        pedido só para lhe responder (
         <Link href="/privacidade" className="underline underline-offset-2">
           política de privacidade
         </Link>

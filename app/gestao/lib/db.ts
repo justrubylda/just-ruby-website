@@ -1,0 +1,122 @@
+import "server-only";
+import postgres from "postgres";
+
+// Base de dados da gestão (Neon, ligada pela Vercel). O endereço vem da variável
+// DATABASE_URL, que a integração Neon da Vercel cria sozinha. Nada fica no código.
+
+type Sql = postgres.Sql<{ numeric: number; date: string }>;
+const g = globalThis as unknown as { __jrSql?: Sql; __jrTabelas?: Promise<void> };
+
+const urlBaseDados = () => process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
+
+export const temBaseDados = () => Boolean(urlBaseDados());
+
+export function sql(): Sql {
+  if (!g.__jrSql) {
+    const url = urlBaseDados();
+    if (!url) throw new Error("Falta ligar a base de dados (DATABASE_URL).");
+    g.__jrSql = postgres(url, {
+      prepare: false, // necessário com o "pooler" da Neon
+      max: Number(process.env.DB_MAX_CONEXOES) || 3,
+      idle_timeout: 20,
+      connect_timeout: 15,
+      onnotice: () => {},
+      types: {
+        // datas como texto "AAAA-MM-DD" (sem fusos horários) e números como números
+        date: { to: 1082, from: [1082], serialize: (x: string) => x, parse: (x: string) => x },
+        numeric: { to: 1700, from: [1700], serialize: (x: number) => String(x), parse: (x: string) => Number(x) },
+      },
+    }) as unknown as Sql;
+  }
+  return g.__jrSql;
+}
+
+const TABELAS = `
+create table if not exists reservas (
+  id serial primary key,
+  checkin date,
+  checkout date,
+  noites integer,
+  al text,
+  plataforma text,
+  hospede text,
+  nif text,
+  morada text,
+  cod_reserva text,
+  hospedes integer,
+  total numeric(12,2),
+  comissao numeric(12,2),
+  recebido numeric(12,2),
+  limpeza numeric(12,2),
+  taxa_iva numeric(6,4) not null default 0.06,
+  fatura text,
+  recibo text,
+  notas text,
+  origem text,
+  fonte text,
+  ical_uid text,
+  pedido_id integer,
+  cancelada boolean not null default false,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+create index if not exists reservas_checkin on reservas (checkin);
+create index if not exists reservas_cod on reservas (cod_reserva);
+create unique index if not exists reservas_ical on reservas (ical_uid) where ical_uid is not null;
+
+create table if not exists pedidos (
+  id serial primary key,
+  criado_em timestamptz not null default now(),
+  casa text,
+  chegada date,
+  partida date,
+  hospedes integer,
+  nome text,
+  mensagem text,
+  via text,
+  estado text not null default 'novo',
+  reserva_id integer
+);
+
+create table if not exists alojamentos (
+  nome text primary key,
+  ordem integer not null default 0,
+  antes_entrada text not null default '',
+  antes_saida text not null default '',
+  final text not null default ''
+);
+insert into alojamentos (nome, ordem, antes_entrada, antes_saida, final) values
+  ('Nosso Cantinho', 1, 'Prestação de serviços de alojamento mobilado, Check in a', ' e check out efectuado a', ''),
+  ('Kingdom of Stone', 2, 'Prestação de serviços de alojamento mobilado, AL 150817 - Kingdom of Stone - Check in a', ' e check out efectuado a', ''),
+  ('Torras', 3, 'Santarém - Cedência temporária de espaço - período de', ' a', '')
+on conflict (nome) do nothing;
+
+create table if not exists config (
+  chave text primary key,
+  valor text
+);
+`;
+
+/** Cria as tabelas na primeira utilização (não apaga nada se já existirem). */
+export function garantirTabelas() {
+  if (!g.__jrTabelas) {
+    g.__jrTabelas = sql()
+      .unsafe(TABELAS)
+      .then(() => undefined)
+      .catch((e) => {
+        g.__jrTabelas = undefined;
+        throw e;
+      });
+  }
+  return g.__jrTabelas;
+}
+
+export async function lerConfig(chave: string) {
+  const [l] = await sql()`select valor from config where chave = ${chave}`;
+  return (l?.valor as string | undefined) ?? null;
+}
+
+export async function gravarConfig(chave: string, valor: string) {
+  await sql()`insert into config (chave, valor) values (${chave}, ${valor})
+    on conflict (chave) do update set valor = excluded.valor`;
+}

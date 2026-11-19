@@ -19,7 +19,7 @@ const ATUALIZAR_SEGUNDOS = 3600;
 
 export const variavelIcal = (slug: string) => `ICAL_${slug.toUpperCase().replace(/-/g, "_")}`;
 
-function linksDe(slug: string): string[] {
+export function linksDe(slug: string): string[] {
   const valor = process.env[variavelIcal(slug)] ?? "";
   return valor
     .split(/[\s,]+/)

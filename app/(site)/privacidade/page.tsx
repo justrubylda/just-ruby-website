@@ -30,9 +30,10 @@ export default function PrivacidadePage() {
         <section>
           <h2 className="text-3xl">Que dados recebemos</h2>
           <p className="mt-4">
-            Este site não guarda dados. O formulário de pedido de disponibilidade apenas prepara
-            uma mensagem no seu email ou WhatsApp. Só recebemos o que decidir enviar-nos: em
-            regra, o nome, o contacto, as datas e o número de pessoas.
+            O formulário de pedido de disponibilidade prepara uma mensagem no seu email ou
+            WhatsApp e regista no nosso sistema de reservas o alojamento, as datas, o número de
+            pessoas e, se os escrever, o nome e a mensagem, para não perdermos nenhum pedido. Pelo
+            email ou WhatsApp só recebemos o que decidir enviar-nos.
           </p>
         </section>
 
