@@ -1,18 +1,18 @@
+import { calendario, type Lingua } from "../i18n";
 import { hojePT, somarDias, type Intervalo } from "../lib/disponibilidade";
 
 // Calendário de disponibilidade: mostra os próximos meses com as noites já reservadas.
 // Cada dia representa a noite que começa nesse dia (o dia de saída de um hóspede
 // fica livre para a chegada do seguinte).
 
-const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-const DIAS = ["S", "T", "Q", "Q", "S", "S", "D"];
-const DIAS_NOME = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"];
 
 function ocupado(iso: string, intervalos: Intervalo[]) {
   return intervalos.some((i) => iso >= i.inicio && iso < i.fim);
 }
 
-function Mes({ ano, mes, hoje, intervalos }: { ano: number; mes: number; hoje: string; intervalos: Intervalo[] }) {
+function Mes({ ano, mes, hoje, intervalos, l }: { ano: number; mes: number; hoje: string; intervalos: Intervalo[]; l: Lingua }) {
+  const t = calendario[l];
+  const MESES = t.meses;
   const primeiro = new Date(Date.UTC(ano, mes, 1));
   const diasNoMes = new Date(Date.UTC(ano, mes + 1, 0)).getUTCDate();
   const desvio = (primeiro.getUTCDay() + 6) % 7; // segunda-feira primeiro
@@ -27,8 +27,8 @@ function Mes({ ano, mes, hoje, intervalos }: { ano: number; mes: number; hoje: s
         {MESES[mes]} {ano}
       </h3>
       <div role="grid" aria-label={`${MESES[mes]} ${ano}`} className="mt-3 grid grid-cols-7 gap-1 text-center text-sm">
-        {DIAS.map((d, i) => (
-          <div key={i} role="columnheader" aria-label={DIAS_NOME[i]} className="pb-1 text-xs text-cinza">
+        {t.dias.map((d, i) => (
+          <div key={i} role="columnheader" aria-label={t.diasNome[i]} className="pb-1 text-xs text-cinza">
             {d}
           </div>
         ))}
@@ -41,7 +41,7 @@ function Mes({ ano, mes, hoje, intervalos }: { ano: number; mes: number; hoje: s
             <div
               key={iso}
               role="gridcell"
-              aria-label={`${dia} de ${MESES[mes]}: ${passado ? "já passou" : reservado ? "reservado" : "livre"}`}
+              aria-label={`${t.dia(dia, MESES[mes])}: ${passado ? t.passado : reservado ? t.reservado : t.livre}`}
               className={`flex aspect-square items-center justify-center rounded-sm ${
                 passado
                   ? "text-xisto/30"
@@ -59,7 +59,16 @@ function Mes({ ano, mes, hoje, intervalos }: { ano: number; mes: number; hoje: s
   );
 }
 
-export default function Calendario({ intervalos, meses = 4 }: { intervalos: Intervalo[]; meses?: number }) {
+export default function Calendario({
+  intervalos,
+  meses = 4,
+  l = "pt",
+}: {
+  intervalos: Intervalo[];
+  meses?: number;
+  l?: Lingua;
+}) {
+  const t = calendario[l];
   const hoje = hojePT();
   const [ano, mes] = hoje.split("-").map(Number);
   const lista = Array.from({ length: meses }, (_, i) => {
@@ -76,24 +85,24 @@ export default function Calendario({ intervalos, meses = 4 }: { intervalos: Inte
     <div>
       <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2">
         {lista.map((m) => (
-          <Mes key={`${m.ano}-${m.mes}`} {...m} hoje={hoje} intervalos={intervalos} />
+          <Mes key={`${m.ano}-${m.mes}`} {...m} hoje={hoje} intervalos={intervalos} l={l} />
         ))}
       </div>
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-cinza">
         <span className="flex items-center gap-2">
-          <span aria-hidden="true" className="h-4 w-4 rounded-sm bg-white ring-1 ring-inset ring-ouro/40" /> Livre
+          <span aria-hidden="true" className="h-4 w-4 rounded-sm bg-white ring-1 ring-inset ring-ouro/40" /> {t.Livre}
         </span>
         <span className="flex items-center gap-2">
-          <span aria-hidden="true" className="h-4 w-4 rounded-sm bg-rocha" /> Reservado
+          <span aria-hidden="true" className="h-4 w-4 rounded-sm bg-rocha" /> {t.Reservado}
         </span>
         {proximaLivre !== hoje && (
           <span>
-            Próxima noite livre: {Number(proximaLivre.slice(8))} de {MESES[Number(proximaLivre.slice(5, 7)) - 1]}
+            {t.proxima} {t.dia(Number(proximaLivre.slice(8)), t.meses[Number(proximaLivre.slice(5, 7)) - 1])}
           </span>
         )}
       </div>
       <p className="mt-3 text-sm text-cinza">
-        Sincronizado com o Airbnb e o Booking, de hora a hora. A confirmação final é sempre nossa.
+        {t.nota}
       </p>
     </div>
   );

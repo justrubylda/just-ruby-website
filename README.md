@@ -9,11 +9,31 @@ Quase tudo está num único ficheiro: **`app/site.ts`**. No GitHub, abra o fiche
 
 - **WhatsApp e telefone**: só algarismos, com indicativo. Ex.: `whatsapp: "351912345678"`. Enquanto estiver vazio, os botões de WhatsApp não aparecem.
 - **Airbnb e Booking**: cole o link do anúncio em `airbnb` e `booking` de cada casa. Aparece a opção "Também pode reservar no Airbnb ou no Booking.com".
-- **Registo de Alojamento Local**: preencha `rnal` de cada casa. O número aparece na página da casa e no rodapé.
+- **Registo de Alojamento Local**: preencha `rnal` de cada casa. O número aparece na página da casa e no rodapé (é obrigatório na publicidade do AL).
 - **Capacidade**: ex.: `capacidade: "Até 8 hóspedes"`.
-- **Textos**: `frase`, `descricao`, `destaques` e `perto` de cada casa.
+- **Textos**: `frase`, `descricao`, `destaques`, `comodidades` e `perto` de cada casa. A versão inglesa de cada texto está no bloco `en` da mesma casa.
+- **Nota dos hóspedes**: `avaliacao` (ex.: 9,2 no Booking.com). Atualize quando a nota mudar; `null` esconde-a.
 
 Campos vazios (`""`) ficam escondidos no site.
+
+## Versão em inglês
+
+O site tem as mesmas páginas em inglês, em `/en` (ex.: `https://www.justruby.pt/en/accommodation/o-nosso-cantinho`).
+O botão **EN / PT** no cabeçalho troca de língua na mesma página, e o Google recebe a indicação de que as duas versões são a mesma página (hreflang).
+
+- Textos das casas: bloco `en` de cada casa em `app/site.ts`; fotos: campo `en` de cada foto.
+- Textos das páginas: no topo de cada ficheiro em `app/components/paginas/` (parte `pt` e parte `en`).
+- Menu, rodapé, formulário e calendário: `app/i18n.ts`.
+- Página "O que fazer na zona" (`/zona` e `/en/area`): `app/zona.ts`.
+
+## Google Search Console e Bing
+
+Para o site aparecer no Google mais depressa:
+
+1. Em [search.google.com/search-console](https://search.google.com/search-console), adicione a propriedade **Prefixo do URL** `https://www.justruby.pt` e escolha a verificação por **etiqueta HTML**. Copie só o código que está em `content="..."`.
+2. Na Vercel, em Settings → Environment Variables, crie `GOOGLE_SITE_VERIFICATION` com esse código e volte a publicar (Deployments → Redeploy).
+3. No Search Console, carregue em **Verificar** e depois, em **Sitemaps**, envie `sitemap.xml`.
+4. No [Bing Webmaster Tools](https://www.bing.com/webmasters) pode importar o site diretamente do Google Search Console. Se preferir a etiqueta, use a variável `BING_SITE_VERIFICATION`.
 
 ## Pôr fotografias
 

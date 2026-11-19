@@ -6,12 +6,12 @@ import WhatsAppButton from "@/app/components/WhatsAppButton";
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header />
+      <Header l="pt" />
       <main id="conteudo" className="flex-1">
         {children}
       </main>
-      <Footer />
-      <WhatsAppButton />
+      <Footer l="pt" />
+      <WhatsAppButton l="pt" />
     </>
   );
 }

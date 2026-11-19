@@ -26,7 +26,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_PT",
+    alternateLocale: ["en_GB"],
     siteName: site.nome,
+  },
+  // Códigos de verificação do Google Search Console e do Bing Webmaster Tools.
+  // Ficam na Vercel (Settings → Environment Variables) e só aparecem quando preenchidos.
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
+    ...(process.env.BING_SITE_VERIFICATION
+      ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } }
+      : {}),
   },
 };
 
@@ -34,20 +43,38 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
+// Dados para o Google: a empresa e o site (nas duas línguas).
+const redes = [site.instagram, site.facebook].filter(Boolean);
 const organizacao = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: site.nome,
-  legalName: site.empresa,
-  url: site.url,
-  email: site.email,
-  taxID: site.nif,
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Várzea",
-    addressRegion: "Santarém",
-    addressCountry: "PT",
-  },
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${site.url}/#organizacao`,
+      name: site.nome,
+      legalName: site.empresa,
+      url: site.url,
+      logo: `${site.url}/logo-just-ruby.png`,
+      email: site.email,
+      ...(site.telefone ? { telephone: `+${site.telefone}` } : {}),
+      taxID: site.nif,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Várzea",
+        addressRegion: "Santarém",
+        addressCountry: "PT",
+      },
+      ...(redes.length ? { sameAs: redes } : {}),
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#site`,
+      name: site.nome,
+      url: site.url,
+      inLanguage: ["pt-PT", "en"],
+      publisher: { "@id": `${site.url}/#organizacao` },
+    },
+  ],
 };
 
 export default function RootLayout({

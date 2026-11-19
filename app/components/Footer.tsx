@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { casas, menu, site } from "../site";
+import { menu as menuDe, rota, ui, type Lingua } from "../i18n";
+import { casas, site } from "../site";
 
-export default function Footer() {
+export default function Footer({ l = "pt" }: { l?: Lingua }) {
   const registos = casas.filter((c) => c.rnal);
+  const t = ui[l];
+  const menu = [...menuDe(l), { href: rota(l, "zona"), label: t.zona }];
 
   return (
     <footer className="bg-preto text-nevoa">
@@ -11,12 +14,12 @@ export default function Footer() {
         <div>
           <Image src="/logo-just-ruby.png" alt={site.nome} width={748} height={294} className="h-16 w-auto" />
           <p className="mt-4 max-w-sm">
-            Turismo rural em Tomar e Santarém. Recebemos cada hóspede pessoalmente.
+            {t.rodapeFrase}
           </p>
         </div>
 
-        <nav aria-label="Rodapé">
-          <h2 className="font-sans text-sm font-semibold text-white">Páginas</h2>
+        <nav aria-label={t.paginas}>
+          <h2 className="font-sans text-sm font-semibold text-white">{t.paginas}</h2>
           <ul className="mt-4 space-y-2">
             {menu.map((item) => (
               <li key={item.href}>
@@ -29,7 +32,7 @@ export default function Footer() {
         </nav>
 
         <div>
-          <h2 className="font-sans text-sm font-semibold text-white">Contactos</h2>
+          <h2 className="font-sans text-sm font-semibold text-white">{t.contactos}</h2>
           <ul className="mt-4 space-y-2">
             <li>
               <a href={`mailto:${site.email}`} className="break-all hover:text-ouro-claro">
@@ -65,23 +68,23 @@ export default function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-sm text-nevoa/80 md:flex-row md:items-start md:justify-between md:px-8">
           <div className="space-y-1">
             <p>
-              {site.empresa}, NIF {site.nif}, sede em {site.sede}.
+              {site.empresa}, NIF {site.nif}, {t.sede} {site.sede}.
             </p>
             {registos.map((c) => (
               <p key={c.slug}>
-                {c.nome}: registo de Alojamento Local n.º {c.rnal}
+                {c.nome}: {t.registoAL} {c.rnal}
               </p>
             ))}
           </div>
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
             <li>
               <a href={site.livroReclamacoes} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-ouro-claro hover:underline">
-                Livro de Reclamações
+                {t.livro}
               </a>
             </li>
             <li>
-              <Link href="/privacidade" className="underline-offset-4 hover:text-ouro-claro hover:underline">
-                Política de privacidade
+              <Link href={rota(l, "privacidade")} className="underline-offset-4 hover:text-ouro-claro hover:underline">
+                {t.privacidade}
               </Link>
             </li>
           </ul>

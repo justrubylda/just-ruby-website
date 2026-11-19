@@ -1,8 +1,9 @@
+import { ui, type Lingua } from "../i18n";
 import { whatsappLink } from "../site";
 
 // Botão flutuante. Só aparece quando o número de WhatsApp está preenchido em app/site.ts
-export default function WhatsAppButton() {
-  const link = whatsappLink();
+export default function WhatsAppButton({ l = "pt" }: { l?: Lingua }) {
+  const link = whatsappLink(ui[l].whatsappTexto);
   if (!link) return null;
 
   return (
@@ -10,7 +11,7 @@ export default function WhatsAppButton() {
       href={link}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Falar connosco por WhatsApp"
+      aria-label={ui[l].whatsappAria}
       className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg"
     >
       <svg viewBox="0 0 32 32" width="30" height="30" fill="currentColor" aria-hidden="true">

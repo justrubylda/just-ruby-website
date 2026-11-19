@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useId, useState } from "react";
 import type { Ocupacao } from "../lib/disponibilidade";
-import { casas, emailLink, site, whatsappLink } from "../site";
+import { formulario, rota, type Lingua } from "../i18n";
+import { casasEm, emailLink, site, whatsappLink } from "../site";
 
 // Formulário de pedido de disponibilidade.
 // Prepara a mensagem e abre o WhatsApp ou o email do hóspede. Uma cópia do pedido
@@ -12,12 +13,16 @@ export default function PedidoForm({
   casaInicial = "",
   tema = "escuro",
   ocupado = {},
+  l = "pt",
 }: {
   casaInicial?: string;
   tema?: "escuro" | "claro";
   ocupado?: Ocupacao; // noites reservadas no Airbnb/Booking, por casa
+  l?: Lingua;
 }) {
   const id = useId();
+  const t = formulario[l];
+  const casas = casasEm(l);
   const [erro, setErro] = useState("");
   const escuro = tema === "escuro";
 
@@ -44,24 +49,24 @@ export default function PedidoForm({
 
     const d = new Date();
     const hoje = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    if (!casa) return setErro("Escolha o alojamento.");
-    if (!chegada || !partida) return setErro("Indique as datas de chegada e de partida.");
-    if (chegada < hoje) return setErro("A data de chegada já passou. Escolha uma data a partir de hoje.");
-    if (partida <= chegada) return setErro("A data de partida tem de ser depois da data de chegada.");
+    if (!casa) return setErro(t.erroCasa);
+    if (!chegada || !partida) return setErro(t.erroDatas);
+    if (chegada < hoje) return setErro(t.erroPassado);
+    if (partida <= chegada) return setErro(t.erroOrdem);
     const reservado = (ocupado[casa.slug] ?? []).some((i) => chegada < i.fim && partida > i.inicio);
     if (reservado)
-      return setErro("Essas datas já estão ocupadas. Veja o calendário de disponibilidade ou escolha outras datas.");
-    if (!hospedes || Number(hospedes) < 1) return setErro("Indique quantas pessoas vêm.");
+      return setErro(t.erroOcupado);
+    if (!hospedes || Number(hospedes) < 1) return setErro(t.erroPessoas);
     setErro("");
 
     const linhas = [
-      `Olá! Gostaria de saber a disponibilidade ${casa.doNome}.`,
+      t.ola(casa.doNome),
       "",
-      `Chegada: ${dataPT(chegada)}`,
-      `Partida: ${dataPT(partida)}`,
-      `Hóspedes: ${hospedes}`,
+      `${t.lChegada}: ${dataPT(chegada)}`,
+      `${t.lPartida}: ${dataPT(partida)}`,
+      `${t.lHospedes}: ${hospedes}`,
     ];
-    if (nome) linhas.push(`Nome: ${nome}`);
+    if (nome) linhas.push(`${t.lNome}: ${nome}`);
     if (mensagem) linhas.push("", mensagem);
     const texto = linhas.join("\n");
 
@@ -89,7 +94,7 @@ export default function PedidoForm({
     if (via === "whatsapp" && site.whatsapp) {
       window.open(whatsappLink(texto), "_blank", "noopener,noreferrer");
     } else {
-      window.location.href = emailLink(`Disponibilidade ${casa.nome}`, texto);
+      window.location.assign(emailLink(t.assunto(casa.nome), texto));
     }
   }
 
@@ -98,18 +103,18 @@ export default function PedidoForm({
       {/* Campo-armadilha para robôs: escondido das pessoas e dos leitores de ecrã. */}
       <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
         <label>
-          Não preencher
+          {t.naoPreencher}
           <input name="site_web" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
         </label>
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor={`${id}-casa`} className={rotulo}>
-            Alojamento
+            {t.alojamento}
           </label>
           <select id={`${id}-casa`} name="casa" defaultValue={casaInicial} className={campo} required>
             <option value="" disabled>
-              Escolha um alojamento
+              {t.escolha}
             </option>
             {casas.map((c) => (
               <option key={c.slug} value={c.slug}>
@@ -121,21 +126,21 @@ export default function PedidoForm({
 
         <div>
           <label htmlFor={`${id}-chegada`} className={rotulo}>
-            Chegada
+            {t.chegada}
           </label>
           <input id={`${id}-chegada`} name="chegada" type="date" className={campo} required />
         </div>
 
         <div>
           <label htmlFor={`${id}-partida`} className={rotulo}>
-            Partida
+            {t.partida}
           </label>
           <input id={`${id}-partida`} name="partida" type="date" className={campo} required />
         </div>
 
         <div>
           <label htmlFor={`${id}-hospedes`} className={rotulo}>
-            Número de pessoas
+            {t.pessoas}
           </label>
           <input
             id={`${id}-hospedes`}
@@ -152,20 +157,20 @@ export default function PedidoForm({
 
         <div>
           <label htmlFor={`${id}-nome`} className={rotulo}>
-            O seu nome <span className="font-normal opacity-70">(opcional)</span>
+            {t.nome} <span className="font-normal opacity-70">{t.opcional}</span>
           </label>
           <input id={`${id}-nome`} name="nome" type="text" autoComplete="name" className={campo} />
         </div>
 
         <div className="sm:col-span-2">
           <label htmlFor={`${id}-mensagem`} className={rotulo}>
-            Mensagem <span className="font-normal opacity-70">(opcional)</span>
+            {t.mensagem} <span className="font-normal opacity-70">{t.opcional}</span>
           </label>
           <textarea
             id={`${id}-mensagem`}
             name="mensagem"
             rows={3}
-            placeholder="Por exemplo: vamos com crianças, ou chegamos tarde."
+            placeholder={t.exemplo}
             className={campo}
           />
         </div>
@@ -184,7 +189,7 @@ export default function PedidoForm({
             value="whatsapp"
             className="rounded-sm bg-ouro px-6 py-3.5 font-semibold text-preto transition-colors hover:bg-ouro-claro"
           >
-            Enviar pedido por WhatsApp
+            {t.porWhatsapp}
           </button>
         )}
         <button
@@ -200,18 +205,16 @@ export default function PedidoForm({
               : "rounded-sm bg-ouro px-6 py-3.5 font-semibold text-preto transition-colors hover:bg-ouro-claro"
           }
         >
-          Enviar pedido por email
+          {t.porEmail}
         </button>
       </div>
 
       <p id={`${id}-nota`} className={`mt-4 text-sm ${escuro ? "text-nevoa/80" : "text-cinza"}`}>
-        O pedido abre no seu {site.whatsapp ? "WhatsApp ou " : ""}email, já escrito, para
-        confirmar antes de enviar. Respondemos com a disponibilidade e o preço. Guardamos o
-        pedido só para lhe responder (
-        <Link href="/privacidade" className="underline underline-offset-2">
-          política de privacidade
+        {t.notaAntes(Boolean(site.whatsapp))}
+        <Link href={rota(l, "privacidade")} className="underline underline-offset-2">
+          {t.notaLink}
         </Link>
-        ).
+        {t.notaDepois}
       </p>
     </form>
   );

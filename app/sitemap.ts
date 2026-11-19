@@ -1,19 +1,50 @@
 import type { MetadataRoute } from "next";
-import { casas, menu, site } from "./site";
+import { linguas, paginas, rota, rotaCasa, type Lingua, type Pagina } from "./i18n";
+import { casas, site } from "./site";
+
+// Mapa do site para o Google: cada página em português e em inglês,
+// com a indicação de qual é a versão na outra língua.
+const abs = (caminho: string) => `${site.url}${caminho === "/" ? "" : caminho}`;
+
+const PRIORIDADE: Record<Pagina, number> = {
+  inicio: 1,
+  alojamentos: 0.9,
+  zona: 0.7,
+  sobre: 0.6,
+  galeria: 0.6,
+  contactos: 0.6,
+  privacidade: 0.2,
+};
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paginas = menu.map((item) => ({
-    url: `${site.url}${item.href === "/" ? "" : item.href}`,
-    changeFrequency: "monthly" as const,
-    priority: item.href === "/" ? 1 : item.href === "/alojamentos" ? 0.9 : 0.6,
-  }));
+  const versoes = (caminho: (l: Lingua) => string) => ({
+    languages: { "pt-PT": abs(caminho("pt")), en: abs(caminho("en")) },
+  });
 
-  const alojamentos = casas.map((c) => ({
-    url: `${site.url}/alojamentos/${c.slug}`,
-    changeFrequency: "monthly" as const,
-    priority: 0.9,
-    ...(c.fotos.length ? { images: c.fotos.map((f) => `${site.url}${f.src}`) } : {}),
-  }));
+  const lista: MetadataRoute.Sitemap = [];
 
-  return [...paginas, ...alojamentos, { url: `${site.url}/privacidade`, priority: 0.2 }];
+  for (const p of paginas) {
+    for (const l of linguas) {
+      lista.push({
+        url: abs(rota(l, p)),
+        changeFrequency: p === "privacidade" ? "yearly" : "monthly",
+        priority: PRIORIDADE[p],
+        alternates: versoes((x) => rota(x, p)),
+      });
+    }
+  }
+
+  for (const c of casas) {
+    for (const l of linguas) {
+      lista.push({
+        url: abs(rotaCasa(l, c.slug)),
+        changeFrequency: "monthly",
+        priority: 0.9,
+        alternates: versoes((x) => rotaCasa(x, c.slug)),
+        ...(c.fotos.length ? { images: c.fotos.map((f) => `${site.url}${f.src}`) } : {}),
+      });
+    }
+  }
+
+  return lista;
 }

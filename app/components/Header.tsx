@@ -4,14 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { menu, site } from "../site";
+import { codigo, menu as menuDe, noutraLingua, rota, ui, type Lingua } from "../i18n";
+import { site } from "../site";
 
-export default function Header() {
+export default function Header({ l = "pt" }: { l?: Lingua }) {
   const pathname = usePathname();
   const [aberto, setAberto] = useState(false);
+  const t = ui[l];
+  const menu = menuDe(l);
+  const inicio = rota(l, "inicio");
+  const outra: Lingua = l === "pt" ? "en" : "pt";
+  const pedido = `${rota(l, "contactos")}#pedido`;
 
   const ativo = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    href === inicio ? pathname === inicio : pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     if (!aberto) return;
@@ -26,14 +32,14 @@ export default function Header() {
         href="#conteudo"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-ouro focus:px-4 focus:py-2 focus:text-preto"
       >
-        Saltar para o conteúdo
+        {t.saltar}
       </a>
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3 md:px-8">
-        <Link href="/" className="block shrink-0" onClick={() => setAberto(false)}>
+        <Link href={inicio} className="block shrink-0" onClick={() => setAberto(false)}>
           <Image
             src="/logo-just-ruby.png"
-            alt={`${site.nome}, página inicial`}
+            alt={`${site.nome}, ${t.paginaInicial}`}
             width={748}
             height={294}
             loading="eager"
@@ -41,7 +47,7 @@ export default function Header() {
           />
         </Link>
 
-        <nav aria-label="Menu principal" className="hidden lg:block">
+        <nav aria-label={t.menuPrincipal} className="hidden lg:block">
           <ul className="flex items-center gap-8 text-[0.95rem]">
             {menu.map((item) => (
               <li key={item.href}>
@@ -63,16 +69,26 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/contactos#pedido"
+            href={noutraLingua(pathname)}
+            hrefLang={codigo[outra]}
+            lang={codigo[outra]}
+            aria-label={t.outraLinguaNome}
+            title={t.outraLinguaNome}
+            className="rounded-sm border border-white/25 px-2.5 py-2 text-sm font-semibold text-white/85 transition-colors hover:border-ouro hover:text-ouro-claro"
+          >
+            {t.outraLingua}
+          </Link>
+          <Link
+            href={pedido}
             className="hidden rounded-sm bg-ouro px-4 py-2.5 text-sm font-semibold text-preto transition-colors hover:bg-ouro-claro sm:inline-block"
           >
-            Pedir disponibilidade
+            {t.pedir}
           </Link>
 
           <button
             type="button"
             className="rounded-sm p-2 text-ouro-claro lg:hidden"
-            aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+            aria-label={aberto ? t.fecharMenu : t.abrirMenu}
             aria-expanded={aberto}
             aria-controls="menu-movel"
             onClick={() => setAberto((v) => !v)}
@@ -85,7 +101,7 @@ export default function Header() {
       </div>
 
       {aberto && (
-        <nav id="menu-movel" aria-label="Menu principal" className="border-t border-white/10 lg:hidden">
+        <nav id="menu-movel" aria-label={t.menuPrincipal} className="border-t border-white/10 lg:hidden">
           <ul className="mx-auto flex max-w-7xl flex-col px-5 py-3 md:px-8">
             {menu.map((item) => (
               <li key={item.href}>
@@ -103,11 +119,11 @@ export default function Header() {
             ))}
             <li className="pb-3 pt-4 sm:hidden">
               <Link
-                href="/contactos#pedido"
+                href={pedido}
                 onClick={() => setAberto(false)}
                 className="block rounded-sm bg-ouro px-4 py-3 text-center font-semibold text-preto"
               >
-                Pedir disponibilidade
+                {t.pedir}
               </Link>
             </li>
           </ul>
