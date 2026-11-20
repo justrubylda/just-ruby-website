@@ -1,7 +1,8 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import type { Lingua } from "../../guias";
+import { paisesEm } from "../../paises";
 import Copiar from "./Copiar";
 import { useLingua } from "./Lingua";
 
@@ -53,8 +54,6 @@ const DOCS: { v: string; t: Txt }[] = [
   { v: "Outro", t: t("Outro", "Other", "Otro", "Autre") },
 ];
 
-const PAISES = ["Portugal", "Espanha / Spain", "França / France", "Reino Unido / United Kingdom", "Alemanha / Germany", "Itália / Italy", "Países Baixos / Netherlands", "Bélgica / Belgium", "Suíça / Switzerland", "Irlanda / Ireland", "Polónia / Poland", "Estados Unidos / United States", "Canadá / Canada", "Brasil / Brazil", "Angola", "Cabo Verde", "Moçambique"];
-
 const dataPT = (iso: string) => iso.split("-").reverse().join("/");
 
 export default function CheckinOnline({
@@ -68,6 +67,8 @@ export default function CheckinOnline({
 }) {
   const { lingua: L } = useLingua();
   const id = useId();
+  // Todos os países, escritos na língua que o hóspede escolheu.
+  const paises = useMemo(() => paisesEm(L), [L]);
   const [n, setN] = useState(2);
   const [erro, setErro] = useState("");
   const [texto, setTexto] = useState("");
@@ -134,7 +135,7 @@ export default function CheckinOnline({
     <div>
       <form onSubmit={enviar} onInput={limparInvalido} onChange={limparInvalido} noValidate className="grid gap-6">
         <datalist id={`${id}-paises`}>
-          {PAISES.map((p) => (
+          {paises.map((p) => (
             <option key={p} value={p} />
           ))}
         </datalist>
