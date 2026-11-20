@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import CheckinOnline from "@/app/components/guia/CheckinOnline";
 import CodigoCofre from "@/app/components/guia/CodigoCofre";
 import ComCodigo from "@/app/components/guia/ComCodigo";
 import Copiar from "@/app/components/guia/Copiar";
@@ -171,7 +170,6 @@ export default async function GuiaPage({
 
   const secoes = [
     { id: "chegada", t: S.chegada },
-    { id: "checkin", t: S.checkin },
     { id: "entrar", t: S.entrar },
     ...(wifi ? [{ id: "wifi", t: l("Wi-Fi", "Wi-Fi", "Wi-Fi", "Wi-Fi") }] : []),
     { id: "casa", t: S.casa },
@@ -307,21 +305,6 @@ export default async function GuiaPage({
                 <T t={guia.mapaNota} />
               </p>
             </ComCodigo>
-          </section>
-
-          {/* Check-in online */}
-          <section id="checkin" aria-labelledby="t-checkin">
-            <H2 id="checkin" t={S.checkin} />
-            <p className="mt-4 text-cinza">
-              <T t={S.checkinTexto} />
-            </p>
-            <div className="mt-8">
-              <CheckinOnline
-                casa={casa.nome}
-                telefone={anfitrioes.telefone}
-                maxHospedes={guia.hospedesMax}
-              />
-            </div>
           </section>
 
           {/* Como entrar */}

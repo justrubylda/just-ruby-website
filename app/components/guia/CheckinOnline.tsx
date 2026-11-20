@@ -6,6 +6,10 @@ import { paisesEm } from "../../paises";
 import Copiar from "./Copiar";
 import { useLingua } from "./Lingua";
 
+// NÃO ESTÁ EM USO (20/11/2026): o guia deixou de pedir os dados dos hóspedes.
+// O componente fica aqui para poder voltar sem ser refeito — basta importá-lo
+// outra vez em app/(hospedes)/guia/[slug]/page.tsx.
+//
 // Check-in online: o hóspede preenche os dados de cada pessoa (obrigatórios por lei
 // para o registo de hóspedes) e o formulário prepara uma mensagem para o anfitrião.
 // A página não guarda nada: os dados só seguem na mensagem que o hóspede enviar.
