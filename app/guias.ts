@@ -370,12 +370,6 @@ export const guias: Guia[] = [
     checkIn: checkIn17,
     checkInNota: salvoCombinado,
     checkOut: { pt: "até às 11h00", en: "by 11:00 am", es: "hasta las 11:00", fr: "avant 11h00" },
-    avisoChegada: {
-      pt: "É pedida uma caução de 300 € em numerário à chegada, devolvida na saída depois de vermos a casa.",
-      en: "A €300 cash deposit is required on arrival and returned at check-out after we check the house.",
-      es: "Se pide una fianza de 300 € en efectivo a la llegada, que se devuelve a la salida tras revisar la casa.",
-      fr: "Une caution de 300 € en espèces est demandée à l’arrivée et rendue au départ après vérification de la maison.",
-    },
     mapa: "https://goo.gl/maps/2QRChiywW912",
     mapaNota: {
       pt: "Para evitar enganos no caminho, siga sempre pela localização exata.",
