@@ -48,6 +48,84 @@ export const anfitrioes = {
   telefoneVisivel: "+351 961 736 593",
 };
 
+// Regras d'O Nosso Cantinho (dadas pelo Bruno, 20/11/2026).
+// O Kingdom of Stone continua com regrasBase: a videovigilância, a máquina de
+// café e o churrasco são desta casa, não se podem afirmar da outra.
+const regrasCantinho: L[] = [
+  {
+    pt: "Não é permitido fumar no interior da habitação.",
+    en: "Smoking is not permitted inside the house.",
+    es: "No está permitido fumar en el interior de la vivienda.",
+    fr: "Il est interdit de fumer à l’intérieur du logement.",
+  },
+  {
+    pt: "Não é permitido carregar veículos elétricos ou híbridos plug-in em qualquer tomada ou na instalação elétrica da propriedade. O incumprimento pode levar ao cancelamento imediato da estadia sem direito a reembolso, à cobrança dos consumos e à comunicação da ocorrência à plataforma de reservas.",
+    en: "Charging electric or plug-in hybrid vehicles from any socket or from the property’s electrical installation is not permitted. Breaking this rule may lead to immediate cancellation of the stay with no refund, to the electricity used being charged, and to the incident being reported to the booking platform.",
+    es: "No está permitido cargar vehículos eléctricos o híbridos enchufables en ninguna toma ni en la instalación eléctrica de la propiedad. El incumplimiento puede suponer la cancelación inmediata de la estancia sin derecho a reembolso, el cobro del consumo y la comunicación del hecho a la plataforma de reservas.",
+    fr: "Il est interdit de recharger un véhicule électrique ou hybride rechargeable sur une prise ou sur l’installation électrique de la propriété. Le non-respect de cette règle peut entraîner l’annulation immédiate du séjour sans remboursement, la facturation de la consommation et le signalement du fait à la plateforme de réservation.",
+  },
+  {
+    pt: "A propriedade tem videovigilância apenas nas áreas exteriores, para segurança de pessoas e bens. A zona da piscina não é abrangida, para garantir total privacidade.",
+    en: "The property has video surveillance in the outdoor areas only, for the safety of people and property. The pool area is not covered, so your privacy there is complete.",
+    es: "La propiedad cuenta con videovigilancia solo en las zonas exteriores, para la seguridad de personas y bienes. La zona de la piscina no está cubierta, para garantizar total privacidad.",
+    fr: "La propriété est équipée d’une vidéosurveillance uniquement dans les espaces extérieurs, pour la sécurité des personnes et des biens. L’espace piscine n’est pas couvert, afin de garantir une intimité totale.",
+  },
+  {
+    pt: "Deve ser respeitado o período de descanso entre as 23h00 e as 07h00, evitando ruídos que possam incomodar a vizinhança, nos termos da legislação em vigor.",
+    en: "Please respect quiet hours between 11 pm and 7 am, avoiding noise that could disturb the neighbours, as required by law.",
+    es: "Debe respetarse el período de descanso entre las 23:00 y las 07:00, evitando ruidos que puedan molestar al vecindario, conforme a la legislación vigente.",
+    fr: "Merci de respecter la période de repos entre 23h00 et 7h00, en évitant les bruits susceptibles de déranger le voisinage, conformément à la législation en vigueur.",
+  },
+  {
+    pt: "Só os hóspedes registados podem pernoitar.",
+    en: "Only registered guests may stay overnight.",
+    es: "Solo los huéspedes registrados pueden pernoctar.",
+    fr: "Seuls les voyageurs enregistrés peuvent passer la nuit.",
+  },
+  {
+    pt: "Festas ou eventos só com autorização prévia.",
+    en: "Parties or events only with prior approval.",
+    es: "Fiestas o eventos solo con autorización previa.",
+    fr: "Fêtes ou événements uniquement avec accord préalable.",
+  },
+  {
+    pt: "Piscina: crianças sempre acompanhadas por um adulto e nada de copos de vidro à volta da piscina.",
+    en: "Pool: children must always be supervised by an adult, and no glass around the pool.",
+    es: "Piscina: los niños siempre acompañados por un adulto y nada de vasos de cristal alrededor de la piscina.",
+    fr: "Piscine : enfants toujours accompagnés d’un adulte, et pas de verre autour de la piscine.",
+  },
+  {
+    pt: "Animais de estimação só com autorização prévia. Pedimos que evitem o acesso às camas, sofás, restantes têxteis e aos quartos.",
+    en: "Pets only with prior approval. Please keep them off the beds, sofas and other fabrics, and out of the bedrooms.",
+    es: "Mascotas solo con autorización previa. Les pedimos que eviten el acceso a las camas, sofás, demás textiles y a los dormitorios.",
+    fr: "Animaux uniquement avec accord préalable. Merci de leur éviter l’accès aux lits, aux canapés, aux autres textiles et aux chambres.",
+  },
+  {
+    pt: "Não é permitido colocar no exterior mobiliário, colchões, almofadas, roupa de cama, toalhas ou qualquer outro equipamento da casa.",
+    en: "Furniture, mattresses, pillows, bed linen, towels and any other household items must not be taken outside.",
+    es: "No está permitido colocar en el exterior mobiliario, colchones, almohadas, ropa de cama, toallas ni ningún otro equipamiento de la casa.",
+    fr: "Il est interdit de sortir le mobilier, les matelas, les oreillers, le linge de lit, les serviettes ou tout autre équipement de la maison.",
+  },
+  {
+    pt: "Para o vosso conforto, agradecemos que mantenham portas e janelas fechadas sempre que possível, para reduzir a entrada de insetos.",
+    en: "For your own comfort, please keep doors and windows closed whenever possible, to keep insects out.",
+    es: "Para su comodidad, les agradecemos que mantengan puertas y ventanas cerradas siempre que sea posible, para reducir la entrada de insectos.",
+    fr: "Pour votre confort, merci de garder portes et fenêtres fermées autant que possible, afin de limiter l’entrée des insectes.",
+  },
+  {
+    pt: "A zona de churrasco não inclui carvão.",
+    en: "Charcoal for the barbecue is not provided.",
+    es: "La zona de barbacoa no incluye carbón.",
+    fr: "Le charbon pour le barbecue n’est pas fourni.",
+  },
+  {
+    pt: "A máquina de café é compatível apenas com cápsulas Nespresso®.",
+    en: "The coffee machine takes Nespresso® capsules only.",
+    es: "La cafetera es compatible únicamente con cápsulas Nespresso®.",
+    fr: "La machine à café ne fonctionne qu’avec des capsules Nespresso®.",
+  },
+];
+
 const regrasBase: L[] = [
   {
     pt: "Não é permitido fumar dentro de casa.",
@@ -368,7 +446,7 @@ export const guias: Guia[] = [
       { pt: "Estacionamento privado gratuito", en: "Free private parking", es: "Aparcamiento privado gratuito", fr: "Parking privé gratuit" },
       { pt: "Berço gratuito mediante pedido (0 a 3 anos)", en: "Free cot on request (ages 0–3)", es: "Cuna gratuita bajo petición (0 a 3 años)", fr: "Lit bébé gratuit sur demande (0 à 3 ans)" },
     ],
-    regras: regrasBase,
+    regras: regrasCantinho,
     saida: saidaBase,
     perto: [
       {
