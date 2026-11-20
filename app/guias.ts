@@ -119,10 +119,10 @@ const regrasCantinho: L[] = [
     fr: "Le charbon pour le barbecue n’est pas fourni.",
   },
   {
-    pt: "A máquina de café é compatível apenas com cápsulas Nespresso®.",
-    en: "The coffee machine takes Nespresso® capsules only.",
-    es: "La cafetera es compatible únicamente con cápsulas Nespresso®.",
-    fr: "La machine à café ne fonctionne qu’avec des capsules Nespresso®.",
+    pt: "A máquina de café é Dolce Gusto®: usa só cápsulas desse sistema. Encontra-as em qualquer supermercado, incluindo as de marca Pingo Doce.",
+    en: "The coffee machine is a Dolce Gusto®: it takes only that system’s capsules. They are sold in any supermarket, including the Pingo Doce own-brand ones.",
+    es: "La cafetera es Dolce Gusto®: solo admite cápsulas de ese sistema. Se encuentran en cualquier supermercado, incluidas las de marca Pingo Doce.",
+    fr: "La machine à café est une Dolce Gusto® : elle n’accepte que les capsules de ce système. On les trouve dans tous les supermarchés, y compris celles de la marque Pingo Doce.",
   },
 ];
 
