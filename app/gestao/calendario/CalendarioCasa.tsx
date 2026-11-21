@@ -1,6 +1,5 @@
-import { passarParaSiteAcao } from "../acoes";
 import { dataPT, diasEntre } from "../lib/calculos";
-import type { Origem, Periodo } from "../lib/calendario";
+import { bloqueiosPorPassar, type Origem, type Periodo } from "../lib/calendario";
 
 // Calendário de uma casa na gestão: tudo o que está ocupado, venha de onde vier
 // (site, Airbnb, Booking), com a origem de cada noite.
@@ -69,15 +68,12 @@ function Mes({ ano, mes, hoje, periodos }: { ano: number; mes: number; hoje: str
   );
 }
 
-const cobre = (a: { inicio: string; fim: string }, b: { inicio: string; fim: string }) => a.inicio <= b.inicio && a.fim >= b.fim;
 
 export default function CalendarioCasa({
-  al,
   hoje,
   periodos,
   erros,
 }: {
-  al: string;
   hoje: string;
   periodos: Periodo[];
   erros: string[];
@@ -89,17 +85,9 @@ export default function CalendarioCasa({
     meses.push({ ano: d.getUTCFullYear(), mes: d.getUTCMonth() });
   }
   const doSite = periodos.filter((p) => p.origem === "site");
-  // As plataformas fecham tudo o que fica para lá do seu calendário (cerca de um ano):
-  // isso não é ocupação e não se propõe passar para o site.
-  const horizonte = somar(hoje, 355);
-  // Bloqueios feitos diretamente nas plataformas que ainda não estão no site
-  // (o que já passou não conta: o site guarda os bloqueios a partir de hoje).
-  const porPassar = periodos.filter((p) => {
-    if (p.origem !== "airbnb-bloqueio" && p.origem !== "booking") return false;
-    if (p.inicio >= horizonte) return false;
-    const futuro = { inicio: p.inicio < hoje ? hoje : p.inicio, fim: p.fim };
-    return !doSite.some((s) => cobre(s, futuro));
-  });
+  // Depois da passagem automática só sobram aqui bloqueios que foram desbloqueados no site
+  // mas continuam fechados na plataforma: é preciso desbloqueá-los lá.
+  const soNaPlataforma = bloqueiosPorPassar(periodos, doSite, hoje);
   const limite = somar(hoje, 400);
 
   return (
@@ -115,32 +103,21 @@ export default function CalendarioCasa({
         ))}
       </div>
 
-      {porPassar.length > 0 && (
-        <div className="mt-5 rounded-md border border-black/10 p-3">
-          <p className="text-sm font-semibold">Bloqueios feitos no Airbnb ou no Booking que ainda não estão no site</p>
-          <p className="mt-1 text-xs text-cinza">
-            Para o site passar a mandar nestas datas, passe-as para o site. Depois podem ser desbloqueadas na
-            plataforma: continuam fechadas, agora por ordem do site.
+      {soNaPlataforma.length > 0 && (
+        <div className="mt-5 rounded-md border border-[#e8b4a8] bg-[#fdf1ee] p-3">
+          <p className="text-sm font-semibold text-[#8a2b1f]">Ainda fechado na plataforma, mas livre no site</p>
+          <p className="mt-1 text-xs text-[#8a2b1f]">
+            Estas datas foram desbloqueadas no site, mas continuam bloqueadas no Airbnb ou no Booking. Desbloqueie-as lá
+            (ou peça ao Claude) para ficar tudo igual.
           </p>
           <ul className="mt-2 divide-y divide-black/5">
-            {porPassar.map((p) => (
-              <li key={`${p.origem}-${p.inicio}-${p.fim}`} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                <span>
-                  <span className={`mr-2 inline-block h-3 w-3 rounded-sm align-middle ${COR[p.origem]}`} />
-                  {dataPT(p.inicio)} → {p.fim > limite ? "fim do calendário" : dataPT(p.fim)}{" "}
-                  <span className="text-cinza">
-                    ({diasEntre(p.inicio, p.fim)} noites · {p.nota})
-                  </span>
+            {soNaPlataforma.map((p) => (
+              <li key={`${p.origem}-${p.inicio}-${p.fim}`} className="py-2 text-sm">
+                <span className={`mr-2 inline-block h-3 w-3 rounded-sm align-middle ${COR[p.origem]}`} />
+                {dataPT(p.inicio)} → {p.fim > limite ? "fim do calendário" : dataPT(p.fim)}{" "}
+                <span className="text-cinza">
+                  ({diasEntre(p.inicio, p.fim)} noites · {p.nota})
                 </span>
-                <form action={passarParaSiteAcao}>
-                  <input type="hidden" name="al" value={al} />
-                  <input type="hidden" name="inicio" value={p.inicio < hoje ? hoje : p.inicio} />
-                  <input type="hidden" name="fim" value={p.fim} />
-                  <input type="hidden" name="motivo" value={`Vindo de: ${p.nota}`} />
-                  <button className="rounded-md border border-black/15 bg-white px-3 py-1.5 text-xs font-semibold hover:border-black/40">
-                    Passar para o site
-                  </button>
-                </form>
               </li>
             ))}
           </ul>

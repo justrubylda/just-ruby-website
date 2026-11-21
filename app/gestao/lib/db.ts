@@ -105,6 +105,17 @@ create table if not exists bloqueios (
   criado_em timestamptz not null default now()
 );
 create index if not exists bloqueios_fim on bloqueios (fim);
+alter table bloqueios add column if not exists origem text not null default 'site';
+
+-- bloqueios vindos das plataformas que se desbloquearam no site: não voltam a entrar sozinhos
+create table if not exists bloqueios_ignorados (
+  al text not null,
+  origem text not null,
+  fim date not null,
+  criado_em timestamptz not null default now(),
+  primary key (al, origem, fim)
+);
+alter table bloqueios_ignorados add column if not exists ate date;
 
 alter table alojamentos add column if not exists wifi_rede text not null default '';
 alter table alojamentos add column if not exists wifi_senha text not null default '';

@@ -178,6 +178,7 @@ export async function sincronizarAgora(): Promise<Relatorio> {
         `${r.completadas} completada(s)`,
         `${r.existentes} já existiam`,
         ...(r.canceladas ? [`${r.canceladas} marcada(s) como canceladas (saíram do calendário)`] : []),
+        ...(r.bloqueios ? [`${r.bloqueios} bloqueio(s) do Airbnb/Booking passaram para o site`] : []),
         ...r.erros,
       ],
     };
@@ -209,19 +210,6 @@ export async function criarBloqueioAcao(_: string | null, f: FormData): Promise<
   if (fim <= inicio) return "O dia em que fica livre tem de ser depois da primeira noite.";
   await criarBloqueio({ al, inicio, fim, motivo: txt(f, "motivo") });
   revalidarDisponibilidade();
-  redirect("/gestao/calendario?ok=1");
-}
-
-/** Passa para o site um bloqueio feito diretamente no Airbnb ou no Booking. */
-export async function passarParaSiteAcao(f: FormData) {
-  await exigirSessao();
-  const al = txt(f, "al");
-  const inicio = data(f, "inicio");
-  const fim = data(f, "fim");
-  if (al && inicio && fim && fim > inicio) {
-    await criarBloqueio({ al, inicio, fim, motivo: txt(f, "motivo") });
-    revalidarDisponibilidade();
-  }
   redirect("/gestao/calendario?ok=1");
 }
 

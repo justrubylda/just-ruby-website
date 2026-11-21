@@ -3,7 +3,15 @@ import { apagarBloqueioAcao } from "../acoes";
 import { exigirSessao } from "../lib/acesso";
 import { dataPT, diasEntre, hojeISO } from "../lib/calculos";
 import { linksDe } from "@/app/lib/disponibilidade";
-import { AL_DO_SLUG, codigoCalendario, listarBloqueios, ocupadoNoSite, periodosDasPlataformas, type Periodo } from "../lib/calendario";
+import {
+  AL_DO_SLUG,
+  codigoCalendario,
+  importarBloqueiosDasPlataformas,
+  listarBloqueios,
+  ocupadoNoSite,
+  periodosDasPlataformas,
+  type Periodo,
+} from "../lib/calendario";
 import { temBaseDados } from "../lib/db";
 import BotaoApagar from "../componentes/BotaoApagar";
 import Copiar from "../componentes/Copiar";
@@ -15,6 +23,13 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
   await exigirSessao();
   if (!temBaseDados()) return <SemBaseDados />;
   const sp = await searchParams;
+  // Primeiro, o que foi bloqueado no Airbnb/Booking passa sozinho para o site.
+  let passaram = 0;
+  try {
+    passaram = (await importarBloqueiosDasPlataformas(linksDe)).novos;
+  } catch (e) {
+    console.error("[calendario] passagem automática falhou", e);
+  }
   const [bloqueios, codigo] = await Promise.all([listarBloqueios(), codigoCalendario()]);
   const casas = Object.entries(AL_DO_SLUG);
   const hoje = hojeISO();
@@ -36,11 +51,19 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
       </Titulo>
 
       {sp.ok && <p className="rounded-md bg-[#e3f1e5] p-3 text-sm text-[#1f5f2b]">Datas bloqueadas.</p>}
+      {passaram > 0 && (
+        <p className="rounded-md bg-[#e3f1e5] p-3 text-sm text-[#1f5f2b]">
+          {passaram} bloqueio(s) feito(s) no Airbnb ou no Booking passaram agora para o site.
+        </p>
+      )}
       {sp.apagado && <p className="rounded-md bg-[#e3f1e5] p-3 text-sm text-[#1f5f2b]">Bloqueio apagado: as datas voltam a ficar livres.</p>}
 
       <section className={cartao}>
         <h2 className="font-display text-xl">Tudo o que está ocupado</h2>
-        <p className="mt-1 text-sm text-cinza">Site, Airbnb e Booking juntos, lidos agora. Cada cor diz de onde vem a data.</p>
+        <p className="mt-1 text-sm text-cinza">
+          Site, Airbnb e Booking juntos, lidos agora. O que for bloqueado no Airbnb ou no Booking passa sozinho para o
+          site (ao abrir esta página e todas as manhãs). Cada cor diz de onde vem a data.
+        </p>
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
           {LEGENDA.map((l) => (
             <li key={l.origem} className="flex items-center gap-1.5">
@@ -61,7 +84,7 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
           {porCasa.map((c) => (
             <div key={c.slug}>
               <h3 className="mb-3 font-display text-lg">{c.al}</h3>
-              <CalendarioCasa al={c.al} hoje={hoje} periodos={c.periodos} erros={c.erros} />
+              <CalendarioCasa hoje={hoje} periodos={c.periodos} erros={c.erros} />
             </div>
           ))}
         </div>
@@ -90,6 +113,11 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
                     <span className="font-normal text-cinza">({diasEntre(b.inicio, b.fim)} noites)</span>
                   </p>
                   {b.motivo && <p className="text-sm text-cinza">{b.motivo}</p>}
+                  {b.origem && b.origem !== "site" && (
+                    <p className="text-xs text-cinza">
+                      Ao desbloquear aqui, desbloqueie também no {b.origem === "booking" ? "Booking" : "Airbnb"}.
+                    </p>
+                  )}
                 </div>
                 <form action={apagarBloqueioAcao}>
                   <input type="hidden" name="id" value={b.id} />

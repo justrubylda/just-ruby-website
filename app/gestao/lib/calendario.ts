@@ -21,30 +21,54 @@ export const slugDoAl = (al: string) => Object.keys(AL_DO_SLUG).find((s) => AL_D
 
 const PLATAFORMAS_EXTERNAS = ["Airbnb", "Booking"];
 
-export type Bloqueio = { id: number; al: string; inicio: string; fim: string; motivo: string | null };
+export type Bloqueio = { id: number; al: string; inicio: string; fim: string; motivo: string | null; origem?: string };
 export type Ocupado = { inicio: string; fim: string; resumo: string; uid: string };
 
 const hoje = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Lisbon" }).format(new Date());
+const somarDias = (iso: string, n: number) => {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
 
 export async function listarBloqueios(incluirPassados = false): Promise<Bloqueio[]> {
   await garantirTabelas();
   const desde = incluirPassados ? "1900-01-01" : hoje();
   return (await sql()`
-    select id, al, inicio, fim, motivo from bloqueios
+    select id, al, inicio, fim, motivo, origem from bloqueios
     where fim > ${desde} order by inicio, al`) as unknown as Bloqueio[];
 }
 
 export async function criarBloqueio(b: Omit<Bloqueio, "id">) {
   await garantirTabelas();
   const [l] = await sql()`
-    insert into bloqueios (al, inicio, fim, motivo)
-    values (${b.al}, ${b.inicio}, ${b.fim}, ${b.motivo}) returning id`;
+    insert into bloqueios (al, inicio, fim, motivo, origem)
+    values (${b.al}, ${b.inicio}, ${b.fim}, ${b.motivo}, ${b.origem ?? "site"}) returning id`;
   return l.id as number;
 }
 
 export async function apagarBloqueio(id: number) {
   await garantirTabelas();
-  await sql()`delete from bloqueios where id = ${id}`;
+  const [b] = (await sql()`delete from bloqueios where id = ${id} returning al, fim, origem`) as unknown as {
+    al: string;
+    fim: string;
+    origem: string;
+  }[];
+  if (!b) return;
+  if (b.origem !== "site") {
+    // Veio do Airbnb/Booking e foi desbloqueado no site: não volta a entrar sozinho.
+    await sql()`insert into bloqueios_ignorados (al, origem, fim, ate) values (${b.al}, ${b.origem}, ${b.fim}, null)
+      on conflict (al, origem, fim) do update set ate = null`;
+  } else {
+    // Feito no site: as plataformas ainda o mostram até voltarem a ler o calendário do site
+    // (algumas horas). Durante 3 dias não se traz de volta.
+    const ate = somarDias(hoje(), 3);
+    for (const origem of ["airbnb", "booking"])
+      await sql()`insert into bloqueios_ignorados (al, origem, fim, ate) values (${b.al}, ${origem}, ${b.fim}, ${ate})
+        on conflict (al, origem, fim) do update set ate = excluded.ate
+        where bloqueios_ignorados.ate is not null`;
+  }
 }
 
 /** Datas ocupadas por bloqueios e por reservas que não são do Airbnb nem do Booking. */
@@ -203,4 +227,62 @@ export async function periodosDasPlataformas(links: string[]): Promise<{ periodo
   );
   periodos.sort((a, b) => a.inicio.localeCompare(b.inicio));
   return { periodos, erros };
+}
+
+
+// ---------- passar sozinho para o site o que se bloqueia no Airbnb ou no Booking ----------
+
+/** O Booking exporta reservas e fechos da mesma maneira: até este número de noites é uma reserva. */
+export const MAX_NOITES_RESERVA_BOOKING = 30;
+
+const noites = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86_400_000);
+
+/** Bloqueios das plataformas que ainda não estão no site (sem o fim do calendário de cada uma). */
+export function bloqueiosPorPassar(periodos: Periodo[], doSite: { inicio: string; fim: string }[], h = hoje()) {
+  const horizonte = somarDias(h, 355);
+  return periodos
+    .filter((p) => p.origem === "airbnb-bloqueio" || (p.origem === "booking" && noites(p.inicio, p.fim) > MAX_NOITES_RESERVA_BOOKING))
+    .filter((p) => p.inicio < horizonte)
+    .map((p) => ({ ...p, inicio: p.inicio < h ? h : p.inicio }))
+    .filter((p) => p.fim > p.inicio && !doSite.some((s) => s.inicio <= p.inicio && s.fim >= p.fim));
+}
+
+/**
+ * Traz para o site, sozinho, o que foi bloqueado diretamente no Airbnb ou no Booking.
+ * Corre todas as manhãs (cron), ao sincronizar e ao abrir o calendário da gestão.
+ */
+export async function importarBloqueiosDasPlataformas(linksDe: (slug: string) => string[]) {
+  await garantirTabelas();
+  let novos = 0;
+  const erros: string[] = [];
+  for (const [slug, al] of Object.entries(AL_DO_SLUG)) {
+    const links = linksDe(slug);
+    if (!links.length) continue;
+    const plat = await periodosDasPlataformas(links);
+    erros.push(...plat.erros.map((e) => `${al} · ${e}`));
+    const doSite = (await sql()`select inicio, fim from bloqueios where al = ${al} and fim > ${hoje()}`) as unknown as {
+      inicio: string;
+      fim: string;
+    }[];
+    const ignorados = new Set(
+      ((await sql()`select origem, fim from bloqueios_ignorados
+        where al = ${al} and (ate is null or ate >= ${hoje()})`) as unknown as { origem: string; fim: string }[]).map(
+        (i) => `${i.origem}|${i.fim}`,
+      ),
+    );
+    for (const p of bloqueiosPorPassar(plat.periodos, doSite)) {
+      const origem = p.origem === "booking" ? "booking" : "airbnb";
+      if (ignorados.has(`${origem}|${p.fim}`)) continue;
+      await criarBloqueio({
+        al,
+        inicio: p.inicio,
+        fim: p.fim,
+        motivo: origem === "booking" ? "Fechado no Booking (passou sozinho para o site)" : "Bloqueado no Airbnb (passou sozinho para o site)",
+        origem,
+      });
+      doSite.push({ inicio: p.inicio, fim: p.fim });
+      novos++;
+    }
+  }
+  return { novos, erros };
 }

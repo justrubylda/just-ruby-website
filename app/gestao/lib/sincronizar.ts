@@ -2,7 +2,7 @@ import "server-only";
 import { casas } from "@/app/site";
 import { linksDe } from "@/app/lib/disponibilidade";
 import { diasEntre, hojeISO } from "./calculos";
-import { AL_DO_SLUG } from "./calendario";
+import { AL_DO_SLUG, MAX_NOITES_RESERVA_BOOKING, importarBloqueiosDasPlataformas } from "./calendario";
 import { garantirTabelas, gravarConfig, lerConfig, sql } from "./db";
 import { importarLote, type NovaReserva, type ResultadoLote } from "./reservas";
 
@@ -11,10 +11,6 @@ import { importarLote, type NovaReserva, type ResultadoLote } from "./reservas";
 // O iCal só traz datas (e, no Airbnb, o código da reserva): o valor e o nome
 // completam-se à mão ou ao importar o CSV da plataforma.
 
-// O Booking exporta reservas e datas fechadas da mesma maneira ("CLOSED - Not available").
-// Um fecho comprido (sem disponibilidade carregada, contrato...) não é uma reserva:
-// acima deste número de noites não se cria reserva.
-const MAX_NOITES_BOOKING = 30;
 
 type Evento = { uid: string; inicio: string; fim: string; resumo: string; descricao: string };
 
@@ -55,7 +51,7 @@ const menosDias = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-export type ResultadoSinc = ResultadoLote & { calendarios: number; canceladas: number; erros: string[] };
+export type ResultadoSinc = ResultadoLote & { calendarios: number; canceladas: number; bloqueios: number; erros: string[] };
 
 export async function sincronizar(): Promise<ResultadoSinc> {
   await garantirTabelas();
@@ -84,7 +80,7 @@ export async function sincronizar(): Promise<ResultadoSinc> {
       for (const ev of lerEventos(txt)) {
         if (ev.fim < desde) continue;
         if (plataforma === "Airbnb" && !/reserved|reservad/i.test(ev.resumo)) continue; // "Not available" = bloqueios
-        if (plataforma === "Booking" && diasEntre(ev.inicio, ev.fim) > MAX_NOITES_BOOKING) continue;
+        if (plataforma === "Booking" && diasEntre(ev.inicio, ev.fim) > MAX_NOITES_RESERVA_BOOKING) continue; // fecho, não reserva
         const codigo = ev.descricao.match(/details\/([A-Z0-9]{6,14})/i)?.[1] ?? null;
         const tel = ev.descricao.match(/Last 4 Digits\)?:\s*(\d{4})/i)?.[1];
         const uid = `${plataforma}:${ev.uid || `${al}:${ev.inicio}`}`;
@@ -122,8 +118,15 @@ export async function sincronizar(): Promise<ResultadoSinc> {
       canceladas++;
     }
   }
+  // Bloqueios feitos no Airbnb/Booking passam sozinhos para o site.
+  let bloqueios = 0;
+  try {
+    bloqueios = (await importarBloqueiosDasPlataformas(linksDe)).novos;
+  } catch (e) {
+    erros.push(`Bloqueios: ${(e as Error).message}`);
+  }
   await gravarConfig("ultima_sincronizacao", new Date().toISOString());
-  return { ...r, calendarios, canceladas, erros };
+  return { ...r, calendarios, canceladas, bloqueios, erros };
 }
 
 /** Sincroniza se a última vez foi há mais de `horas` horas (usado ao abrir o painel). */
