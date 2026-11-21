@@ -43,7 +43,7 @@ export function lerEventos(texto: string): Evento[] {
   return out;
 }
 
-function plataformaDoLink(link: string) {
+export function plataformaDoLink(link: string) {
   if (/airbnb/i.test(link)) return "Airbnb";
   if (/booking\.com|booking/i.test(link)) return "Booking";
   return "Outro";

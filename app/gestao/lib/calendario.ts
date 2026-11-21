@@ -141,3 +141,66 @@ export async function wifiDaCasa(slug: string): Promise<{ rede: string; senha: s
     return null;
   }
 }
+
+// ---------- o que está ocupado em cada plataforma (para ver tudo junto na gestão) ----------
+
+export type Origem = "site" | "airbnb-reserva" | "airbnb-bloqueio" | "booking";
+export type Periodo = { inicio: string; fim: string; origem: Origem; nota: string };
+
+const isoDeIcs = (s: string) => `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+
+function eventosIcs(texto: string) {
+  const linhas = texto.replace(/\r?\n[ \t]/g, "").split(/\r?\n/);
+  const out: { inicio: string; fim: string; resumo: string }[] = [];
+  let e: { inicio?: string; fim?: string; resumo?: string } | null = null;
+  for (const l of linhas) {
+    if (l.startsWith("BEGIN:VEVENT")) e = {};
+    else if (l.startsWith("END:VEVENT")) {
+      if (e?.inicio) out.push({ inicio: e.inicio, fim: e.fim && e.fim > e.inicio ? e.fim : e.inicio, resumo: e.resumo ?? "" });
+      e = null;
+    } else if (e) {
+      const m = l.match(/^(DTSTART|DTEND|SUMMARY)(?:;[^:]*)?:(.*)$/);
+      if (!m) continue;
+      if (m[1] === "SUMMARY") e.resumo = m[2].trim();
+      else if (/^\d{8}/.test(m[2])) {
+        if (m[1] === "DTSTART") e.inicio = isoDeIcs(m[2]);
+        else e.fim = isoDeIcs(m[2]);
+      }
+    }
+  }
+  return out;
+}
+
+/** Lê os calendários do Airbnb e do Booking de uma casa (os links da variável ICAL_...). */
+export async function periodosDasPlataformas(links: string[]): Promise<{ periodos: Periodo[]; erros: string[] }> {
+  const h = hoje();
+  const periodos: Periodo[] = [];
+  const erros: string[] = [];
+  await Promise.all(
+    links.map(async (link) => {
+      const airbnb = /airbnb/i.test(link);
+      try {
+        const r = await fetch(link, { cache: "no-store", headers: { "User-Agent": "justruby.pt (gestao)" } });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        for (const ev of eventosIcs(await r.text())) {
+          if (ev.fim <= h) continue;
+          if (airbnb) {
+            const reserva = /reserved|reservad/i.test(ev.resumo);
+            periodos.push({
+              inicio: ev.inicio,
+              fim: ev.fim,
+              origem: reserva ? "airbnb-reserva" : "airbnb-bloqueio",
+              nota: reserva ? "Reserva no Airbnb" : "Indisponível no Airbnb",
+            });
+          } else {
+            periodos.push({ inicio: ev.inicio, fim: ev.fim, origem: "booking", nota: "Fechado ou reservado no Booking" });
+          }
+        }
+      } catch (e) {
+        erros.push(`${airbnb ? "Airbnb" : "Booking"}: não consegui ler o calendário (${(e as Error).message}).`);
+      }
+    }),
+  );
+  periodos.sort((a, b) => a.inicio.localeCompare(b.inicio));
+  return { periodos, erros };
+}

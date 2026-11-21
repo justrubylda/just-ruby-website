@@ -2,11 +2,13 @@ import { site } from "@/app/site";
 import { apagarBloqueioAcao } from "../acoes";
 import { exigirSessao } from "../lib/acesso";
 import { dataPT, diasEntre, hojeISO } from "../lib/calculos";
-import { AL_DO_SLUG, codigoCalendario, listarBloqueios } from "../lib/calendario";
+import { linksDe } from "@/app/lib/disponibilidade";
+import { AL_DO_SLUG, codigoCalendario, listarBloqueios, ocupadoNoSite, periodosDasPlataformas, type Periodo } from "../lib/calendario";
 import { temBaseDados } from "../lib/db";
 import BotaoApagar from "../componentes/BotaoApagar";
 import Copiar from "../componentes/Copiar";
 import { SemBaseDados, Titulo, cartao } from "../componentes/ui";
+import CalendarioCasa, { LEGENDA } from "./CalendarioCasa";
 import FormBloqueio from "./FormBloqueio";
 
 export default async function Calendario({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -16,6 +18,16 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
   const [bloqueios, codigo] = await Promise.all([listarBloqueios(), codigoCalendario()]);
   const casas = Object.entries(AL_DO_SLUG);
   const hoje = hojeISO();
+  const porCasa = await Promise.all(
+    casas.map(async ([slug, al]) => {
+      const [plat, site] = await Promise.all([periodosDasPlataformas(linksDe(slug)), ocupadoNoSite(al)]);
+      const periodos: Periodo[] = [
+        ...site.map((o) => ({ inicio: o.inicio, fim: o.fim, origem: "site" as const, nota: o.resumo })),
+        ...plat.periodos,
+      ];
+      return { slug, al, periodos, erros: plat.erros };
+    }),
+  );
 
   return (
     <div className="space-y-6">
@@ -27,6 +39,35 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
       {sp.apagado && <p className="rounded-md bg-[#e3f1e5] p-3 text-sm text-[#1f5f2b]">Bloqueio apagado: as datas voltam a ficar livres.</p>}
 
       <section className={cartao}>
+        <h2 className="font-display text-xl">Tudo o que está ocupado</h2>
+        <p className="mt-1 text-sm text-cinza">Site, Airbnb e Booking juntos, lidos agora. Cada cor diz de onde vem a data.</p>
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          {LEGENDA.map((l) => (
+            <li key={l.origem} className="flex items-center gap-1.5">
+              <span
+                className={`inline-block h-3 w-3 rounded-sm ${
+                  { site: "bg-ouro", "airbnb-reserva": "bg-[#e0565b]", "airbnb-bloqueio": "bg-[#f3c3c5]", booking: "bg-[#1f4e79]" }[l.origem]
+                }`}
+              />
+              {l.texto}
+            </li>
+          ))}
+          <li className="flex items-center gap-1.5">
+            <span className="inline-block h-3 w-3 rounded-sm bg-[#f6f4f0] ring-1 ring-black/10" />
+            Livre
+          </li>
+        </ul>
+        <div className="mt-5 space-y-8">
+          {porCasa.map((c) => (
+            <div key={c.slug}>
+              <h3 className="mb-3 font-display text-lg">{c.al}</h3>
+              <CalendarioCasa al={c.al} hoje={hoje} periodos={c.periodos} erros={c.erros} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className={cartao}>
         <h2 className="mb-4 font-display text-xl">Bloquear datas</h2>
         <FormBloqueio casas={casas.map(([, al]) => al)} hoje={hoje} />
         <p className="mt-4 text-xs text-cinza">
@@ -36,7 +77,7 @@ export default async function Calendario({ searchParams }: { searchParams: Promi
       </section>
 
       <section className={cartao}>
-        <h2 className="mb-3 font-display text-xl">Datas bloqueadas</h2>
+        <h2 className="mb-3 font-display text-xl">Datas bloqueadas no site</h2>
         {bloqueios.length === 0 ? (
           <p className="text-cinza">Não há bloqueios a partir de hoje.</p>
         ) : (

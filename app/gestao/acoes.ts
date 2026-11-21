@@ -212,6 +212,19 @@ export async function criarBloqueioAcao(_: string | null, f: FormData): Promise<
   redirect("/gestao/calendario?ok=1");
 }
 
+/** Passa para o site um bloqueio feito diretamente no Airbnb ou no Booking. */
+export async function passarParaSiteAcao(f: FormData) {
+  await exigirSessao();
+  const al = txt(f, "al");
+  const inicio = data(f, "inicio");
+  const fim = data(f, "fim");
+  if (al && inicio && fim && fim > inicio) {
+    await criarBloqueio({ al, inicio, fim, motivo: txt(f, "motivo") });
+    revalidarDisponibilidade();
+  }
+  redirect("/gestao/calendario?ok=1");
+}
+
 export async function apagarBloqueioAcao(f: FormData) {
   await exigirSessao();
   const id = num(f, "id");
