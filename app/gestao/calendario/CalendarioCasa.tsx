@@ -89,10 +89,17 @@ export default function CalendarioCasa({
     meses.push({ ano: d.getUTCFullYear(), mes: d.getUTCMonth() });
   }
   const doSite = periodos.filter((p) => p.origem === "site");
-  // Bloqueios feitos diretamente nas plataformas que ainda não estão no site.
-  const porPassar = periodos.filter(
-    (p) => (p.origem === "airbnb-bloqueio" || p.origem === "booking") && !doSite.some((s) => cobre(s, p)),
-  );
+  // As plataformas fecham tudo o que fica para lá do seu calendário (cerca de um ano):
+  // isso não é ocupação e não se propõe passar para o site.
+  const horizonte = somar(hoje, 355);
+  // Bloqueios feitos diretamente nas plataformas que ainda não estão no site
+  // (o que já passou não conta: o site guarda os bloqueios a partir de hoje).
+  const porPassar = periodos.filter((p) => {
+    if (p.origem !== "airbnb-bloqueio" && p.origem !== "booking") return false;
+    if (p.inicio >= horizonte) return false;
+    const futuro = { inicio: p.inicio < hoje ? hoje : p.inicio, fim: p.fim };
+    return !doSite.some((s) => cobre(s, futuro));
+  });
   const limite = somar(hoje, 400);
 
   return (
