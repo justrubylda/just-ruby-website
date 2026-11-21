@@ -39,6 +39,21 @@ Entrar em /gestao → Importar → carregar `Faturacao_JustRuby.xlsx` (históric
 As importações completam as reservas que já existem (pelo código, pela origem no Excel
 ou pelas datas no mesmo alojamento) em vez de as duplicar.
 
+## Calendário e bloqueios (/gestao/calendario)
+
+O site é o calendário principal dos bloqueios. Bloqueia-se aqui (casa, primeira noite, dia em que
+fica livre, motivo); o site publica `/api/calendario/<casa>.ics?t=<código>` com os bloqueios e as
+reservas que não são do Airbnb nem do Booking. O código é criado na primeira utilização (tabela
+`config`, chave `calendario_codigo`) e os links aparecem na página, prontos a copiar para a
+importação de calendário do Airbnb e do Booking. As reservas do Airbnb e do Booking não entram
+neste calendário (as plataformas já as trocam entre si).
+
+As páginas públicas das casas juntam Airbnb + Booking + estes bloqueios.
+
+## Wi-Fi do guia do hóspede
+
+Em /gestao/alojamentos (campos "Rede Wi-Fi" e "Palavra-passe Wi-Fi"). O guia lê-os da base de dados.
+
 ## Faturação
 
 /gestao/faturar lista as estadias terminadas sem nº de fatura, com a descrição pronta a

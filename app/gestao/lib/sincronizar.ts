@@ -1,7 +1,8 @@
 import "server-only";
 import { casas } from "@/app/site";
 import { linksDe } from "@/app/lib/disponibilidade";
-import { hojeISO } from "./calculos";
+import { diasEntre, hojeISO } from "./calculos";
+import { AL_DO_SLUG } from "./calendario";
 import { garantirTabelas, gravarConfig, lerConfig, sql } from "./db";
 import { importarLote, type NovaReserva, type ResultadoLote } from "./reservas";
 
@@ -10,10 +11,10 @@ import { importarLote, type NovaReserva, type ResultadoLote } from "./reservas";
 // O iCal só traz datas (e, no Airbnb, o código da reserva): o valor e o nome
 // completam-se à mão ou ao importar o CSV da plataforma.
 
-const AL_DO_SLUG: Record<string, string> = {
-  "o-nosso-cantinho": "Nosso Cantinho",
-  "kingdom-of-stone": "Kingdom of Stone",
-};
+// O Booking exporta reservas e datas fechadas da mesma maneira ("CLOSED - Not available").
+// Um fecho comprido (sem disponibilidade carregada, contrato...) não é uma reserva:
+// acima deste número de noites não se cria reserva.
+const MAX_NOITES_BOOKING = 30;
 
 type Evento = { uid: string; inicio: string; fim: string; resumo: string; descricao: string };
 
@@ -83,6 +84,7 @@ export async function sincronizar(): Promise<ResultadoSinc> {
       for (const ev of lerEventos(txt)) {
         if (ev.fim < desde) continue;
         if (plataforma === "Airbnb" && !/reserved|reservad/i.test(ev.resumo)) continue; // "Not available" = bloqueios
+        if (plataforma === "Booking" && diasEntre(ev.inicio, ev.fim) > MAX_NOITES_BOOKING) continue;
         const codigo = ev.descricao.match(/details\/([A-Z0-9]{6,14})/i)?.[1] ?? null;
         const tel = ev.descricao.match(/Last 4 Digits\)?:\s*(\d{4})/i)?.[1];
         const uid = `${plataforma}:${ev.uid || `${al}:${ev.inicio}`}`;

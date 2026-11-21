@@ -10,6 +10,8 @@
 // são ignorados e nunca chegam ao site.
 
 import { casas } from "../site";
+import { ocupadoNoSitePorSlug } from "../gestao/lib/calendario";
+import { temBaseDados } from "../gestao/lib/db";
 
 /** Noites ocupadas: de `inicio` (dia de chegada) até `fim` (dia de saída, livre para nova entrada). */
 export type Intervalo = { inicio: string; fim: string };
@@ -27,8 +29,9 @@ export function linksDe(slug: string): string[] {
     .filter((l) => /^https?:\/\//i.test(l));
 }
 
+/** Há calendário a mostrar: links do Airbnb/Booking ou a base de dados da gestão (bloqueios do site). */
 export function temCalendario(slug: string) {
-  return linksDe(slug).length > 0;
+  return linksDe(slug).length > 0 || temBaseDados();
 }
 
 const isoDe = (yyyymmdd: string) =>
@@ -103,9 +106,9 @@ async function lerLink(link: string): Promise<Intervalo[]> {
   }
 }
 
-/** Noites ocupadas de uma casa, juntando todos os calendários (Airbnb, Booking...). */
+/** Noites ocupadas de uma casa: Airbnb, Booking e os bloqueios/reservas diretas do próprio site. */
 export async function ocupacaoDe(slug: string): Promise<Intervalo[]> {
-  const listas = await Promise.all(linksDe(slug).map(lerLink));
+  const listas = await Promise.all([...linksDe(slug).map(lerLink), ocupadoNoSitePorSlug(slug)]);
   return juntar(listas.flat());
 }
 

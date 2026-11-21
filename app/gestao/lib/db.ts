@@ -95,6 +95,19 @@ create table if not exists config (
   chave text primary key,
   valor text
 );
+
+create table if not exists bloqueios (
+  id serial primary key,
+  al text not null,
+  inicio date not null,
+  fim date not null,
+  motivo text,
+  criado_em timestamptz not null default now()
+);
+create index if not exists bloqueios_fim on bloqueios (fim);
+
+alter table alojamentos add column if not exists wifi_rede text not null default '';
+alter table alojamentos add column if not exists wifi_senha text not null default '';
 `;
 
 /** Cria as tabelas na primeira utilização (não apaga nada se já existirem). */

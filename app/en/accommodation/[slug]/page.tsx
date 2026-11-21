@@ -1,7 +1,8 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import Casa, { metadadosCasa, slugsCasas } from "@/app/components/paginas/Casa";
 
-export const dynamicParams = false;
+// Casas desconhecidas dão 404 (notFound em Casa.tsx). Não usar dynamicParams = false:
+// com ele, a página deixa de existir depois de uma revalidação (bloqueios novos na gestão).
 // A disponibilidade (Airbnb + Booking) é revista de hora a hora.
 export const revalidate = 3600;
 

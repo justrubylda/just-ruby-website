@@ -34,7 +34,15 @@ export type Reserva = {
 
 export type Estado = "Faturado" | "Por faturar" | "Futura" | "Sem fatura" | "Cancelada";
 
-export type Alojamento = { nome: string; ordem: number; antes_entrada: string; antes_saida: string; final: string };
+export type Alojamento = {
+  nome: string;
+  ordem: number;
+  antes_entrada: string;
+  antes_saida: string;
+  final: string;
+  wifi_rede?: string;
+  wifi_senha?: string;
+};
 
 export type Calculo = {
   noites: number;

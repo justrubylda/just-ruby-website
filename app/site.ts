@@ -139,7 +139,7 @@ export const casas: Casa[] = [
       { src: "/fotos/kos-casa-loendros.jpg", alt: "Casa branca com loendros floridos", en: "White house with flowering oleanders" },
     ],
     rnal: "",
-    airbnb: "",
+    airbnb: "https://www.airbnb.com/rooms/51944903",
     booking: "",
     avaliacao: null,
     en: {
@@ -244,7 +244,7 @@ export const casas: Casa[] = [
       { src: "/fotos/cantinho-churrasqueira.jpg", alt: "Churrasqueira e cozinha exterior", en: "Barbecue and outdoor kitchen" },
     ],
     rnal: "",
-    airbnb: "",
+    airbnb: "https://www.airbnb.com/rooms/16760512",
     booking: "https://www.booking.com/hotel/pt/o-nosso-cantinho-private-pool.html",
     avaliacao: {
       nota: 9.2,

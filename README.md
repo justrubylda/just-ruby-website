@@ -64,9 +64,8 @@ Quem abre o link sem `#` vê a indicação "enviado por mensagem antes da chegad
 Os textos estão em `app/guias.ts`: horas, caminho, regras, lista de saída, etc.
 Para mostrar a hora de check-out, preencha `checkOut`.
 
-**Wi-Fi:** na Vercel, em Settings → Environment Variables, crie:
-`WIFI_REDE_KINGDOM_OF_STONE`, `WIFI_SENHA_KINGDOM_OF_STONE`, `WIFI_REDE_O_NOSSO_CANTINHO`, `WIFI_SENHA_O_NOSSO_CANTINHO`.
-Sem estas variáveis, a secção do Wi-Fi não aparece.
+**Wi-Fi:** escreve-se em `justruby.pt/gestao` → Alojamentos (rede e palavra-passe de cada casa).
+Fica na base de dados: nem no código público nem na Vercel. Sem rede preenchida, a secção do Wi-Fi não aparece.
 
 ## Calendário sincronizado com o Airbnb e o Booking
 
@@ -78,8 +77,18 @@ Os links de exportação são privados, por isso ficam na Vercel e não no códi
 - `ICAL_KINGDOM_OF_STONE` = link do Airbnb e link do Booking, separados por um espaço
 - `ICAL_O_NOSSO_CANTINHO` = link do Airbnb e link do Booking, separados por um espaço
 
-Depois de as gravar, faça "Redeploy" na Vercel. Sem estas variáveis, o calendário não aparece.
+Depois de as gravar, faça "Redeploy" na Vercel.
 O site só usa as datas: nomes, códigos de reserva e telefones que venham nos calendários são ignorados.
+
+### Bloquear datas: só no site
+
+Os bloqueios (contrato, uso próprio, obras…) fazem-se em `justruby.pt/gestao` → **Calendário**.
+O site publica um calendário privado por casa (`/api/calendario/<casa>.ics?t=…`, links na mesma página)
+que o Airbnb e o Booking importam: fecham essas datas sozinhos, normalmente dentro de algumas horas.
+As reservas registadas na gestão que não são do Airbnb nem do Booking (Direto, Site, Contrato…) também entram.
+
+Entre o Airbnb e o Booking, as reservas passam diretamente (cada plataforma importa a outra).
+O Kingdom of Stone no Booking exporta só datas reservadas, porque o anúncio está fechado no Booking.
 
 ## Para programadores
 

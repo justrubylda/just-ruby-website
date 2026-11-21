@@ -7,9 +7,8 @@
 //  Vai no próprio link, depois do #:  .../guia/kingdom-of-stone#1234
 //  Quem abrir esse link vê o código; quem abrir o link sem # não vê.
 //
-//  Wi-Fi: fica em variáveis de ambiente na Vercel (também não vai para aqui):
-//    WIFI_REDE_KINGDOM_OF_STONE, WIFI_SENHA_KINGDOM_OF_STONE
-//    WIFI_REDE_O_NOSSO_CANTINHO, WIFI_SENHA_O_NOSSO_CANTINHO
+//  Wi-Fi: escreve-se em justruby.pt/gestao → Alojamentos (fica na base de dados,
+//  nunca aqui nem na Vercel).
 //
 //  Textos em 4 línguas: pt, en, es, fr. Campos vazios ficam escondidos.
 // =====================================================================
@@ -487,10 +486,3 @@ export const guias: Guia[] = [
 
 export const getGuia = (slug: string) => guias.find((g) => g.slug === slug);
 
-/** Wi-Fi da casa, lido das variáveis de ambiente (nunca do código). */
-export function wifiDe(slug: string) {
-  const sufixo = slug.toUpperCase().replace(/-/g, "_");
-  const rede = process.env[`WIFI_REDE_${sufixo}`]?.trim() ?? "";
-  const senha = process.env[`WIFI_SENHA_${sufixo}`]?.trim() ?? "";
-  return rede ? { rede, senha } : null;
-}

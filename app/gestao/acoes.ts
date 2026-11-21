@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirSessao } from "./lib/acesso";
+import { AL_DO_SLUG, apagarBloqueio, criarBloqueio } from "./lib/calendario";
 import { garantirTabelas, sql } from "./lib/db";
 import { lerFicheiro } from "./lib/ficheiros";
 import { importarFolhas, numero } from "./lib/importar";
@@ -92,6 +93,7 @@ export async function guardarReserva(_: string | null, f: FormData): Promise<str
     if (d.pedido_id) await sql()`update pedidos set estado = 'reserva', reserva_id = ${novoId} where id = ${d.pedido_id}`;
   }
   revalidatePath("/gestao", "layout");
+  revalidarDisponibilidade();
   const voltar = txt(f, "voltar");
   redirect(voltar && voltar.startsWith("/gestao") ? voltar : `/gestao/reservas?ano=${d.checkin.slice(0, 4)}`);
 }
@@ -101,6 +103,7 @@ export async function apagarReservaAcao(f: FormData) {
   const id = num(f, "id");
   if (id) await apagarReserva(id);
   revalidatePath("/gestao", "layout");
+  revalidarDisponibilidade();
   redirect("/gestao/reservas");
 }
 
@@ -183,6 +186,40 @@ export async function sincronizarAgora(): Promise<Relatorio> {
   }
 }
 
+// ---------- bloqueios (o site é o calendário principal) ----------
+
+// Páginas públicas que mostram a disponibilidade. Revalidar só estas (e não o "layout" todo):
+// as páginas das casas são estáticas e revalidar a árvore inteira deixava-as em 404.
+function revalidarDisponibilidade() {
+  for (const slug of Object.keys(AL_DO_SLUG)) {
+    revalidatePath(`/alojamentos/${slug}`);
+    revalidatePath(`/en/accommodation/${slug}`);
+  }
+  for (const p of ["/", "/en", "/contactos", "/en/contact"]) revalidatePath(p);
+  revalidatePath("/gestao/calendario");
+}
+
+export async function criarBloqueioAcao(_: string | null, f: FormData): Promise<string | null> {
+  await exigirSessao();
+  const al = txt(f, "al");
+  const inicio = data(f, "inicio");
+  const fim = data(f, "fim");
+  if (!al) return "Escolha a casa.";
+  if (!inicio || !fim) return "Indique a primeira noite e o dia em que a casa volta a ficar livre.";
+  if (fim <= inicio) return "O dia em que fica livre tem de ser depois da primeira noite.";
+  await criarBloqueio({ al, inicio, fim, motivo: txt(f, "motivo") });
+  revalidarDisponibilidade();
+  redirect("/gestao/calendario?ok=1");
+}
+
+export async function apagarBloqueioAcao(f: FormData) {
+  await exigirSessao();
+  const id = num(f, "id");
+  if (id) await apagarBloqueio(id);
+  revalidarDisponibilidade();
+  redirect("/gestao/calendario?apagado=1");
+}
+
 // ---------- alojamentos (textos das faturas) ----------
 
 export async function guardarAlojamentos(f: FormData) {
@@ -193,6 +230,8 @@ export async function guardarAlojamentos(f: FormData) {
   const saida = f.getAll("antes_saida").map(String);
   const final = f.getAll("final").map(String);
   const originais = f.getAll("original").map(String);
+  const wifiRede = f.getAll("wifi_rede").map(String);
+  const wifiSenha = f.getAll("wifi_senha").map(String);
   for (let i = 0; i < nomes.length; i++) {
     const nome = nomes[i].trim();
     const orig = originais[i] ?? "";
@@ -201,11 +240,14 @@ export async function guardarAlojamentos(f: FormData) {
       await sql()`update alojamentos set nome = ${nome} where nome = ${orig}`;
       await sql()`update reservas set al = ${nome} where al = ${orig}`;
     }
-    await sql()`insert into alojamentos (nome, ordem, antes_entrada, antes_saida, final)
-      values (${nome}, ${i + 1}, ${antes[i] ?? ""}, ${saida[i] ?? ""}, ${final[i] ?? ""})
+    await sql()`insert into alojamentos (nome, ordem, antes_entrada, antes_saida, final, wifi_rede, wifi_senha)
+      values (${nome}, ${i + 1}, ${antes[i] ?? ""}, ${saida[i] ?? ""}, ${final[i] ?? ""},
+        ${(wifiRede[i] ?? "").trim()}, ${(wifiSenha[i] ?? "").trim()})
       on conflict (nome) do update set ordem = excluded.ordem, antes_entrada = excluded.antes_entrada,
-        antes_saida = excluded.antes_saida, final = excluded.final`;
+        antes_saida = excluded.antes_saida, final = excluded.final,
+        wifi_rede = excluded.wifi_rede, wifi_senha = excluded.wifi_senha`;
   }
   revalidatePath("/gestao", "layout");
+  for (const slug of Object.keys(AL_DO_SLUG)) revalidatePath(`/guia/${slug}`);
   redirect("/gestao/alojamentos?ok=1");
 }

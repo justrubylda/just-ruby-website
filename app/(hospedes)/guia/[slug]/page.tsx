@@ -7,10 +7,13 @@ import ComCodigo from "@/app/components/guia/ComCodigo";
 import Copiar from "@/app/components/guia/Copiar";
 import { LinguaProvider, SeletorLingua } from "@/app/components/guia/Lingua";
 import T, { l } from "@/app/components/guia/T";
-import { anfitrioes, getGuia, guias, wifiDe } from "@/app/guias";
+import { anfitrioes, getGuia, guias } from "@/app/guias";
+import { wifiDaCasa } from "@/app/gestao/lib/calendario";
 import { getCasa, site } from "@/app/site";
 
-export const dynamicParams = false;
+// O Wi-Fi vem da base de dados (/gestao/alojamentos); a página atualiza-se quando se grava.
+// Sem dynamicParams = false: com ele, a página dava 404 depois de uma revalidação.
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return guias.map((g) => ({ slug: g.slug }));
@@ -162,7 +165,7 @@ export default async function GuiaPage({
   const casa = getCasa(slug);
   if (!guia || !casa) notFound();
 
-  const wifi = wifiDe(slug);
+  const wifi = await wifiDaCasa(slug);
   const outra = guias.find((g) => g.slug !== slug);
   const outraCasa = outra && getCasa(outra.slug);
   const wa = (texto: string) =>

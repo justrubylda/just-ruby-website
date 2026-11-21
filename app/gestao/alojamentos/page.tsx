@@ -10,10 +10,10 @@ export default async function Alojamentos({ searchParams }: { searchParams: Prom
   if (!temBaseDados()) return <SemBaseDados />;
   const sp = await searchParams;
   const als = await listarAlojamentos();
-  const linhas = [...als, { nome: "", ordem: als.length + 1, antes_entrada: "Prestação de serviços de alojamento mobilado, Check in a", antes_saida: " e check out efectuado a", final: "" }];
+  const linhas = [...als, { nome: "", ordem: als.length + 1, antes_entrada: "Prestação de serviços de alojamento mobilado, Check in a", antes_saida: " e check out efectuado a", final: "", wifi_rede: "", wifi_senha: "" }];
   return (
     <div>
-      <Titulo sub="Textos usados na descrição da fatura. Ficam na base de dados (não no código público do site).">
+      <Titulo sub="Textos da fatura e Wi-Fi do guia do hóspede. Ficam na base de dados (não no código público do site).">
         Alojamentos
       </Titulo>
       {sp.ok && <p className="mb-4 rounded-md bg-[#e3f1e5] p-3 text-sm text-[#1f5f2b]">Guardado.</p>}
@@ -38,6 +38,16 @@ export default async function Alojamentos({ searchParams }: { searchParams: Prom
                 <span className={rotulo}>Texto final (nº de registo AL, morada…)</span>
                 <input name="final" defaultValue={a.final} className={campo} />
               </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block">
+                  <span className={rotulo}>Rede Wi-Fi (aparece no guia do hóspede)</span>
+                  <input name="wifi_rede" defaultValue={a.wifi_rede ?? ""} autoComplete="off" className={campo} />
+                </label>
+                <label className="block">
+                  <span className={rotulo}>Palavra-passe Wi-Fi</span>
+                  <input name="wifi_senha" defaultValue={a.wifi_senha ?? ""} autoComplete="off" className={campo} />
+                </label>
+              </div>
               {a.nome && (
                 <p className="text-xs text-cinza">
                   Exemplo: {descricaoFatura({ al: a.nome, checkin: "2026-08-01", checkout: "2026-08-05" }, [a])}
