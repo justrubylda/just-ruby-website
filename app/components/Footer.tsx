@@ -93,6 +93,11 @@ export default function Footer({ l = "pt" }: { l?: Lingua }) {
                 {t.privacidade}
               </Link>
             </li>
+            <li>
+              <Link href="/gestao" prefetch={false} rel="nofollow" className="underline-offset-4 hover:text-ouro-claro hover:underline">
+                {t.areaReservada}
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
