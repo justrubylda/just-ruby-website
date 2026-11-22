@@ -3,7 +3,7 @@ import CasaVisual from "@/app/components/CasaVisual";
 import PageIntro from "@/app/components/PageIntro";
 import { rota, rotaCasa, ui, type Lingua } from "@/app/i18n";
 import { casaEm, getCasa } from "@/app/site";
-import { zonas } from "@/app/zona";
+import { agendaRevistaEm, zonas } from "@/app/zona";
 
 const TEXTOS = {
   pt: {
@@ -16,6 +16,8 @@ const TEXTOS = {
     ficar: "Onde ficar",
     pedir: "Pedir disponibilidade",
     saberMais: "Saber mais",
+    revista: (d: string) => `Festas e agenda revistas a ${d}.`,
+    locale: "pt-PT",
     nota: "Pergunte-nos pelos sítios de que mais gostamos: respondemos com gosto antes e durante a estadia.",
   },
   en: {
@@ -28,6 +30,8 @@ const TEXTOS = {
     ficar: "Where to stay",
     pedir: "Check availability",
     saberMais: "Find out more",
+    revista: (d: string) => `Festivals and events last reviewed on ${d}.`,
+    locale: "en-GB",
     nota: "Ask us about our favourite places: we're happy to help before and during your stay.",
   },
   es: {
@@ -40,6 +44,8 @@ const TEXTOS = {
     ficar: "Dónde alojarse",
     pedir: "Consultar disponibilidad",
     saberMais: "Más información",
+    revista: (d: string) => `Fiestas y agenda revisadas el ${d}.`,
+    locale: "es-ES",
     nota: "Pregúntenos por nuestros sitios favoritos: le ayudamos con gusto antes y durante la estancia.",
   },
   fr: {
@@ -52,6 +58,8 @@ const TEXTOS = {
     ficar: "Où séjourner",
     pedir: "Demander les disponibilités",
     saberMais: "En savoir plus",
+    revista: (d: string) => `Fêtes et agenda mis à jour le ${d}.`,
+    locale: "fr-FR",
     nota: "Demandez-nous nos adresses préférées : nous vous aidons volontiers avant et pendant votre séjour.",
   },
 };
@@ -163,6 +171,16 @@ export default function Zona({ l }: { l: Lingua }) {
       <section className="bg-preto text-white">
         <div className="mx-auto max-w-7xl px-5 py-16 md:px-8">
           <p className="max-w-2xl text-lg text-nevoa">{t.nota}</p>
+          <p className="mt-4 text-sm text-nevoa/70">
+            {t.revista(
+              new Date(`${agendaRevistaEm}T12:00:00Z`).toLocaleDateString(t.locale, {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                timeZone: "Europe/Lisbon",
+              })
+            )}
+          </p>
         </div>
       </section>
     </>

@@ -42,7 +42,7 @@ export const destinos: Destino[] = [
       pt: {
         titulo: "Festa dos Tabuleiros 2027: onde ficar perto de Tomar",
         descricao:
-          "A Festa dos Tabuleiros volta a Tomar em julho de 2027. Fique no Kingdom of Stone, quinta com piscina a 20 minutos de Tomar, ou n'O Nosso Cantinho, em Santarém. Reserve cedo.",
+          "A Festa dos Tabuleiros volta a Tomar de 3 a 12 de julho de 2027. Fique no Kingdom of Stone, quinta com piscina a 20 minutos de Tomar, ou n'O Nosso Cantinho, em Santarém. Reserve cedo.",
         h1: "Festa dos Tabuleiros 2027",
         intro:
           "A grande festa de Tomar volta em julho de 2027. Fique perto, numa casa só para si, e volte ao fim do dia para a piscina e o silêncio do campo.",
@@ -50,7 +50,7 @@ export const destinos: Destino[] = [
           {
             titulo: "Quando é",
             paragrafos: [
-              "A Festa dos Tabuleiros faz-se de quatro em quatro anos, em Tomar. A próxima edição é em julho de 2027. As datas exatas e o programa são anunciados pela Câmara Municipal de Tomar.",
+              "A Festa dos Tabuleiros faz-se de quatro em quatro anos, em Tomar. A próxima edição é de 3 a 12 de julho de 2027, segundo o Turismo Centro de Portugal. O programa é anunciado pela Câmara Municipal de Tomar.",
             ],
           },
           {
@@ -83,7 +83,7 @@ export const destinos: Destino[] = [
       en: {
         titulo: "Festa dos Tabuleiros 2027: where to stay near Tomar",
         descricao:
-          "The Festa dos Tabuleiros returns to Tomar in July 2027. Stay at Kingdom of Stone, a farmhouse with a pool 20 minutes from Tomar, or at O Nosso Cantinho in Santarém. Book early.",
+          "The Festa dos Tabuleiros returns to Tomar from 3 to 12 July 2027. Stay at Kingdom of Stone, a farmhouse with a pool 20 minutes from Tomar, or at O Nosso Cantinho in Santarém. Book early.",
         h1: "Festa dos Tabuleiros 2027",
         intro:
           "Tomar's great festival returns in July 2027. Stay close by, in a house of your own, and come back at the end of the day to the pool and the quiet of the countryside.",
@@ -91,7 +91,7 @@ export const destinos: Destino[] = [
           {
             titulo: "When is it",
             paragrafos: [
-              "The Festa dos Tabuleiros (Festival of the Trays) is held in Tomar every four years. The next edition is in July 2027. The exact dates and programme are announced by Tomar City Council.",
+              "The Festa dos Tabuleiros (Festival of the Trays) is held in Tomar every four years. The next edition runs from 3 to 12 July 2027, according to Turismo Centro de Portugal. The programme is announced by Tomar City Council.",
             ],
           },
           {
@@ -124,7 +124,7 @@ export const destinos: Destino[] = [
       es: {
         titulo: "Festa dos Tabuleiros 2027: dónde alojarse cerca de Tomar",
         descricao:
-          "La Festa dos Tabuleiros vuelve a Tomar en julio de 2027. Alójese en Kingdom of Stone, finca con piscina a 20 minutos de Tomar, o en O Nosso Cantinho, en Santarém. Reserve con antelación.",
+          "La Festa dos Tabuleiros vuelve a Tomar del 3 al 12 de julio de 2027. Alójese en Kingdom of Stone, finca con piscina a 20 minutos de Tomar, o en O Nosso Cantinho, en Santarém. Reserve con antelación.",
         h1: "Festa dos Tabuleiros 2027",
         intro:
           "La gran fiesta de Tomar vuelve en julio de 2027. Quédese cerca, en una casa solo para usted, y vuelva al final del día a la piscina y al silencio del campo.",
@@ -132,7 +132,7 @@ export const destinos: Destino[] = [
           {
             titulo: "Cuándo es",
             paragrafos: [
-              "La Festa dos Tabuleiros (Fiesta de las Bandejas) se celebra en Tomar cada cuatro años. La próxima edición es en julio de 2027. Las fechas exactas y el programa los anuncia el Ayuntamiento de Tomar.",
+              "La Festa dos Tabuleiros (Fiesta de las Bandejas) se celebra en Tomar cada cuatro años. La próxima edición es del 3 al 12 de julio de 2027, según Turismo Centro de Portugal. El programa lo anuncia el Ayuntamiento de Tomar.",
             ],
           },
           {
@@ -165,7 +165,7 @@ export const destinos: Destino[] = [
       fr: {
         titulo: "Festa dos Tabuleiros 2027 : où dormir près de Tomar",
         descricao:
-          "La Festa dos Tabuleiros revient à Tomar en juillet 2027. Séjournez au Kingdom of Stone, domaine avec piscine à 20 minutes de Tomar, ou à O Nosso Cantinho, à Santarém. Réservez tôt.",
+          "La Festa dos Tabuleiros revient à Tomar du 3 au 12 juillet 2027. Séjournez au Kingdom of Stone, domaine avec piscine à 20 minutes de Tomar, ou à O Nosso Cantinho, à Santarém. Réservez tôt.",
         h1: "Festa dos Tabuleiros 2027",
         intro:
           "La grande fête de Tomar revient en juillet 2027. Logez tout près, dans une maison rien que pour vous, et retrouvez le soir la piscine et le calme de la campagne.",
@@ -173,7 +173,7 @@ export const destinos: Destino[] = [
           {
             titulo: "Quand",
             paragrafos: [
-              "La Festa dos Tabuleiros (fête des Plateaux) a lieu à Tomar tous les quatre ans. La prochaine édition aura lieu en juillet 2027. Les dates exactes et le programme sont annoncés par la mairie de Tomar.",
+              "La Festa dos Tabuleiros (fête des Plateaux) a lieu à Tomar tous les quatre ans. La prochaine édition aura lieu du 3 au 12 juillet 2027, selon Turismo Centro de Portugal. Le programme est annoncé par la mairie de Tomar.",
             ],
           },
           {

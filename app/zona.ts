@@ -6,6 +6,9 @@
 
 import type { Pagina } from "./i18n";
 
+// Data da última revisão das festas e da agenda (AAAA-MM-DD). Atualizar sempre que se revê.
+export const agendaRevistaEm = "2026-11-22";
+
 type Texto = { pt: string; en: string; es: string; fr: string };
 
 export type Zona = {
@@ -175,12 +178,82 @@ export const zonas: Zona[] = [
           fr: "Festa dos Tabuleiros (fête des Plateaux)",
         },
         nota: {
-          pt: "A grande festa de Tomar, de quatro em quatro anos. A próxima é em julho de 2027: convém reservar cedo.",
-          en: "Tomar's great festival, held every four years. The next one is in July 2027, so it's worth booking early.",
-          es: "La gran fiesta de Tomar, cada cuatro años. La próxima es en julio de 2027: conviene reservar pronto.",
-          fr: "La grande fête de Tomar, tous les quatre ans. La prochaine a lieu en juillet 2027 : mieux vaut réserver tôt.",
+          pt: "A grande festa de Tomar, de quatro em quatro anos. A próxima é de 3 a 12 de julho de 2027: convém reservar cedo.",
+          en: "Tomar's great festival, held every four years. The next one runs from 3 to 12 July 2027, so it's worth booking early.",
+          es: "La gran fiesta de Tomar, cada cuatro años. La próxima es del 3 al 12 de julio de 2027: conviene reservar pronto.",
+          fr: "La grande fête de Tomar, tous les quatre ans. La prochaine a lieu du 3 au 12 juillet 2027 : mieux vaut réserver tôt.",
         },
         pagina: "tabuleiros",
+      },
+      {
+        nome: {
+          pt: "Tomar Jazz",
+          en: "Tomar Jazz",
+          es: "Tomar Jazz",
+          fr: "Tomar Jazz",
+        },
+        nota: {
+          pt: "Festival de jazz em junho de 2027 (7.ª edição), com concertos e oficinas.",
+          en: "Jazz festival in June 2027 (7th edition), with concerts and workshops.",
+          es: "Festival de jazz en junio de 2027 (7.ª edición), con conciertos y talleres.",
+          fr: "Festival de jazz en juin 2027 (7e édition), avec concerts et ateliers.",
+        },
+      },
+      {
+        nome: {
+          pt: "Festival das Lanternas Flutuantes",
+          en: "Floating Lanterns Festival",
+          es: "Festival de los Farolillos Flotantes",
+          fr: "Festival des lanternes flottantes",
+        },
+        nota: {
+          pt: "Em junho de 2027, cerca de mil lanternas de cortiça e papel descem o rio Nabão.",
+          en: "In June 2027, around a thousand cork-and-paper lanterns float down the river Nabão.",
+          es: "En junio de 2027, cerca de mil farolillos de corcho y papel bajan por el río Nabão.",
+          fr: "En juin 2027, un millier de lanternes en liège et en papier flottent sur le Nabão.",
+        },
+      },
+      {
+        nome: {
+          pt: "Feira do Livro de Tomar",
+          en: "Tomar Book Fair",
+          es: "Feria del Libro de Tomar",
+          fr: "Foire du livre de Tomar",
+        },
+        nota: {
+          pt: "Em junho de 2027, no Complexo Cultural da Levada, com escritores, conversas e oficinas.",
+          en: "In June 2027 at the Complexo Cultural da Levada, with writers, talks and workshops.",
+          es: "En junio de 2027, en el Complexo Cultural da Levada, con escritores, charlas y talleres.",
+          fr: "En juin 2027 au Complexo Cultural da Levada, avec écrivains, rencontres et ateliers.",
+        },
+      },
+      {
+        nome: {
+          pt: "ZêzereArts",
+          en: "ZêzereArts",
+          es: "ZêzereArts",
+          fr: "ZêzereArts",
+        },
+        nota: {
+          pt: "Festival de música clássica no verão de 2027, com concertos em lugares como o Convento de Cristo.",
+          en: "Classical music festival in summer 2027, with concerts in venues such as the Convent of Christ.",
+          es: "Festival de música clásica en el verano de 2027, con conciertos en lugares como el Convento de Cristo.",
+          fr: "Festival de musique classique à l'été 2027, avec des concerts dans des lieux comme le couvent du Christ.",
+        },
+      },
+      {
+        nome: {
+          pt: "Bons Sons",
+          en: "Bons Sons",
+          es: "Bons Sons",
+          fr: "Bons Sons",
+        },
+        nota: {
+          pt: "Festival de música em Cem Soldos, uma aldeia de Tomar que se transforma em palco; próxima edição em agosto de 2028.",
+          en: "Music festival in Cem Soldos, a village in Tomar that turns into a stage; next edition in August 2028.",
+          es: "Festival de música en Cem Soldos, un pueblo de Tomar que se convierte en escenario; próxima edición en agosto de 2028.",
+          fr: "Festival de musique à Cem Soldos, un village de Tomar qui devient une scène ; prochaine édition en août 2028.",
+        },
       },
     ],
   },
