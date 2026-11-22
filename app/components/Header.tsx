@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { codigo, menu as menuDe, noutraLingua, rota, ui, type Lingua } from "../i18n";
+import { useEffect, useRef, useState } from "react";
+import { caminhoEm, codigo, linguas, menu as menuDe, nomeLingua, rota, ui, type Lingua } from "../i18n";
 import { site } from "../site";
 
 export default function Header({ l = "pt" }: { l?: Lingua }) {
@@ -13,11 +13,27 @@ export default function Header({ l = "pt" }: { l?: Lingua }) {
   const t = ui[l];
   const menu = menuDe(l);
   const inicio = rota(l, "inicio");
-  const outra: Lingua = l === "pt" ? "en" : "pt";
+  const [linguasAberto, setLinguasAberto] = useState(false);
+  const caixaLinguas = useRef<HTMLDivElement>(null);
   const pedido = `${rota(l, "contactos")}#pedido`;
 
   const ativo = (href: string) =>
     href === inicio ? pathname === inicio : pathname === href || pathname.startsWith(`${href}/`);
+
+  // Fecha a lista de línguas ao clicar fora ou com Escape.
+  useEffect(() => {
+    if (!linguasAberto) return;
+    const fora = (e: PointerEvent) => {
+      if (!caixaLinguas.current?.contains(e.target as Node)) setLinguasAberto(false);
+    };
+    const tecla = (e: KeyboardEvent) => e.key === "Escape" && setLinguasAberto(false);
+    document.addEventListener("pointerdown", fora);
+    window.addEventListener("keydown", tecla);
+    return () => {
+      document.removeEventListener("pointerdown", fora);
+      window.removeEventListener("keydown", tecla);
+    };
+  }, [linguasAberto]);
 
   useEffect(() => {
     if (!aberto) return;
@@ -68,16 +84,45 @@ export default function Header({ l = "pt" }: { l?: Lingua }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link
-            href={noutraLingua(pathname)}
-            hrefLang={codigo[outra]}
-            lang={codigo[outra]}
-            aria-label={t.outraLinguaNome}
-            title={t.outraLinguaNome}
-            className="rounded-sm border border-white/25 px-2.5 py-2 text-sm font-semibold text-white/85 transition-colors hover:border-ouro hover:text-ouro-claro"
-          >
-            {t.outraLingua}
-          </Link>
+          {/* Seletor de língua: leva à mesma página na língua escolhida. */}
+          <div ref={caixaLinguas} className="relative">
+            <button
+              type="button"
+              aria-label={`${t.linguas}: ${nomeLingua[l]}`}
+              aria-expanded={linguasAberto}
+              aria-controls="linguas"
+              onClick={() => setLinguasAberto((v) => !v)}
+              className="flex items-center gap-1.5 rounded-sm border border-white/25 px-2.5 py-2 text-sm font-semibold text-white/85 transition-colors hover:border-ouro hover:text-ouro-claro"
+            >
+              {l.toUpperCase()}
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path d={linguasAberto ? "M2 6.5l3-3 3 3" : "M2 3.5l3 3 3-3"} />
+              </svg>
+            </button>
+            <ul
+              id="linguas"
+              hidden={!linguasAberto}
+              className="absolute right-0 top-full z-50 mt-2 min-w-40 border border-ouro/40 bg-preto py-1 shadow-lg"
+            >
+              {linguas.map((x) => (
+                <li key={x}>
+                  <Link
+                    href={caminhoEm(pathname, x)}
+                    hrefLang={codigo[x]}
+                    lang={codigo[x]}
+                    aria-current={x === l ? "true" : undefined}
+                    onClick={() => setLinguasAberto(false)}
+                    className={`flex items-center justify-between gap-4 px-4 py-2.5 text-sm hover:bg-white/5 hover:text-ouro-claro ${
+                      x === l ? "text-ouro-claro" : "text-white/85"
+                    }`}
+                  >
+                    {nomeLingua[x]}
+                    <span className="text-xs font-semibold text-white/50">{x.toUpperCase()}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
           <Link
             href={pedido}
             className="hidden rounded-sm bg-ouro px-4 py-2.5 text-sm font-semibold text-preto transition-colors hover:bg-ouro-claro sm:inline-block"

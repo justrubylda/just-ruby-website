@@ -16,6 +16,16 @@ const TEXTOS = {
     texto:
       "Two different houses, the same care. A country estate near Tomar and a villa on the edge of Santarém.",
   },
+  es: {
+    titulo: "Alojamientos",
+    texto:
+      "Dos casas distintas, el mismo cuidado. Una finca en el campo cerca de Tomar y una villa a las puertas de Santarém.",
+  },
+  fr: {
+    titulo: "Hébergements",
+    texto:
+      "Deux maisons différentes, le même soin. Un domaine à la campagne près de Tomar et une villa aux portes de Santarém.",
+  },
 };
 
 export default function Alojamentos({ l }: { l: Lingua }) {

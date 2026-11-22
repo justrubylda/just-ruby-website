@@ -22,6 +22,24 @@ const TEXTOS = {
     casas: "Our houses",
     legal: `${site.empresa}, tax number (NIF) ${site.nif}, registered office in ${site.sede}, Portugal.`,
   },
+  es: {
+    titulo: "Sobre nosotros",
+    texto: "Una empresa familiar con dos casas en el centro de Portugal.",
+    quem: "Quiénes somos",
+    p1: `Somos Bruno y Rúbia, socios de ${site.empresa}, una pequeña empresa de turismo con sede en Várzea, Santarém. Tenemos dos casas para recibir huéspedes: una finca cerca de Tomar y una villa a las puertas de Santarém.`,
+    p2: "Nos ocupamos de todo personalmente: preparamos cada casa antes de cada estancia, respondemos a los mensajes y estamos disponibles mientras esté con nosotros.",
+    casas: "Nuestras casas",
+    legal: `${site.empresa}, NIF ${site.nif}, con sede en ${site.sede}, Portugal.`,
+  },
+  fr: {
+    titulo: "À propos",
+    texto: "Une entreprise familiale avec deux maisons au cœur du Portugal.",
+    quem: "Qui sommes-nous",
+    p1: `Nous sommes Bruno et Rúbia, associés de ${site.empresa}, une petite entreprise de tourisme basée à Várzea, Santarém. Nous avons deux maisons pour accueillir des hôtes : un domaine près de Tomar et une villa aux portes de Santarém.`,
+    p2: "Nous nous occupons de tout personnellement : nous préparons chaque maison avant chaque séjour, répondons aux messages et restons joignables pendant votre séjour.",
+    casas: "Nos maisons",
+    legal: `${site.empresa}, numéro fiscal (NIF) ${site.nif}, siège à ${site.sede}, Portugal.`,
+  },
 };
 
 export default function Sobre({ l }: { l: Lingua }) {

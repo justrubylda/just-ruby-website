@@ -1,6 +1,7 @@
 // =====================================================================
-//  LÍNGUAS DO SITE: português (principal) e inglês (/en).
-//  Aqui ficam os endereços de cada página nas duas línguas, o menu e os
+//  LÍNGUAS DO SITE: português (principal), inglês (/en), espanhol (/es)
+//  e francês (/fr).
+//  Aqui ficam os endereços de cada página em cada língua, o menu e os
 //  textos comuns (cabeçalho, rodapé, formulário e calendário).
 //  Os textos de cada página estão no próprio ficheiro da página,
 //  em app/components/paginas/.
@@ -8,26 +9,33 @@
 
 import type { Metadata } from "next";
 
-export type Lingua = "pt" | "en";
-export const linguas: Lingua[] = ["pt", "en"];
+export type Lingua = "pt" | "en" | "es" | "fr";
+export const linguas: Lingua[] = ["pt", "en", "es", "fr"];
 
 export type Pagina =
   | "inicio"
   | "alojamentos"
   | "zona"
+  | "tabuleiros"
   | "sobre"
   | "galeria"
   | "contactos"
   | "privacidade";
 
 const ROTAS: Record<Pagina, Record<Lingua, string>> = {
-  inicio: { pt: "/", en: "/en" },
-  alojamentos: { pt: "/alojamentos", en: "/en/accommodation" },
-  zona: { pt: "/zona", en: "/en/area" },
-  sobre: { pt: "/sobre", en: "/en/about" },
-  galeria: { pt: "/galeria", en: "/en/gallery" },
-  contactos: { pt: "/contactos", en: "/en/contact" },
-  privacidade: { pt: "/privacidade", en: "/en/privacy" },
+  inicio: { pt: "/", en: "/en", es: "/es", fr: "/fr" },
+  alojamentos: { pt: "/alojamentos", en: "/en/accommodation", es: "/es/alojamientos", fr: "/fr/hebergements" },
+  zona: { pt: "/zona", en: "/en/area", es: "/es/zona", fr: "/fr/region" },
+  tabuleiros: {
+    pt: "/festa-dos-tabuleiros",
+    en: "/en/festa-dos-tabuleiros",
+    es: "/es/festa-dos-tabuleiros",
+    fr: "/fr/festa-dos-tabuleiros",
+  },
+  sobre: { pt: "/sobre", en: "/en/about", es: "/es/sobre-nosotros", fr: "/fr/a-propos" },
+  galeria: { pt: "/galeria", en: "/en/gallery", es: "/es/galeria", fr: "/fr/galerie" },
+  contactos: { pt: "/contactos", en: "/en/contact", es: "/es/contacto", fr: "/fr/contact" },
+  privacidade: { pt: "/privacidade", en: "/en/privacy", es: "/es/privacidad", fr: "/fr/confidentialite" },
 };
 
 export const paginas = Object.keys(ROTAS) as Pagina[];
@@ -36,26 +44,39 @@ export const rota = (l: Lingua, p: Pagina) => ROTAS[p][l];
 export const rotaCasa = (l: Lingua, slug: string) => `${ROTAS.alojamentos[l]}/${slug}`;
 
 // Código de língua para o Google (hreflang) e para o atributo lang.
-export const codigo: Record<Lingua, string> = { pt: "pt-PT", en: "en" };
+export const codigo: Record<Lingua, string> = { pt: "pt-PT", en: "en", es: "es", fr: "fr" };
+// Língua para a pré-visualização dos links partilhados (Facebook, WhatsApp...).
+export const localeOG: Record<Lingua, string> = { pt: "pt_PT", en: "en_GB", es: "es_ES", fr: "fr_FR" };
+// Nome de cada língua, escrito nessa língua (seletor do cabeçalho).
+export const nomeLingua: Record<Lingua, string> = {
+  pt: "Português",
+  en: "English",
+  es: "Español",
+  fr: "Français",
+};
 
 // Endereço canónico e versões noutras línguas (hreflang), para o metadata de cada página.
 export function alternativas(l: Lingua, p: Pagina, slug?: string): Metadata["alternates"] {
-  const pt = slug ? rotaCasa("pt", slug) : rota("pt", p);
-  const en = slug ? rotaCasa("en", slug) : rota("en", p);
+  const em = (x: Lingua) => (slug ? rotaCasa(x, slug) : rota(x, p));
   return {
-    canonical: l === "pt" ? pt : en,
-    languages: { "pt-PT": pt, en, "x-default": pt },
+    canonical: em(l),
+    languages: {
+      ...Object.fromEntries(linguas.map((x) => [codigo[x], em(x)])),
+      "x-default": em("pt"),
+    },
   };
 }
 
-// Língua de um endereço e o endereço equivalente na outra língua (para o seletor PT/EN).
+// Língua de um endereço e o endereço equivalente noutra língua (seletor do cabeçalho).
 export function linguaDe(pathname: string): Lingua {
-  return pathname === "/en" || pathname.startsWith("/en/") ? "en" : "pt";
+  for (const l of linguas) {
+    if (l !== "pt" && (pathname === `/${l}` || pathname.startsWith(`/${l}/`))) return l;
+  }
+  return "pt";
 }
 
-export function noutraLingua(pathname: string): string {
+export function caminhoEm(pathname: string, para: Lingua): string {
   const de = linguaDe(pathname);
-  const para: Lingua = de === "pt" ? "en" : "pt";
   const caminho = pathname.replace(/\/+$/, "") || "/";
   for (const p of paginas) {
     if (caminho === ROTAS[p][de]) return ROTAS[p][para];
@@ -80,6 +101,20 @@ const ROTULOS: Record<Lingua, Partial<Record<Pagina, string>>> = {
     galeria: "Gallery",
     contactos: "Contact",
   },
+  es: {
+    inicio: "Inicio",
+    alojamentos: "Alojamientos",
+    sobre: "Sobre nosotros",
+    galeria: "Galería",
+    contactos: "Contacto",
+  },
+  fr: {
+    inicio: "Accueil",
+    alojamentos: "Hébergements",
+    sobre: "À propos",
+    galeria: "Galerie",
+    contactos: "Contact",
+  },
 };
 
 // Menu principal (cabeçalho e rodapé).
@@ -88,6 +123,8 @@ export const menu = (l: Lingua) =>
     href: rota(l, p),
     label: ROTULOS[l][p] as string,
   }));
+
+const nota = (locale: string) => (n: number) => n.toLocaleString(locale, { minimumFractionDigits: 1 });
 
 // Textos comuns a várias páginas.
 export const ui = {
@@ -98,12 +135,12 @@ export const ui = {
     abrirMenu: "Abrir menu",
     fecharMenu: "Fechar menu",
     pedir: "Pedir disponibilidade",
-    outraLingua: "EN",
-    outraLinguaNome: "Read this page in English",
+    linguas: "Língua",
     rodapeFrase: "Turismo rural em Tomar e Santarém. Recebemos cada hóspede pessoalmente.",
     paginas: "Páginas",
     contactos: "Contactos",
     zona: "O que fazer na zona",
+    tabuleiros: "Festa dos Tabuleiros 2027",
     sede: "sede em",
     registoAL: "registo de Alojamento Local n.º",
     livro: "Livro de Reclamações",
@@ -111,7 +148,7 @@ export const ui = {
     whatsappAria: "Falar connosco por WhatsApp",
     whatsappTexto: "Olá! Gostaria de saber a disponibilidade.",
     ver: (nome: string) => `Ver ${nome}`,
-    nota: (n: number) => n.toLocaleString("pt-PT", { minimumFractionDigits: 1 }),
+    nota: nota("pt-PT"),
     avaliacao: (plataforma: string) => `de 10 no ${plataforma}`,
   },
   en: {
@@ -121,12 +158,12 @@ export const ui = {
     abrirMenu: "Open menu",
     fecharMenu: "Close menu",
     pedir: "Check availability",
-    outraLingua: "PT",
-    outraLinguaNome: "Ver esta página em português",
+    linguas: "Language",
     rodapeFrase: "Country houses in Tomar and Santarém, Portugal. We welcome every guest personally.",
     paginas: "Pages",
     contactos: "Contact",
     zona: "Things to do nearby",
+    tabuleiros: "Festa dos Tabuleiros 2027",
     sede: "registered office in",
     registoAL: "Local Accommodation (AL) registration no.",
     livro: "Complaints Book (Livro de Reclamações)",
@@ -134,8 +171,54 @@ export const ui = {
     whatsappAria: "Chat with us on WhatsApp",
     whatsappTexto: "Hello! I'd like to check availability.",
     ver: (nome: string) => `See ${nome}`,
-    nota: (n: number) => n.toLocaleString("en-GB", { minimumFractionDigits: 1 }),
+    nota: nota("en-GB"),
     avaliacao: (plataforma: string) => `out of 10 on ${plataforma}`,
+  },
+  es: {
+    saltar: "Ir al contenido",
+    paginaInicial: "página de inicio",
+    menuPrincipal: "Menú principal",
+    abrirMenu: "Abrir menú",
+    fecharMenu: "Cerrar menú",
+    pedir: "Consultar disponibilidad",
+    linguas: "Idioma",
+    rodapeFrase: "Casas rurales en Tomar y Santarém, Portugal. Recibimos a cada huésped personalmente.",
+    paginas: "Páginas",
+    contactos: "Contacto",
+    zona: "Qué hacer en la zona",
+    tabuleiros: "Festa dos Tabuleiros 2027",
+    sede: "con sede en",
+    registoAL: "registro de Alojamiento Local (AL) n.º",
+    livro: "Libro de Reclamaciones (Livro de Reclamações)",
+    privacidade: "Política de privacidad",
+    whatsappAria: "Escríbanos por WhatsApp",
+    whatsappTexto: "¡Hola! Me gustaría consultar la disponibilidad.",
+    ver: (nome: string) => `Ver ${nome}`,
+    nota: nota("es-ES"),
+    avaliacao: (plataforma: string) => `de 10 en ${plataforma}`,
+  },
+  fr: {
+    saltar: "Aller au contenu",
+    paginaInicial: "page d'accueil",
+    menuPrincipal: "Menu principal",
+    abrirMenu: "Ouvrir le menu",
+    fecharMenu: "Fermer le menu",
+    pedir: "Demander les disponibilités",
+    linguas: "Langue",
+    rodapeFrase: "Maisons de campagne à Tomar et Santarém, au Portugal. Nous accueillons chaque hôte personnellement.",
+    paginas: "Pages",
+    contactos: "Contact",
+    zona: "Que faire dans la région",
+    tabuleiros: "Festa dos Tabuleiros 2027",
+    sede: "siège à",
+    registoAL: "n° d'enregistrement d'hébergement local (AL)",
+    livro: "Livre de réclamations (Livro de Reclamações)",
+    privacidade: "Politique de confidentialité",
+    whatsappAria: "Nous écrire sur WhatsApp",
+    whatsappTexto: "Bonjour ! Je voudrais connaître vos disponibilités.",
+    ver: (nome: string) => `Voir ${nome}`,
+    nota: nota("fr-FR"),
+    avaliacao: (plataforma: string) => `sur 10 (${plataforma})`,
   },
 };
 
@@ -165,6 +248,32 @@ export const calendario = {
     Reservado: "Booked",
     proxima: "Next available night:",
     nota: "Synced with Airbnb and Booking.com every hour. We always confirm your dates personally.",
+  },
+  es: {
+    meses: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    dias: ["L", "M", "X", "J", "V", "S", "D"],
+    diasNome: ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"],
+    dia: (d: number, mes: string) => `${d} de ${mes}`,
+    passado: "ya pasó",
+    reservado: "reservado",
+    livre: "libre",
+    Livre: "Libre",
+    Reservado: "Reservado",
+    proxima: "Próxima noche libre:",
+    nota: "Sincronizado con Airbnb y Booking.com cada hora. La confirmación final siempre es nuestra.",
+  },
+  fr: {
+    meses: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+    dias: ["L", "M", "M", "J", "V", "S", "D"],
+    diasNome: ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"],
+    dia: (d: number, mes: string) => `${d} ${mes}`,
+    passado: "passé",
+    reservado: "réservé",
+    livre: "libre",
+    Livre: "Libre",
+    Reservado: "Réservé",
+    proxima: "Prochaine nuit libre :",
+    nota: "Synchronisé avec Airbnb et Booking.com toutes les heures. Nous confirmons toujours vos dates personnellement.",
   },
 };
 
@@ -227,6 +336,66 @@ export const formulario = {
     notaAntes: (comWhatsapp: boolean) =>
       `Your request opens in ${comWhatsapp ? "WhatsApp or " : ""}your email, already written, so you can check it before sending. We reply with availability and the price. We keep your request only to answer you (`,
     notaLink: "privacy policy",
+    notaDepois: ").",
+  },
+  es: {
+    naoPreencher: "No rellenar",
+    alojamento: "Alojamiento",
+    escolha: "Elija un alojamiento",
+    chegada: "Llegada",
+    partida: "Salida",
+    pessoas: "Número de personas",
+    nome: "Su nombre",
+    mensagem: "Mensaje",
+    opcional: "(opcional)",
+    exemplo: "Por ejemplo: vamos con niños o llegamos tarde.",
+    porWhatsapp: "Enviar solicitud por WhatsApp",
+    porEmail: "Enviar solicitud por email",
+    erroCasa: "Elija el alojamiento.",
+    erroDatas: "Indique las fechas de llegada y de salida.",
+    erroPassado: "La fecha de llegada ya ha pasado. Elija una fecha a partir de hoy.",
+    erroOrdem: "La fecha de salida tiene que ser posterior a la de llegada.",
+    erroOcupado: "Esas fechas ya están ocupadas. Consulte el calendario de disponibilidad o elija otras fechas.",
+    erroPessoas: "Indique cuántas personas vienen.",
+    ola: (paraNome: string) => `¡Hola! Me gustaría consultar la disponibilidad ${paraNome}.`,
+    lChegada: "Llegada",
+    lPartida: "Salida",
+    lHospedes: "Huéspedes",
+    lNome: "Nombre",
+    assunto: (nome: string) => `Disponibilidad ${nome}`,
+    notaAntes: (comWhatsapp: boolean) =>
+      `La solicitud se abre en su ${comWhatsapp ? "WhatsApp o en su " : ""}email, ya escrita, para que la revise antes de enviarla. Le respondemos con la disponibilidad y el precio. Guardamos la solicitud solo para responderle (`,
+    notaLink: "política de privacidad",
+    notaDepois: ").",
+  },
+  fr: {
+    naoPreencher: "Ne pas remplir",
+    alojamento: "Hébergement",
+    escolha: "Choisissez un hébergement",
+    chegada: "Arrivée",
+    partida: "Départ",
+    pessoas: "Nombre de personnes",
+    nome: "Votre nom",
+    mensagem: "Message",
+    opcional: "(facultatif)",
+    exemplo: "Par exemple : nous venons avec des enfants, ou nous arriverons tard.",
+    porWhatsapp: "Envoyer la demande par WhatsApp",
+    porEmail: "Envoyer la demande par e-mail",
+    erroCasa: "Choisissez l'hébergement.",
+    erroDatas: "Indiquez les dates d'arrivée et de départ.",
+    erroPassado: "La date d'arrivée est déjà passée. Choisissez une date à partir d'aujourd'hui.",
+    erroOrdem: "La date de départ doit être postérieure à la date d'arrivée.",
+    erroOcupado: "Ces dates sont déjà réservées. Consultez le calendrier des disponibilités ou choisissez d'autres dates.",
+    erroPessoas: "Indiquez le nombre de personnes.",
+    ola: (paraNome: string) => `Bonjour ! Je voudrais connaître vos disponibilités ${paraNome}.`,
+    lChegada: "Arrivée",
+    lPartida: "Départ",
+    lHospedes: "Personnes",
+    lNome: "Nom",
+    assunto: (nome: string) => `Disponibilités – ${nome}`,
+    notaAntes: (comWhatsapp: boolean) =>
+      `Votre demande s'ouvre dans ${comWhatsapp ? "WhatsApp ou dans " : ""}votre messagerie, déjà rédigée, pour que vous puissiez la vérifier avant de l'envoyer. Nous répondons avec les disponibilités et le prix. Nous gardons votre demande uniquement pour vous répondre (`,
+    notaLink: "politique de confidentialité",
     notaDepois: ").",
   },
 };

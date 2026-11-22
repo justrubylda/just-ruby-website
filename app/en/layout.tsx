@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Footer from "@/app/components/Footer";
-import Header from "@/app/components/Header";
-import WhatsAppButton from "@/app/components/WhatsAppButton";
+import LayoutLingua from "@/app/components/LayoutLingua";
 import { site } from "@/app/site";
 
 // Versão inglesa do site (/en). Os textos estão em app/components/paginas/ e app/i18n.ts.
@@ -16,20 +14,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_GB",
-    alternateLocale: ["pt_PT"],
+    alternateLocale: ["pt_PT", "es_ES", "fr_FR"],
     siteName: site.nome,
   },
 };
 
 export default function EnglishLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div lang="en" className="contents">
-      <Header l="en" />
-      <main id="conteudo" className="flex-1">
-        {children}
-      </main>
-      <Footer l="en" />
-      <WhatsAppButton l="en" />
-    </div>
-  );
+  return <LayoutLingua l="en">{children}</LayoutLingua>;
 }

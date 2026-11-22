@@ -6,7 +6,11 @@ import { casas, site } from "../site";
 export default function Footer({ l = "pt" }: { l?: Lingua }) {
   const registos = casas.filter((c) => c.rnal);
   const t = ui[l];
-  const menu = [...menuDe(l), { href: rota(l, "zona"), label: t.zona }];
+  const menu = [
+    ...menuDe(l),
+    { href: rota(l, "zona"), label: t.zona },
+    { href: rota(l, "tabuleiros"), label: t.tabuleiros },
+  ];
 
   return (
     <footer className="bg-preto text-nevoa">

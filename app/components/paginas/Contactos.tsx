@@ -21,6 +21,22 @@ const TEXTOS = {
     onde: "Where we are",
     morada: "We send the exact address when your booking is confirmed.",
   },
+  es: {
+    titulo: "Contacto",
+    texto: "Díganos las fechas y el número de personas. Le respondemos con la disponibilidad y el precio.",
+    fale: "Hable con nosotros",
+    telefone: "Teléfono",
+    onde: "Dónde estamos",
+    morada: "Le enviamos la dirección exacta con la confirmación de la reserva.",
+  },
+  fr: {
+    titulo: "Contact",
+    texto: "Indiquez-nous vos dates et le nombre de personnes. Nous vous répondrons avec les disponibilités et le prix.",
+    fale: "Nous contacter",
+    telefone: "Téléphone",
+    onde: "Où nous trouver",
+    morada: "Nous vous envoyons l'adresse exacte à la confirmation de la réservation.",
+  },
 };
 
 export default async function Contactos({ l }: { l: Lingua }) {

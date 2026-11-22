@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_PT",
-    alternateLocale: ["en_GB"],
+    alternateLocale: ["en_GB", "es_ES", "fr_FR"],
     siteName: site.nome,
   },
   // Códigos de verificação do Google Search Console e do Bing Webmaster Tools.

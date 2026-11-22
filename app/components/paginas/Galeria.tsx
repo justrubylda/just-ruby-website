@@ -25,6 +25,26 @@ const TEXTOS = {
     porEmail: "Ask for photos by email",
     assunto: "Photo request",
   },
+  es: {
+    titulo: "Galería",
+    texto: "Un primer vistazo a las dos casas.",
+    pedidoWhatsapp: "¡Hola! ¿Pueden enviarme fotos de los alojamientos?",
+    aPreparar: "Las fotografías se están preparando",
+    entretanto: "Mientras tanto, pídanos fotos de cualquier espacio de la casa que le interese.",
+    porWhatsapp: "Pedir fotos por WhatsApp",
+    porEmail: "Pedir fotos por email",
+    assunto: "Solicitud de fotografías",
+  },
+  fr: {
+    titulo: "Galerie",
+    texto: "Un premier aperçu des deux maisons.",
+    pedidoWhatsapp: "Bonjour ! Pourriez-vous m'envoyer des photos des maisons ?",
+    aPreparar: "Les photos sont en préparation",
+    entretanto: "En attendant, demandez-nous des photos de n'importe quelle pièce de la maison.",
+    porWhatsapp: "Demander des photos sur WhatsApp",
+    porEmail: "Demander des photos par e-mail",
+    assunto: "Demande de photos",
+  },
 };
 
 // As fotos vêm de app/site.ts (campo "fotos" de cada casa).

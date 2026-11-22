@@ -37,6 +37,38 @@ const TEXTOS = {
     datasTexto:
       "Tell us when you'd like to come and how many of you there are. We'll reply with availability and the price.",
   },
+  es: {
+    titulo: "Dos casas para bajar el ritmo en el centro de Portugal",
+    abertura:
+      "Una finca cerca de Tomar y una villa en Várzea, Santarém, ambas con piscina. Cuidamos de cada una personalmente.",
+    quemTitulo: "Una casa familiar, abierta a quien llega",
+    quem1:
+      "Somos Bruno y Rúbia. JUST RUBY es nuestra empresa y estas son las casas que cuidamos: preparamos cada una antes de su llegada y estamos disponibles durante toda la estancia.",
+    quem2:
+      "Al reservar con nosotros, habla directamente con quien conoce la casa, el camino hasta allí y los mejores sitios de alrededor.",
+    conhecer: "Conocer JUST RUBY",
+    pertoTitulo: "Qué hay cerca",
+    maisZona: "Más ideas para la zona",
+    datasTitulo: "¿Tiene fechas en mente?",
+    datasTexto:
+      "Díganos cuándo quiere venir y cuántas personas son. Le respondemos con la disponibilidad y el precio.",
+  },
+  fr: {
+    titulo: "Deux maisons pour ralentir au cœur du Portugal",
+    abertura:
+      "Un domaine près de Tomar et une villa à Várzea, Santarém, toutes deux avec piscine. Nous nous occupons de chacune personnellement.",
+    quemTitulo: "Une maison de famille, ouverte à nos hôtes",
+    quem1:
+      "Nous sommes Bruno et Rúbia. JUST RUBY est notre entreprise et voici les maisons dont nous prenons soin : nous préparons chacune avant votre arrivée et restons joignables pendant tout le séjour.",
+    quem2:
+      "En réservant chez nous, vous échangez directement avec ceux qui connaissent la maison, la route pour y aller et les meilleures adresses alentour.",
+    conhecer: "Découvrir JUST RUBY",
+    pertoTitulo: "À proximité",
+    maisZona: "Plus d'idées pour la région",
+    datasTitulo: "Vous avez des dates en tête ?",
+    datasTexto:
+      "Dites-nous quand vous souhaitez venir et combien vous serez. Nous vous répondons avec les disponibilités et le prix.",
+  },
 };
 
 export default async function Inicio({ l }: { l: Lingua }) {

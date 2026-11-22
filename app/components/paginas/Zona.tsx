@@ -1,7 +1,7 @@
 import Link from "next/link";
 import CasaVisual from "@/app/components/CasaVisual";
 import PageIntro from "@/app/components/PageIntro";
-import { rotaCasa, ui, type Lingua } from "@/app/i18n";
+import { rota, rotaCasa, ui, type Lingua } from "@/app/i18n";
 import { casaEm, getCasa } from "@/app/site";
 import { zonas } from "@/app/zona";
 
@@ -15,6 +15,7 @@ const TEXTOS = {
     festas: "Festas e feiras",
     ficar: "Onde ficar",
     pedir: "Pedir disponibilidade",
+    saberMais: "Onde ficar durante a festa",
     nota: "Pergunte-nos pelos sítios de que mais gostamos: respondemos com gosto antes e durante a estadia.",
   },
   en: {
@@ -26,7 +27,32 @@ const TEXTOS = {
     festas: "Festivals and fairs",
     ficar: "Where to stay",
     pedir: "Check availability",
+    saberMais: "Where to stay during the festival",
     nota: "Ask us about our favourite places: we're happy to help before and during your stay.",
+  },
+  es: {
+    titulo: "Qué hacer en la zona",
+    texto:
+      "Monumentos, ríos, pueblos y fiestas cerca de nuestras casas, en Tomar y en Santarém, en el centro de Portugal.",
+    indice: "En esta página",
+    sitios: "Qué visitar",
+    festas: "Fiestas y ferias",
+    ficar: "Dónde alojarse",
+    pedir: "Consultar disponibilidad",
+    saberMais: "Dónde alojarse durante la fiesta",
+    nota: "Pregúntenos por nuestros sitios favoritos: le ayudamos con gusto antes y durante la estancia.",
+  },
+  fr: {
+    titulo: "Que faire dans la région",
+    texto:
+      "Monuments, rivières, villages et fêtes près de nos maisons, à Tomar et à Santarém, au cœur du Portugal.",
+    indice: "Sur cette page",
+    sitios: "À visiter",
+    festas: "Fêtes et foires",
+    ficar: "Où séjourner",
+    pedir: "Demander les disponibilités",
+    saberMais: "Où dormir pendant la fête",
+    nota: "Demandez-nous nos adresses préférées : nous vous aidons volontiers avant et pendant votre séjour.",
   },
 };
 
@@ -80,6 +106,14 @@ export default function Zona({ l }: { l: Lingua }) {
                           <li key={s.nome.pt} className="py-5">
                             <p className="font-semibold">{s.nome[l]}</p>
                             <p className="text-cinza">{s.nota[l]}</p>
+                            {s.pagina && (
+                              <Link
+                                href={rota(l, s.pagina)}
+                                className="mt-2 inline-block border-b border-ouro-escuro pb-0.5 font-semibold text-ouro-escuro hover:text-xisto"
+                              >
+                                {t.saberMais}
+                              </Link>
+                            )}
                           </li>
                         ))}
                       </ul>

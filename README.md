@@ -16,24 +16,22 @@ Quase tudo está num único ficheiro: **`app/site.ts`**. No GitHub, abra o fiche
 
 Campos vazios (`""`) ficam escondidos no site.
 
-## Versão em inglês
+## Línguas: português, inglês, espanhol e francês
 
-O site tem as mesmas páginas em inglês, em `/en` (ex.: `https://www.justruby.pt/en/accommodation/o-nosso-cantinho`).
-O botão **EN / PT** no cabeçalho troca de língua na mesma página, e o Google recebe a indicação de que as duas versões são a mesma página (hreflang).
+O site tem as mesmas páginas em inglês (`/en`), espanhol (`/es`) e francês (`/fr`).
+O seletor de língua no cabeçalho leva à mesma página na língua escolhida, e o Google recebe a indicação de que as versões são a mesma página (hreflang).
 
-- Textos das casas: bloco `en` de cada casa em `app/site.ts`; fotos: campo `en` de cada foto.
-- Textos das páginas: no topo de cada ficheiro em `app/components/paginas/` (parte `pt` e parte `en`).
-- Menu, rodapé, formulário e calendário: `app/i18n.ts`.
-- Página "O que fazer na zona" (`/zona` e `/en/area`): `app/zona.ts`.
+- Textos das casas: blocos `en`, `es` e `fr` de cada casa em `app/site.ts`; fotos: campos `en`, `es` e `fr` de cada foto.
+- Textos das páginas: no topo de cada ficheiro em `app/components/paginas/` (partes `pt`, `en`, `es` e `fr`).
+- Menu, endereços das páginas, rodapé, formulário e calendário: `app/i18n.ts`.
+- Página "O que fazer na zona" (`/zona`): `app/zona.ts`.
+- Página da Festa dos Tabuleiros (`/festa-dos-tabuleiros`): `app/components/paginas/Tabuleiros.tsx`. Quando a Câmara de Tomar anunciar as datas, acrescentá-las em `quandoTexto`.
 
-## Google Search Console e Bing
+## Google Search Console, Bing e IndexNow
 
-Para o site aparecer no Google mais depressa:
-
-1. Em [search.google.com/search-console](https://search.google.com/search-console), adicione a propriedade **Prefixo do URL** `https://www.justruby.pt` e escolha a verificação por **etiqueta HTML**. Copie só o código que está em `content="..."`.
-2. Na Vercel, em Settings → Environment Variables, crie `GOOGLE_SITE_VERIFICATION` com esse código e volte a publicar (Deployments → Redeploy).
-3. No Search Console, carregue em **Verificar** e depois, em **Sitemaps**, envie `sitemap.xml`.
-4. No [Bing Webmaster Tools](https://www.bing.com/webmasters) pode importar o site diretamente do Google Search Console. Se preferir a etiqueta, use a variável `BING_SITE_VERIFICATION`.
+- **Google Search Console**: propriedade `https://www.justruby.pt/` (conta JUST RUBY LDA), validada pelo ficheiro `public/google0ad3daf97fc3a9de.html`. **Não apagar esse ficheiro.**
+- **Bing Webmaster Tools**: site importado do Search Console.
+- **IndexNow**: todas as manhãs, a tarefa da Vercel (`/api/gestao/sincronizar`) avisa o Bing quando há uma publicação nova, com todas as páginas do mapa do site (só uma vez por publicação). A chave está em `app/lib/indexnow.ts` e no ficheiro `public/e154ed0d9f37f053de98af3301e42f9f.txt`; **não apagar esse ficheiro**.
 
 ## Pôr fotografias
 

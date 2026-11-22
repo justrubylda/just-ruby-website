@@ -1,15 +1,16 @@
 import type { MetadataRoute } from "next";
-import { linguas, paginas, rota, rotaCasa, type Lingua, type Pagina } from "./i18n";
+import { codigo, linguas, paginas, rota, rotaCasa, type Lingua, type Pagina } from "./i18n";
 import { casas, site } from "./site";
 
-// Mapa do site para o Google: cada página em português e em inglês,
-// com a indicação de qual é a versão na outra língua.
+// Mapa do site para o Google: cada página em português, inglês, espanhol e francês,
+// com a indicação de quais são as versões nas outras línguas.
 const abs = (caminho: string) => `${site.url}${caminho === "/" ? "" : caminho}`;
 
 const PRIORIDADE: Record<Pagina, number> = {
   inicio: 1,
   alojamentos: 0.9,
   zona: 0.7,
+  tabuleiros: 0.8,
   sobre: 0.6,
   galeria: 0.6,
   contactos: 0.6,
@@ -18,7 +19,7 @@ const PRIORIDADE: Record<Pagina, number> = {
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const versoes = (caminho: (l: Lingua) => string) => ({
-    languages: { "pt-PT": abs(caminho("pt")), en: abs(caminho("en")) },
+    languages: Object.fromEntries(linguas.map((x) => [codigo[x], abs(caminho(x))])),
   });
 
   const lista: MetadataRoute.Sitemap = [];

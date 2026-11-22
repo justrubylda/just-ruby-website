@@ -73,6 +73,66 @@ const TEXTOS = {
     descricao: (frase: string) => `${frase} Book directly with the hosts.`,
     locale: "en_GB",
   },
+  es: {
+    alojamentos: "Alojamientos",
+    migalhas: "Ruta de navegación",
+    inicio: "Inicio",
+    aCasa: "La casa",
+    encontra: "Qué encontrará",
+    comodidades: "Servicios",
+    checkOut: (h: string) => `Salida antes de las ${h}`,
+    disponibilidade: "Disponibilidad",
+    naZona: "En la zona",
+    maisZona: "Más ideas para la zona",
+    comoReservar: "Cómo reservar",
+    passos: [
+      "Envíenos las fechas y el número de personas, por el formulario o por email.",
+      "Le respondemos con la disponibilidad y el precio de la estancia.",
+      "Tras la confirmación, le enviamos la dirección y las indicaciones para llegar.",
+    ],
+    tambem: "También puede reservar",
+    noAirbnb: "en Airbnb",
+    ou: " o ",
+    noBooking: "en Booking.com",
+    rnal: "Registro de Alojamiento Local (AL) n.º",
+    pedirTexto: "Díganos las fechas y le respondemos con el precio.",
+    fotografias: "Fotografías",
+    conheca: (cidade: string) => `Descubra también, en ${cidade}`,
+    titulo: (nome: string, tipo: string, cidade: string) =>
+      `${nome}, ${tipo.charAt(0).toLowerCase()}${tipo.slice(1)} en ${cidade}, Portugal`,
+    descricao: (frase: string) => `${frase} Reserve directamente con los anfitriones.`,
+    locale: "es_ES",
+  },
+  fr: {
+    alojamentos: "Hébergements",
+    migalhas: "Fil d'Ariane",
+    inicio: "Accueil",
+    aCasa: "La maison",
+    encontra: "Ce que vous trouverez",
+    comodidades: "Équipements",
+    checkOut: (h: string) => `Départ avant ${h.replace(":", "h")}`,
+    disponibilidade: "Disponibilités",
+    naZona: "Dans la région",
+    maisZona: "Plus d'idées pour la région",
+    comoReservar: "Comment réserver",
+    passos: [
+      "Envoyez-nous vos dates et le nombre de personnes, par le formulaire ou par e-mail.",
+      "Nous vous répondons avec les disponibilités et le prix du séjour.",
+      "Après confirmation, nous vous envoyons l'adresse et l'itinéraire.",
+    ],
+    tambem: "Vous pouvez aussi réserver",
+    noAirbnb: "sur Airbnb",
+    ou: " ou ",
+    noBooking: "sur Booking.com",
+    rnal: "N° d'enregistrement d'hébergement local (AL)",
+    pedirTexto: "Indiquez-nous vos dates et nous vous répondrons avec le prix.",
+    fotografias: "Photos",
+    conheca: (cidade: string) => `À découvrir aussi, à ${cidade}`,
+    titulo: (nome: string, tipo: string, cidade: string) =>
+      `${nome}, ${tipo.charAt(0).toLowerCase()}${tipo.slice(1)} à ${cidade}, Portugal`,
+    descricao: (frase: string) => `${frase} Réservez directement auprès des hôtes.`,
+    locale: "fr_FR",
+  },
 };
 
 export const slugsCasas = () => casas.map((c) => ({ slug: c.slug }));
@@ -259,12 +319,25 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
               ))}
             </ul>
             {zona && (
-              <Link
-                href={`${rota(l, "zona")}#${zona.id}`}
-                className="mt-6 inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
-              >
-                {t.maisZona}
-              </Link>
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+                <Link
+                  href={`${rota(l, "zona")}#${zona.id}`}
+                  className="inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
+                >
+                  {t.maisZona}
+                </Link>
+                {zona.festas
+                  .filter((f) => f.pagina)
+                  .map((f) => (
+                    <Link
+                      key={f.nome.pt}
+                      href={rota(l, f.pagina!)}
+                      className="inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
+                    >
+                      {f.nome[l]}
+                    </Link>
+                  ))}
+              </div>
             )}
           </section>
 
