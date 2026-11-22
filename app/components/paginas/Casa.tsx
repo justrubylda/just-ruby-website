@@ -7,7 +7,7 @@ import Calendario from "@/app/components/Calendario";
 import CasaVisual from "@/app/components/CasaVisual";
 import JsonLd from "@/app/components/JsonLd";
 import PedidoForm from "@/app/components/PedidoForm";
-import { alternativas, rota, rotaCasa, ui, type Lingua } from "@/app/i18n";
+import { alternativas, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
 import { ocupacaoDe, temCalendario } from "@/app/lib/disponibilidade";
 import { casaEm, casas, getCasa, site } from "@/app/site";
 import { zonas } from "@/app/zona";
@@ -176,6 +176,17 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
   const ocupado = comCalendario ? await ocupacaoDe(casa.slug) : [];
   const galeria = casa.fotos.slice(1);
   const zona = zonas.find((z) => z.casa === casa.slug);
+  // Páginas "onde ficar" ligadas a esta zona (Castelo do Bode, Tabuleiros, CNEMA), sem repetir.
+  const rotulosPaginas: Partial<Record<Pagina, string>> = {
+    castelo: ui[l].castelo,
+    tabuleiros: ui[l].tabuleiros,
+    cnema: ui[l].cnema,
+  };
+  const paginasZona = zona
+    ? [...new Set([...zona.sitios, ...zona.festas].map((x) => x.pagina))].filter(
+        (p): p is Pagina => p !== undefined && p in rotulosPaginas
+      )
+    : [];
   const url = `${site.url}${rotaCasa(l, casa.slug)}`;
   const anuncios = [casa.booking, casa.airbnb].filter(Boolean);
 
@@ -326,17 +337,15 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
                 >
                   {t.maisZona}
                 </Link>
-                {zona.festas
-                  .filter((f) => f.pagina)
-                  .map((f) => (
-                    <Link
-                      key={f.nome.pt}
-                      href={rota(l, f.pagina!)}
-                      className="inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
-                    >
-                      {f.nome[l]}
-                    </Link>
-                  ))}
+                {paginasZona.map((p) => (
+                  <Link
+                    key={p}
+                    href={rota(l, p)}
+                    className="inline-block border-b border-ouro-escuro pb-1 font-semibold text-ouro-escuro hover:text-xisto"
+                  >
+                    {rotulosPaginas[p]}
+                  </Link>
+                ))}
               </div>
             )}
           </section>

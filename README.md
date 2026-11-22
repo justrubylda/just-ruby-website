@@ -25,7 +25,7 @@ O seletor de língua no cabeçalho leva à mesma página na língua escolhida, e
 - Textos das páginas: no topo de cada ficheiro em `app/components/paginas/` (partes `pt`, `en`, `es` e `fr`).
 - Menu, endereços das páginas, rodapé, formulário e calendário: `app/i18n.ts`.
 - Página "O que fazer na zona" (`/zona`): `app/zona.ts`.
-- Página da Festa dos Tabuleiros (`/festa-dos-tabuleiros`): `app/components/paginas/Tabuleiros.tsx`. Quando a Câmara de Tomar anunciar as datas, acrescentá-las em `quandoTexto`.
+- Páginas "onde ficar": Festa dos Tabuleiros (`/festa-dos-tabuleiros`), Castelo do Bode e praia fluvial de Montes (`/castelo-do-bode`) e alojamento perto do CNEMA (`/cnema-santarem`). Os textos das 4 línguas estão em `app/destinos.ts`. Quando a Câmara de Tomar anunciar as datas da Festa dos Tabuleiros, acrescentá-las na secção "Quando é".
 
 ## Google Search Console, Bing e IndexNow
 

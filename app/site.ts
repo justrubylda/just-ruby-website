@@ -96,7 +96,7 @@ export const casas: Casa[] = [
     tipo: "Quinta com piscina",
     frase: "Uma quinta de cinco hectares com piscina, no campo, a cerca de 20 minutos de Tomar.",
     descricao: [
-      "O Kingdom of Stone é uma quinta com cerca de cinco hectares em Olalhas, no concelho de Tomar, perto da albufeira de Castelo do Bode.",
+      "O Kingdom of Stone é uma quinta com cerca de cinco hectares em Olalhas, no concelho de Tomar, a cerca de 1,4 km da praia fluvial de Montes, na albufeira de Castelo do Bode.",
       "A casa tem 4 quartos, 2 casas de banho, sala e ar condicionado. Lá fora há piscina, jardim, pérgula com videira, forno a lenha e churrasqueira. É um sítio para abrandar: manhãs calmas, tardes na piscina e noites sem ruído.",
       "Tomar e o Convento de Cristo ficam a curta distância de carro, para quem quiser juntar história ao descanso.",
     ],
@@ -118,8 +118,8 @@ export const casas: Casa[] = [
         nota: "Património Mundial da UNESCO e antiga sede dos Templários, em Tomar.",
       },
       {
-        nome: "Albufeira de Castelo do Bode",
-        nota: "Praias fluviais, passeios de barco e desportos náuticos.",
+        nome: "Praia fluvial de Montes",
+        nota: "A cerca de 1,4 km da quinta, na albufeira de Castelo do Bode: praias fluviais, barcos e desportos náuticos.",
       },
       {
         nome: "Centro histórico de Tomar",
@@ -157,7 +157,7 @@ export const casas: Casa[] = [
       tipo: "Farmhouse with pool",
       frase: "A five-hectare country estate with a pool, about 20 minutes from Tomar.",
       descricao: [
-        "Kingdom of Stone is a country estate of about five hectares in Olalhas, in the municipality of Tomar, close to the Castelo do Bode reservoir.",
+        "Kingdom of Stone is a country estate of about five hectares in Olalhas, in the municipality of Tomar, about 1.4 km from the Montes river beach on the Castelo do Bode reservoir.",
         "The house has 4 bedrooms, 2 bathrooms, a living room and air conditioning. Outside there is a pool, a garden, a vine-covered pergola, a wood-fired oven and a barbecue. It is a place to slow down: quiet mornings, afternoons by the pool and silent nights.",
         "Tomar and the Convent of Christ are a short drive away, for those who want to add some history to their rest.",
       ],
@@ -176,8 +176,8 @@ export const casas: Casa[] = [
           nota: "UNESCO World Heritage Site and former Templar headquarters, in Tomar.",
         },
         {
-          nome: "Castelo do Bode reservoir",
-          nota: "River beaches, boat trips and water sports.",
+          nome: "Montes river beach",
+          nota: "About 1.4 km from the estate, on the Castelo do Bode reservoir: river beaches, boats and water sports.",
         },
         {
           nome: "Tomar old town",
@@ -191,7 +191,7 @@ export const casas: Casa[] = [
       tipo: "Finca con piscina",
       frase: "Una finca de cinco hectáreas con piscina, en pleno campo, a unos 20 minutos de Tomar.",
       descricao: [
-        "Kingdom of Stone es una finca de unas cinco hectáreas en Olalhas, en el municipio de Tomar, cerca del embalse de Castelo do Bode.",
+        "Kingdom of Stone es una finca de unas cinco hectáreas en Olalhas, en el municipio de Tomar, a unos 1,4 km de la playa fluvial de Montes, en el embalse de Castelo do Bode.",
         "La casa tiene 4 dormitorios, 2 baños, salón y aire acondicionado. Fuera hay piscina, jardín, una pérgola con parra, horno de leña y barbacoa. Es un lugar para bajar el ritmo: mañanas tranquilas, tardes en la piscina y noches en silencio.",
         "Tomar y el Convento de Cristo quedan a poca distancia en coche, para quien quiera sumar historia al descanso.",
       ],
@@ -214,7 +214,7 @@ export const casas: Casa[] = [
       verLabel: "Ver la finca",
       perto: [
         { nome: "Convento de Cristo", nota: "Patrimonio Mundial de la UNESCO y antigua sede de los templarios, en Tomar." },
-        { nome: "Embalse de Castelo do Bode", nota: "Playas fluviales, paseos en barco y deportes náuticos." },
+        { nome: "Playa fluvial de Montes", nota: "A unos 1,4 km de la finca, en el embalse de Castelo do Bode: playas fluviales, barcos y deportes náuticos." },
         { nome: "Centro histórico de Tomar", nota: "Calles antiguas junto al río Nabão y el parque de la Mata dos Sete Montes." },
       ],
     },
@@ -224,7 +224,7 @@ export const casas: Casa[] = [
       tipo: "Domaine avec piscine",
       frase: "Un domaine de cinq hectares avec piscine, en pleine campagne, à environ 20 minutes de Tomar.",
       descricao: [
-        "Le Kingdom of Stone est un domaine d'environ cinq hectares à Olalhas, dans la commune de Tomar, près du lac de barrage de Castelo do Bode.",
+        "Le Kingdom of Stone est un domaine d'environ cinq hectares à Olalhas, dans la commune de Tomar, à environ 1,4 km de la plage fluviale de Montes, sur le lac de Castelo do Bode.",
         "La maison compte 4 chambres, 2 salles de bains, un salon et la climatisation. Dehors, il y a une piscine, un jardin, une pergola couverte de vigne, un four à bois et un barbecue. C'est un lieu pour ralentir : matinées calmes, après-midi au bord de la piscine et nuits silencieuses.",
         "Tomar et le couvent du Christ sont à quelques minutes en voiture, pour ceux qui veulent ajouter un peu d'histoire au repos.",
       ],
@@ -247,7 +247,7 @@ export const casas: Casa[] = [
       verLabel: "Voir le domaine",
       perto: [
         { nome: "Couvent du Christ", nota: "Classé au patrimoine mondial de l'UNESCO, ancien siège des Templiers, à Tomar." },
-        { nome: "Lac de Castelo do Bode", nota: "Plages fluviales, promenades en bateau et sports nautiques." },
+        { nome: "Plage fluviale de Montes", nota: "À environ 1,4 km du domaine, sur le lac de Castelo do Bode : plages fluviales, bateaux et sports nautiques." },
         { nome: "Vieille ville de Tomar", nota: "Ruelles anciennes au bord du Nabão et le parc de la Mata dos Sete Montes." },
       ],
     },

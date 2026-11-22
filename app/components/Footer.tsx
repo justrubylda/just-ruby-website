@@ -10,6 +10,8 @@ export default function Footer({ l = "pt" }: { l?: Lingua }) {
     ...menuDe(l),
     { href: rota(l, "zona"), label: t.zona },
     { href: rota(l, "tabuleiros"), label: t.tabuleiros },
+    { href: rota(l, "castelo"), label: t.castelo },
+    { href: rota(l, "cnema"), label: t.cnema },
   ];
 
   return (

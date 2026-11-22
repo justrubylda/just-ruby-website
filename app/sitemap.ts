@@ -11,6 +11,8 @@ const PRIORIDADE: Record<Pagina, number> = {
   alojamentos: 0.9,
   zona: 0.7,
   tabuleiros: 0.8,
+  castelo: 0.8,
+  cnema: 0.8,
   sobre: 0.6,
   galeria: 0.6,
   contactos: 0.6,

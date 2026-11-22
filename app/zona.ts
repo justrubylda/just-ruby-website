@@ -13,7 +13,7 @@ export type Zona = {
   casa: string; // slug da casa mais perto
   titulo: Texto;
   intro: Texto;
-  sitios: { nome: Texto; nota: Texto }[];
+  sitios: { nome: Texto; nota: Texto; pagina?: Pagina }[]; // pagina: link para uma página do site
   festas: { nome: Texto; nota: Texto; pagina?: Pagina }[]; // pagina: link para uma página do site
 };
 
@@ -47,6 +47,21 @@ export const zonas: Zona[] = [
           es: "Patrimonio Mundial de la UNESCO y antigua sede de los templarios y de la Orden de Cristo. No se pierda la Charola, la iglesia redonda, ni la ventana manuelina.",
           fr: "Classé au patrimoine mondial de l'UNESCO, ancien siège des Templiers et de l'ordre du Christ. Ne manquez pas la Charola, l'église ronde, ni la fenêtre manuéline.",
         },
+      },
+      {
+        nome: {
+          pt: "Praia fluvial de Montes",
+          en: "Montes river beach",
+          es: "Playa fluvial de Montes",
+          fr: "Plage fluviale de Montes",
+        },
+        nota: {
+          pt: "A cerca de 1,4 km do Kingdom of Stone, na albufeira de Castelo do Bode. Pequena e sossegada, com água de Qualidade de Ouro (Quercus).",
+          en: "About 1.4 km from Kingdom of Stone, on the Castelo do Bode reservoir. Small and quiet, with Gold Quality water (Quercus).",
+          es: "A unos 1,4 km de Kingdom of Stone, en el embalse de Castelo do Bode. Pequeña y tranquila, con agua de Calidad de Oro (Quercus).",
+          fr: "À environ 1,4 km du Kingdom of Stone, sur le lac de Castelo do Bode. Petite et tranquille, avec une eau classée « Qualité Or » (Quercus).",
+        },
+        pagina: "castelo",
       },
       {
         nome: { pt: "Centro histórico de Tomar", en: "Tomar old town", es: "Centro histórico de Tomar", fr: "Vieille ville de Tomar" },
@@ -92,6 +107,35 @@ export const zonas: Zona[] = [
           en: "River beaches, boat trips, kayaking and water sports, close to the estate.",
           es: "Playas fluviales, paseos en barco, piragüismo y deportes náuticos, cerca de la finca.",
           fr: "Plages fluviales, promenades en bateau, canoë et sports nautiques, près du domaine.",
+        },
+      },
+      {
+        nome: {
+          pt: "Wakeboard e desportos náuticos",
+          en: "Wakeboarding and water sports",
+          es: "Wakeboard y deportes náuticos",
+          fr: "Wakeboard et sports nautiques",
+        },
+        nota: {
+          pt: "Cinco cable parks ao longo da albufeira, como o do Lago Azul, com aulas para principiantes; caiaques, gaivotas e barcos nos clubes náuticos.",
+          en: "Five cable parks around the reservoir, such as Lago Azul, with lessons for beginners; kayaks, pedal boats and boats at the water sports clubs.",
+          es: "Cinco cable parks a lo largo del embalse, como el de Lago Azul, con clases para principiantes; kayaks, hidropedales y barcos en los clubes náuticos.",
+          fr: "Cinq téléskis nautiques autour du lac, comme celui de Lago Azul, avec des cours pour débutants ; kayaks, pédalos et bateaux dans les clubs nautiques.",
+        },
+        pagina: "castelo",
+      },
+      {
+        nome: {
+          pt: "Grande Rota do Zêzere",
+          en: "Grande Rota do Zêzere trail",
+          es: "Gran Ruta del Zêzere",
+          fr: "Grande Rota do Zêzere",
+        },
+        nota: {
+          pt: "Percurso que acompanha o rio Zêzere a pé, de bicicleta e de canoa, passando pela albufeira.",
+          en: "A route that follows the river Zêzere on foot, by bike and by canoe, along the reservoir.",
+          es: "Ruta que sigue el río Zêzere a pie, en bicicleta y en canoa, pasando por el embalse.",
+          fr: "Un itinéraire qui suit le Zêzere à pied, à vélo et en canoë, le long du lac.",
         },
       },
       {
@@ -244,6 +288,22 @@ export const zonas: Zona[] = [
           es: "Cada junio en Santarém, con animales, productos de la tierra y tradición ribatejana.",
           fr: "Chaque année en juin à Santarém, avec animaux, produits du terroir et traditions du Ribatejo.",
         },
+        pagina: "cnema",
+      },
+      {
+        nome: {
+          pt: "AgroGlobal (CNEMA)",
+          en: "AgroGlobal (CNEMA)",
+          es: "AgroGlobal (CNEMA)",
+          fr: "AgroGlobal (CNEMA)",
+        },
+        nota: {
+          pt: "7 a 9 de setembro de 2027, no CNEMA: a maior feira agrícola profissional da Península Ibérica.",
+          en: "7 to 9 September 2027 at CNEMA: the largest professional agricultural fair in the Iberian Peninsula.",
+          es: "Del 7 al 9 de septiembre de 2027, en el CNEMA: la mayor feria agrícola profesional de la Península Ibérica.",
+          fr: "Du 7 au 9 septembre 2027, au CNEMA : le plus grand salon agricole professionnel de la péninsule Ibérique.",
+        },
+        pagina: "cnema",
       },
       {
         nome: {

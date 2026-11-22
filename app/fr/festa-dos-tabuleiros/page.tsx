@@ -1,24 +1,11 @@
 import type { Metadata } from "next";
-import Tabuleiros, { TEXTOS } from "@/app/components/paginas/Tabuleiros";
-import { alternativas, localeOG } from "@/app/i18n";
+import Destino, { metadadosDestino } from "@/app/components/paginas/Destino";
 
 // A disponibilidade (Airbnb + Booking) é revista de hora a hora.
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: TEXTOS.fr.titulo,
-  description: TEXTOS.fr.descricao,
-  alternates: alternativas("fr", "tabuleiros"),
-  openGraph: {
-    type: "website",
-    locale: localeOG.fr,
-    siteName: "JUST RUBY",
-    title: TEXTOS.fr.titulo,
-    description: TEXTOS.fr.descricao,
-    images: [{ url: "/fotos/kos-piscina-casa.jpg" }],
-  },
-};
+export const metadata: Metadata = metadadosDestino("tabuleiros", "fr");
 
 export default function TabuleirosFrPage() {
-  return <Tabuleiros l="fr" />;
+  return <Destino pagina="tabuleiros" l="fr" />;
 }

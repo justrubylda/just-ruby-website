@@ -17,6 +17,8 @@ export type Pagina =
   | "alojamentos"
   | "zona"
   | "tabuleiros"
+  | "castelo"
+  | "cnema"
   | "sobre"
   | "galeria"
   | "contactos"
@@ -31,6 +33,18 @@ const ROTAS: Record<Pagina, Record<Lingua, string>> = {
     en: "/en/festa-dos-tabuleiros",
     es: "/es/festa-dos-tabuleiros",
     fr: "/fr/festa-dos-tabuleiros",
+  },
+  castelo: {
+    pt: "/castelo-do-bode",
+    en: "/en/castelo-do-bode",
+    es: "/es/castelo-do-bode",
+    fr: "/fr/castelo-do-bode",
+  },
+  cnema: {
+    pt: "/cnema-santarem",
+    en: "/en/cnema-santarem",
+    es: "/es/cnema-santarem",
+    fr: "/fr/cnema-santarem",
   },
   sobre: { pt: "/sobre", en: "/en/about", es: "/es/sobre-nosotros", fr: "/fr/a-propos" },
   galeria: { pt: "/galeria", en: "/en/gallery", es: "/es/galeria", fr: "/fr/galerie" },
@@ -141,6 +155,8 @@ export const ui = {
     contactos: "Contactos",
     zona: "O que fazer na zona",
     tabuleiros: "Festa dos Tabuleiros 2027",
+    castelo: "Castelo do Bode e praia de Montes",
+    cnema: "Alojamento perto do CNEMA",
     sede: "sede em",
     registoAL: "registo de Alojamento Local n.º",
     livro: "Livro de Reclamações",
@@ -164,6 +180,8 @@ export const ui = {
     contactos: "Contact",
     zona: "Things to do nearby",
     tabuleiros: "Festa dos Tabuleiros 2027",
+    castelo: "Castelo do Bode and Montes beach",
+    cnema: "Accommodation near CNEMA",
     sede: "registered office in",
     registoAL: "Local Accommodation (AL) registration no.",
     livro: "Complaints Book (Livro de Reclamações)",
@@ -187,6 +205,8 @@ export const ui = {
     contactos: "Contacto",
     zona: "Qué hacer en la zona",
     tabuleiros: "Festa dos Tabuleiros 2027",
+    castelo: "Castelo do Bode y playa de Montes",
+    cnema: "Alojamiento cerca del CNEMA",
     sede: "con sede en",
     registoAL: "registro de Alojamiento Local (AL) n.º",
     livro: "Libro de Reclamaciones (Livro de Reclamações)",
@@ -210,6 +230,8 @@ export const ui = {
     contactos: "Contact",
     zona: "Que faire dans la région",
     tabuleiros: "Festa dos Tabuleiros 2027",
+    castelo: "Castelo do Bode et plage de Montes",
+    cnema: "Hébergement près du CNEMA",
     sede: "siège à",
     registoAL: "n° d'enregistrement d'hébergement local (AL)",
     livro: "Livre de réclamations (Livro de Reclamações)",

@@ -15,7 +15,7 @@ const TEXTOS = {
     festas: "Festas e feiras",
     ficar: "Onde ficar",
     pedir: "Pedir disponibilidade",
-    saberMais: "Onde ficar durante a festa",
+    saberMais: "Saber mais",
     nota: "Pergunte-nos pelos sítios de que mais gostamos: respondemos com gosto antes e durante a estadia.",
   },
   en: {
@@ -27,7 +27,7 @@ const TEXTOS = {
     festas: "Festivals and fairs",
     ficar: "Where to stay",
     pedir: "Check availability",
-    saberMais: "Where to stay during the festival",
+    saberMais: "Find out more",
     nota: "Ask us about our favourite places: we're happy to help before and during your stay.",
   },
   es: {
@@ -39,7 +39,7 @@ const TEXTOS = {
     festas: "Fiestas y ferias",
     ficar: "Dónde alojarse",
     pedir: "Consultar disponibilidad",
-    saberMais: "Dónde alojarse durante la fiesta",
+    saberMais: "Más información",
     nota: "Pregúntenos por nuestros sitios favoritos: le ayudamos con gusto antes y durante la estancia.",
   },
   fr: {
@@ -51,7 +51,7 @@ const TEXTOS = {
     festas: "Fêtes et foires",
     ficar: "Où séjourner",
     pedir: "Demander les disponibilités",
-    saberMais: "Où dormir pendant la fête",
+    saberMais: "En savoir plus",
     nota: "Demandez-nous nos adresses préférées : nous vous aidons volontiers avant et pendant votre séjour.",
   },
 };
@@ -93,6 +93,14 @@ export default function Zona({ l }: { l: Lingua }) {
                         <li key={s.nome.pt} className="py-5">
                           <p className="font-semibold">{s.nome[l]}</p>
                           <p className="text-cinza">{s.nota[l]}</p>
+                          {s.pagina && (
+                            <Link
+                              href={rota(l, s.pagina)}
+                              className="mt-2 inline-block border-b border-ouro-escuro pb-0.5 font-semibold text-ouro-escuro hover:text-xisto"
+                            >
+                              {t.saberMais}
+                            </Link>
+                          )}
                         </li>
                       ))}
                     </ul>
