@@ -239,6 +239,7 @@ export const destinos: Destino[] = [
             titulo: "O que fazer",
             lista: [
               "Nadar nas praias fluviais: a de Montes, mesmo ao lado, e outras ao longo da albufeira.",
+              "Conhecer a praia fluvial da Bairradinha, em Ferreira do Zêzere, inaugurada em junho de 2026, com bar, balneários, passadiço acessível e miradouro.",
               "Experimentar wakeboard: há cinco cable parks ao longo da albufeira, como o do Lago Azul, em Ferreira do Zêzere, com aulas para principiantes.",
               "Andar de caiaque, de gaivota ou de barco nos clubes náuticos da albufeira.",
               "Caminhar ou pedalar na Grande Rota do Zêzere, que acompanha o rio a pé, de bicicleta e de canoa.",
@@ -290,6 +291,7 @@ export const destinos: Destino[] = [
             titulo: "Things to do",
             lista: [
               "Swim at the river beaches: Montes, right next door, and others around the reservoir.",
+              "Try the Bairradinha river beach in Ferreira do Zêzere, opened in June 2026, with a bar, changing rooms, an accessible boardwalk and a viewpoint.",
               "Try wakeboarding: there are five cable parks around the reservoir, such as the one at Lago Azul in Ferreira do Zêzere, with lessons for beginners.",
               "Go kayaking, pedal-boating or boating with the reservoir's water sports clubs.",
               "Walk or cycle the Grande Rota do Zêzere, which follows the river on foot, by bike and by canoe.",
@@ -341,6 +343,7 @@ export const destinos: Destino[] = [
             titulo: "Qué hacer",
             lista: [
               "Bañarse en las playas fluviales: la de Montes, justo al lado, y otras a lo largo del embalse.",
+              "Conocer la playa fluvial de Bairradinha, en Ferreira do Zêzere, inaugurada en junio de 2026, con bar, vestuarios, pasarela accesible y mirador.",
               "Probar el wakeboard: hay cinco cable parks a lo largo del embalse, como el de Lago Azul, en Ferreira do Zêzere, con clases para principiantes.",
               "Salir en kayak, en hidropedal o en barco con los clubes náuticos del embalse.",
               "Caminar o pedalear por la Grande Rota do Zêzere, que sigue el río a pie, en bicicleta y en canoa.",
@@ -392,6 +395,7 @@ export const destinos: Destino[] = [
             titulo: "Que faire",
             lista: [
               "Se baigner aux plages fluviales : celle de Montes, juste à côté, et d'autres tout autour du lac.",
+              "Découvrir la plage fluviale de Bairradinha, à Ferreira do Zêzere, inaugurée en juin 2026, avec bar, vestiaires, passerelle accessible et belvédère.",
               "S'essayer au wakeboard : il y a cinq téléskis nautiques autour du lac, comme celui de Lago Azul, à Ferreira do Zêzere, avec des cours pour débutants.",
               "Faire du kayak, du pédalo ou du bateau avec les clubs nautiques du lac.",
               "Marcher ou pédaler sur la Grande Rota do Zêzere, qui suit la rivière à pied, à vélo et en canoë.",
@@ -438,8 +442,9 @@ export const destinos: Destino[] = [
           {
             titulo: "Feiras no CNEMA",
             lista: [
-              "Feira Nacional de Agricultura / Feira do Ribatejo: todos os anos em junho.",
-              "AgroGlobal: 7, 8 e 9 de setembro de 2027, a maior feira agrícola profissional da Península Ibérica.",
+              "Lusoflora: 25 e 26 de fevereiro de 2027, a feira do setor das flores e plantas ornamentais.",
+              "Feira Nacional de Agricultura / Feira do Ribatejo: de 5 a 13 de junho de 2027 (todos os anos em junho).",
+              "AgroGlobal: 7, 8 e 9 de setembro de 2027, no CNEMA e na Quinta da Alorna, em Almeirim, a maior feira agrícola profissional da Península Ibérica.",
               "Outras feiras, salões e congressos ao longo do ano: consulte a agenda do CNEMA.",
             ],
           },
@@ -481,8 +486,9 @@ export const destinos: Destino[] = [
           {
             titulo: "Trade fairs at CNEMA",
             lista: [
-              "National Agriculture Fair / Ribatejo Fair (Feira Nacional de Agricultura): every year in June.",
-              "AgroGlobal: 7, 8 and 9 September 2027, the largest professional agricultural fair in the Iberian Peninsula.",
+              "Lusoflora: 25 and 26 February 2027, the trade fair for the flower and ornamental plant sector.",
+              "National Agriculture Fair / Ribatejo Fair (Feira Nacional de Agricultura): 5 to 13 June 2027 (every year in June).",
+              "AgroGlobal: 7, 8 and 9 September 2027, at CNEMA and at Quinta da Alorna in Almeirim, the largest professional agricultural fair in the Iberian Peninsula.",
               "Other fairs, shows and conferences throughout the year: check the CNEMA calendar.",
             ],
           },
@@ -524,8 +530,9 @@ export const destinos: Destino[] = [
           {
             titulo: "Ferias en el CNEMA",
             lista: [
-              "Feria Nacional de Agricultura / Feria del Ribatejo: todos los años en junio.",
-              "AgroGlobal: 7, 8 y 9 de septiembre de 2027, la mayor feria agrícola profesional de la Península Ibérica.",
+              "Lusoflora: 25 y 26 de febrero de 2027, la feria del sector de las flores y plantas ornamentales.",
+              "Feria Nacional de Agricultura / Feria del Ribatejo: del 5 al 13 de junio de 2027 (todos los años en junio).",
+              "AgroGlobal: 7, 8 y 9 de septiembre de 2027, en el CNEMA y en la Quinta da Alorna, en Almeirim, la mayor feria agrícola profesional de la Península Ibérica.",
               "Otras ferias, salones y congresos durante todo el año: consulte la agenda del CNEMA.",
             ],
           },
@@ -567,8 +574,9 @@ export const destinos: Destino[] = [
           {
             titulo: "Salons au CNEMA",
             lista: [
-              "Foire nationale de l'agriculture / Foire du Ribatejo : chaque année en juin.",
-              "AgroGlobal : 7, 8 et 9 septembre 2027, le plus grand salon agricole professionnel de la péninsule Ibérique.",
+              "Lusoflora : 25 et 26 février 2027, le salon de la filière des fleurs et plantes ornementales.",
+              "Foire nationale de l'agriculture / Foire du Ribatejo : du 5 au 13 juin 2027 (chaque année en juin).",
+              "AgroGlobal : 7, 8 et 9 septembre 2027, au CNEMA et à la Quinta da Alorna, à Almeirim, le plus grand salon agricole professionnel de la péninsule Ibérique.",
               "D'autres foires, salons et congrès toute l'année : consultez l'agenda du CNEMA.",
             ],
           },

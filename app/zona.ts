@@ -7,7 +7,7 @@
 import type { Pagina } from "./i18n";
 
 // Data da última revisão das festas e da agenda (AAAA-MM-DD). Atualizar sempre que se revê.
-export const agendaRevistaEm = "2026-11-22";
+export const agendaRevistaEm = "2026-11-23";
 
 type Texto = { pt: string; en: string; es: string; fr: string };
 
@@ -129,6 +129,21 @@ export const zonas: Zona[] = [
       },
       {
         nome: {
+          pt: "Praia fluvial da Bairradinha",
+          en: "Bairradinha river beach",
+          es: "Playa fluvial de Bairradinha",
+          fr: "Plage fluviale de Bairradinha",
+        },
+        nota: {
+          pt: "Praia nova na albufeira de Castelo do Bode, em Ferreira do Zêzere, inaugurada em junho de 2026, com bar, balneários, passadiço acessível e miradouro.",
+          en: "A new beach on the Castelo do Bode reservoir in Ferreira do Zêzere, opened in June 2026, with a bar, changing rooms, an accessible boardwalk and a viewpoint.",
+          es: "Playa nueva en el embalse de Castelo do Bode, en Ferreira do Zêzere, inaugurada en junio de 2026, con bar, vestuarios, pasarela accesible y mirador.",
+          fr: "Nouvelle plage sur le lac de Castelo do Bode, à Ferreira do Zêzere, inaugurée en juin 2026, avec bar, vestiaires, passerelle accessible et belvédère.",
+        },
+        pagina: "castelo",
+      },
+      {
+        nome: {
           pt: "Grande Rota do Zêzere",
           en: "Grande Rota do Zêzere trail",
           es: "Gran Ruta del Zêzere",
@@ -184,6 +199,20 @@ export const zonas: Zona[] = [
           fr: "La grande fête de Tomar, tous les quatre ans. La prochaine a lieu du 3 au 12 juillet 2027 : mieux vaut réserver tôt.",
         },
         pagina: "tabuleiros",
+      },
+      {
+        nome: {
+          pt: "Peregrinações a Fátima",
+          en: "Fátima pilgrimages",
+          es: "Peregrinaciones a Fátima",
+          fr: "Pèlerinages à Fátima",
+        },
+        nota: {
+          pt: "Todos os anos a 12 e 13 de maio e a 12 e 13 de outubro, as grandes peregrinações internacionais ao Santuário, a menos de uma hora de carro.",
+          en: "Every year on 12–13 May and 12–13 October, the great international pilgrimages to the Sanctuary, less than an hour's drive away.",
+          es: "Cada año, el 12 y 13 de mayo y el 12 y 13 de octubre, las grandes peregrinaciones internacionales al Santuario, a menos de una hora en coche.",
+          fr: "Chaque année les 12 et 13 mai et les 12 et 13 octobre, les grands pèlerinages internationaux au Sanctuaire, à moins d'une heure de route.",
+        },
       },
       {
         nome: {
@@ -356,25 +385,25 @@ export const zonas: Zona[] = [
           fr: "Foire nationale de l'agriculture",
         },
         nota: {
-          pt: "Todos os anos em junho, em Santarém, com animais, produtos da terra e tradição ribatejana.",
-          en: "Every June in Santarém, with livestock, local produce and Ribatejo traditions.",
-          es: "Cada junio en Santarém, con animales, productos de la tierra y tradición ribatejana.",
-          fr: "Chaque année en juin à Santarém, avec animaux, produits du terroir et traditions du Ribatejo.",
+          pt: "De 5 a 13 de junho de 2027, no CNEMA, em Santarém, com animais, produtos da terra e tradição ribatejana. Repete-se todos os anos em junho.",
+          en: "From 5 to 13 June 2027 at CNEMA in Santarém, with livestock, local produce and Ribatejo traditions. Held every year in June.",
+          es: "Del 5 al 13 de junio de 2027, en el CNEMA, en Santarém, con animales, productos de la tierra y tradición ribatejana. Se celebra cada año en junio.",
+          fr: "Du 5 au 13 juin 2027 au CNEMA, à Santarém, avec animaux, produits du terroir et traditions du Ribatejo. Chaque année en juin.",
         },
         pagina: "cnema",
       },
       {
         nome: {
-          pt: "AgroGlobal (CNEMA)",
-          en: "AgroGlobal (CNEMA)",
-          es: "AgroGlobal (CNEMA)",
-          fr: "AgroGlobal (CNEMA)",
+          pt: "AgroGlobal",
+          en: "AgroGlobal",
+          es: "AgroGlobal",
+          fr: "AgroGlobal",
         },
         nota: {
-          pt: "7 a 9 de setembro de 2027, no CNEMA: a maior feira agrícola profissional da Península Ibérica.",
-          en: "7 to 9 September 2027 at CNEMA: the largest professional agricultural fair in the Iberian Peninsula.",
-          es: "Del 7 al 9 de septiembre de 2027, en el CNEMA: la mayor feria agrícola profesional de la Península Ibérica.",
-          fr: "Du 7 au 9 septembre 2027, au CNEMA : le plus grand salon agricole professionnel de la péninsule Ibérique.",
+          pt: "7 a 9 de setembro de 2027, no CNEMA, em Santarém, e na Quinta da Alorna, em Almeirim: a maior feira agrícola profissional da Península Ibérica.",
+          en: "7 to 9 September 2027 at CNEMA in Santarém and at Quinta da Alorna in Almeirim: the largest professional agricultural fair in the Iberian Peninsula.",
+          es: "Del 7 al 9 de septiembre de 2027, en el CNEMA, en Santarém, y en la Quinta da Alorna, en Almeirim: la mayor feria agrícola profesional de la Península Ibérica.",
+          fr: "Du 7 au 9 septembre 2027, au CNEMA à Santarém et à la Quinta da Alorna à Almeirim : le plus grand salon agricole professionnel de la péninsule Ibérique.",
         },
         pagina: "cnema",
       },
@@ -394,16 +423,16 @@ export const zonas: Zona[] = [
       },
       {
         nome: {
-          pt: "Feira Nacional do Cavalo",
-          en: "National Horse Fair",
-          es: "Feria Nacional del Caballo",
-          fr: "Foire nationale du cheval",
+          pt: "Feira Nacional do Cavalo (Feira da Golegã)",
+          en: "National Horse Fair (Golegã Fair)",
+          es: "Feria Nacional del Caballo (Feria de Golegã)",
+          fr: "Foire nationale du cheval (Foire de Golegã)",
         },
         nota: {
-          pt: "Em novembro, pelo São Martinho, na Golegã.",
-          en: "In November, around St Martin's Day, in Golegã.",
-          es: "En noviembre, por San Martín, en Golegã.",
-          fr: "En novembre, autour de la Saint-Martin, à Golegã.",
+          pt: "Todos os anos em novembro, pelo São Martinho, na Golegã. Inscrita em 2026 no Inventário Nacional do Património Cultural Imaterial.",
+          en: "Every November, around St Martin's Day, in Golegã. Added in 2026 to Portugal's National Inventory of Intangible Cultural Heritage.",
+          es: "Cada noviembre, por San Martín, en Golegã. Inscrita en 2026 en el Inventario Nacional del Patrimonio Cultural Inmaterial de Portugal.",
+          fr: "Chaque année en novembre, autour de la Saint-Martin, à Golegã. Inscrite en 2026 à l'Inventaire national du patrimoine culturel immatériel du Portugal.",
         },
       },
     ],
