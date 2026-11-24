@@ -154,6 +154,18 @@ create table if not exists precos_periodos (
 alter table pedidos add column if not exists preco numeric(10,2);
 alter table alojamentos add column if not exists wifi_rede text not null default '';
 alter table alojamentos add column if not exists wifi_senha text not null default '';
+
+-- vendas do CentralGest Cloud (copiadas da lista de Vendas), para cruzar com as reservas
+create table if not exists faturas_cg (
+  doc text primary key,
+  data date not null,
+  cliente text,
+  nif text,
+  total numeric(12,2) not null,
+  por_receber numeric(12,2),
+  estado text,
+  atualizado_em timestamptz not null default now()
+);
 `;
 
 /** Cria as tabelas na primeira utilização (não apaga nada se já existirem). */

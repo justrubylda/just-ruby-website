@@ -9,7 +9,7 @@ import { garantirTabelas, sql, temBaseDados } from "./lib/db";
 import { apagarPeriodo, criarPeriodo, guardarComissoes, guardarLimpeza, guardarPrecosCasa } from "./lib/precos";
 import { lerFicheiro } from "./lib/ficheiros";
 import { importarFolhas, numero } from "./lib/importar";
-import { apagarReserva, atualizarReserva, criarReserva, listarAlojamentos, type NovaReserva } from "./lib/reservas";
+import { apagarReserva, atualizarReserva, criarReserva, listarAlojamentos, listarReservas, type NovaReserva } from "./lib/reservas";
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from "@simplewebauthn/server";
 import { confirmarAtivar, digitalCerta, opcoesAtivar, opcoesConfirmar, removerAparelho } from "./lib/digital";
 import {
@@ -22,6 +22,7 @@ import {
 } from "./lib/palavra";
 import { COOKIE, DIAS_SESSAO, criarToken } from "./lib/sessao";
 import { sincronizar } from "./lib/sincronizar";
+import { conciliar, guardarDocs, lerVendas } from "./lib/centralgest";
 
 // ---------- entrar / sair / palavra-passe ----------
 
@@ -222,6 +223,37 @@ export async function marcarFatura(f: FormData) {
   if (id && fatura) {
     await atualizarReserva(id, semFatura ? { fatura, taxa_iva: 0 } : { fatura });
   }
+  revalidatePath("/gestao", "layout");
+}
+
+// ---------- conferência com o CentralGest ----------
+
+export type ResultadoCG = { ok: boolean; texto: string };
+
+/** Recebe a lista de Vendas do CentralGest (texto copiado) e cruza-a com as reservas. */
+export async function conferirCentralGest(_: ResultadoCG | null, f: FormData): Promise<ResultadoCG> {
+  await exigirSessao();
+  const docs = lerVendas(String(f.get("vendas") ?? ""));
+  if (!docs.length) return { ok: false, texto: "Não encontrei faturas no texto. Copie a lista de Vendas do CentralGest (com os nºs FR/FT)." };
+  await guardarDocs(docs);
+  const c = await conciliar(await listarReservas());
+  revalidatePath("/gestao", "layout");
+  return {
+    ok: true,
+    texto:
+      `${docs.length} documento(s) lidos do CentralGest. ${c.ligadas.length} fatura(s) ligadas agora às reservas` +
+      (c.porConfirmar.length ? `, ${c.porConfirmar.length} por confirmar` : "") +
+      (c.repetidas.length ? `, ${c.repetidas.length} nº repetido(s)` : "") +
+      ".",
+  };
+}
+
+/** Associa à mão uma fatura do CentralGest a uma reserva (quando há dúvida). */
+export async function associarFatura(f: FormData) {
+  await exigirSessao();
+  const id = num(f, "id");
+  const doc = txt(f, "doc");
+  if (id && doc) await atualizarReserva(id, { fatura: doc });
   revalidatePath("/gestao", "layout");
 }
 
