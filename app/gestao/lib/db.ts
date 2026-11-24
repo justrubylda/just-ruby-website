@@ -96,6 +96,21 @@ create table if not exists config (
   valor text
 );
 
+create table if not exists chaves_acesso (
+  id text primary key,
+  chave_publica text not null,
+  contador bigint not null default 0,
+  transportes text,
+  nome text,
+  criado_em timestamptz not null default now(),
+  usado_em timestamptz
+);
+
+create table if not exists desafios (
+  desafio text primary key,
+  expira timestamptz not null
+);
+
 create table if not exists bloqueios (
   id serial primary key,
   al text not null,

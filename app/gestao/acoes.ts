@@ -10,13 +10,14 @@ import { apagarPeriodo, criarPeriodo, guardarComissoes, guardarLimpeza, guardarP
 import { lerFicheiro } from "./lib/ficheiros";
 import { importarFolhas, numero } from "./lib/importar";
 import { apagarReserva, atualizarReserva, criarReserva, listarAlojamentos, type NovaReserva } from "./lib/reservas";
+import type { AuthenticationResponseJSON, RegistrationResponseJSON } from "@simplewebauthn/server";
+import { confirmarAtivar, digitalCerta, opcoesAtivar, opcoesConfirmar, removerAparelho } from "./lib/digital";
 import {
-  codigoCerto,
   definirPalavraPasse,
   erroNova,
-  novoCodigo,
   palavraPasseCerta,
   palavraPasseDefinida,
+  palavraVercelCerta,
   versaoAtual,
 } from "./lib/palavra";
 import { COOKIE, DIAS_SESSAO, criarToken } from "./lib/sessao";
@@ -54,23 +55,81 @@ export async function sair() {
   redirect("/"); // ao sair, volta ao site normal
 }
 
-/** Resultado das ações de palavra-passe: erro, ou o código novo para mostrar uma única vez. */
-export type EstadoPalavra = { erro?: string; ok?: string; codigo?: string } | null;
+/** Resultado das ações de palavra-passe e impressão digital. */
+export type EstadoPalavra = { erro?: string; ok?: string } | null;
 
-/** "Esqueci-me da palavra-passe": código de recuperação + palavra-passe nova. Entra logo a seguir. */
-export async function recuperar(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
+// ---------- impressão digital (chaves de acesso) ----------
+
+/** Desafio para confirmar com a impressão digital (entrar ou repor a palavra-passe). */
+export async function opcoesDigital() {
+  if (!temBaseDados()) return null;
+  return opcoesConfirmar();
+}
+
+export async function entrarComDigital(resposta: AuthenticationResponseJSON): Promise<EstadoPalavra> {
+  if (!(await digitalCerta(resposta))) {
+    await travar();
+    return { erro: "Não foi possível confirmar a impressão digital neste aparelho." };
+  }
+  await abrirSessao(await versaoAtual());
+  redirect("/gestao");
+}
+
+/** "Esqueci-me da palavra-passe": confirma com a impressão digital e grava a nova. */
+export async function reporComDigital(
+  resposta: AuthenticationResponseJSON,
+  nova: string,
+  repetida: string
+): Promise<EstadoPalavra> {
+  const erro = erroNova(nova, repetida);
+  if (erro) return { erro };
+  if (!(await digitalCerta(resposta))) {
+    await travar();
+    return { erro: "Não foi possível confirmar a impressão digital neste aparelho." };
+  }
+  await abrirSessao(await definirPalavraPasse(nova));
+  redirect("/gestao/conta?reposta=1");
+}
+
+/** Reserva, sem impressão digital: a palavra-passe que está na Vercel (GESTAO_PALAVRA_PASSE). */
+export async function reporComVercel(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
   if (!temBaseDados()) return { erro: "Falta ligar a base de dados." };
   const nova = String(form.get("nova") ?? "");
   const erro = erroNova(nova, String(form.get("repetir") ?? ""));
   if (erro) return { erro };
-  if (!(await codigoCerto(String(form.get("codigo") ?? "")))) {
+  if (!(await palavraVercelCerta(String(form.get("vercel") ?? "").trim()))) {
     await travar();
-    return { erro: "O código de recuperação não está certo." };
+    return { erro: "A palavra-passe da Vercel não está certa." };
   }
   await abrirSessao(await definirPalavraPasse(nova));
-  // O código usado deixa de servir: cria-se logo outro, para a próxima vez.
-  return { codigo: await novoCodigo() };
+  redirect("/gestao/conta?reposta=1");
 }
+
+export async function opcoesAtivarDigital() {
+  await exigirSessao();
+  return opcoesAtivar();
+}
+
+export async function ativarDigital(resposta: RegistrationResponseJSON, nome: string): Promise<EstadoPalavra> {
+  await exigirSessao();
+  let ok = false;
+  try {
+    ok = await confirmarAtivar(resposta, nome.trim());
+  } catch {
+    ok = false;
+  }
+  if (!ok) return { erro: "Não foi possível ativar a impressão digital neste aparelho." };
+  revalidatePath("/gestao", "layout");
+  return { ok: "Impressão digital ativada neste aparelho. Da próxima vez, entre com ela." };
+}
+
+export async function removerAparelhoAcao(form: FormData) {
+  await exigirSessao();
+  await removerAparelho(String(form.get("id") ?? ""));
+  revalidatePath("/gestao", "layout");
+}
+
+// ---------- palavra-passe ----------
 
 export async function mudarPalavraPasse(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
   await exigirSessao();
@@ -84,17 +143,6 @@ export async function mudarPalavraPasse(_: EstadoPalavra, form: FormData): Promi
   await abrirSessao(await definirPalavraPasse(nova));
   revalidatePath("/gestao/conta");
   return { ok: "Palavra-passe mudada. As outras sessões abertas (noutros aparelhos) terminaram." };
-}
-
-export async function criarCodigo(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
-  await exigirSessao();
-  if (!(await palavraPasseCerta(String(form.get("atual") ?? "")))) {
-    await travar();
-    return { erro: "A palavra-passe atual não está certa." };
-  }
-  const codigo = await novoCodigo();
-  revalidatePath("/gestao", "layout");
-  return { codigo };
 }
 
 // ---------- reservas ----------

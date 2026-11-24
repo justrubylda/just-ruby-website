@@ -2,17 +2,15 @@ import "server-only";
 import { garantirTabelas, gravarConfig, lerConfig, temBaseDados } from "./db";
 import { iguais, palavraVercelCerta } from "./sessao";
 
-// Palavra-passe da gestão e código de recuperação.
-// Na base de dados (tabela config) só ficam "hashes" (PBKDF2), nunca o texto:
-//   gestao_pp          hash da palavra-passe (enquanto não existir, vale a da Vercel)
-//   gestao_recuperacao hash do código de recuperação
-//   gestao_rec_criado  data em que o código foi criado (AAAA-MM-DD)
-//   gestao_versao      muda sempre que a palavra-passe muda (termina as outras sessões)
-// A palavra-passe da Vercel (GESTAO_PALAVRA_PASSE) serve sempre como código de recuperação de reserva.
+export { palavraVercelCerta };
+
+// Palavra-passe da gestão. Na base de dados (tabela config) só fica o "hash" (PBKDF2), nunca o texto:
+//   gestao_pp      hash da palavra-passe (enquanto não existir, vale a da Vercel)
+//   gestao_versao  muda sempre que a palavra-passe muda (termina as outras sessões)
+// Para repor a palavra-passe: impressão digital (digital.ts) ou, como reserva, a palavra-passe da Vercel.
 
 export const MINIMO = 8;
 const ITERACOES = 210_000;
-const ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem I, O, 0 e 1, que se confundem
 
 const enc = new TextEncoder();
 
@@ -42,16 +40,6 @@ export async function confereHash(texto: string, guardado: string | null) {
   return iguais(b64(obtido), hash);
 }
 
-/** Código como "K7QM-3XRT-9PWD-H2NB" (80 bits ao acaso). */
-export function gerarCodigo() {
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  const letras = [...bytes].map((b) => ALFABETO[b % ALFABETO.length]).join("");
-  return letras.match(/.{4}/g)!.join("-");
-}
-
-/** Aceita o código com ou sem traços, espaços ou minúsculas. */
-export const normalizarCodigo = (c: string) => c.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
 const novaVersao = () => Buffer.from(crypto.getRandomValues(new Uint8Array(9))).toString("hex");
 
 async function ler(chave: string) {
@@ -77,13 +65,6 @@ export async function palavraPasseCerta(tentativa: string) {
   return palavraVercelCerta(tentativa);
 }
 
-/** Código de recuperação certo? Também aceita a palavra-passe da Vercel, como reserva. */
-export async function codigoCerto(tentativa: string) {
-  const limpo = normalizarCodigo(tentativa);
-  if (limpo && (await confereHash(limpo, await ler("gestao_recuperacao")))) return true;
-  return palavraVercelCerta(tentativa.trim());
-}
-
 /** Grava a nova palavra-passe e devolve a nova versão das sessões. */
 export async function definirPalavraPasse(nova: string) {
   await garantirTabelas();
@@ -91,21 +72,6 @@ export async function definirPalavraPasse(nova: string) {
   await gravarConfig("gestao_pp", await criarHash(nova));
   await gravarConfig("gestao_versao", versao);
   return versao;
-}
-
-/** Cria um código novo (o anterior deixa de servir) e devolve-o, para mostrar uma única vez. */
-export async function novoCodigo() {
-  await garantirTabelas();
-  const codigo = gerarCodigo();
-  await gravarConfig("gestao_recuperacao", await criarHash(normalizarCodigo(codigo)));
-  await gravarConfig("gestao_rec_criado", new Date().toISOString().slice(0, 10));
-  return codigo;
-}
-
-/** Data em que o código atual foi criado, ou null se ainda não há código. */
-export async function codigoCriadoEm() {
-  if (!(await ler("gestao_recuperacao"))) return null;
-  return (await ler("gestao_rec_criado")) ?? "";
 }
 
 /** Valida a nova palavra-passe; devolve a mensagem de erro ou null. */

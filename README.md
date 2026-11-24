@@ -65,13 +65,14 @@ Para mostrar a hora de check-out, preencha `checkOut`.
 **Wi-Fi:** escreve-se em `justruby.pt/gestao` → Alojamentos (rede e palavra-passe de cada casa).
 Fica na base de dados: nem no código público nem na Vercel. Sem rede preenchida, a secção do Wi-Fi não aparece.
 
-## Palavra-passe da gestão
+## Acesso à gestão (impressão digital e palavra-passe)
 
-- Em `justruby.pt/gestao` → **Palavra-passe**: mudar a palavra-passe e criar o **código de recuperação** (aparece uma só vez; guardar no telemóvel).
-- Esqueceu-se? Na entrada, **Esqueci-me da palavra-passe**: código de recuperação + palavra-passe nova. O código usado deixa de servir e aparece logo outro.
-- Na base de dados (tabela `config`) só ficam hashes PBKDF2 (`gestao_pp`, `gestao_recuperacao`), nunca o texto. Mudar a palavra-passe muda `gestao_versao` e termina as sessões noutros aparelhos.
-- Enquanto não se mudar a palavra-passe no site, vale a da Vercel (`GESTAO_PALAVRA_PASSE`). Essa serve sempre como código de recuperação de reserva.
-- Código em `app/gestao/lib/palavra.ts`, `app/gestao/lib/sessao.ts`, `app/gestao/conta` e `app/gestao/recuperar`.
+- Em `justruby.pt/gestao` → **Acesso**: ativar a **impressão digital** (ou o rosto) em cada aparelho, ver/remover aparelhos e mudar a palavra-passe.
+- Na entrada: **Entrar com impressão digital** (aparece quando há pelo menos um aparelho ativado) ou a palavra-passe.
+- Esqueceu-se? **Esqueci-me da palavra-passe**: palavra-passe nova confirmada com a impressão digital. Sem o telemóvel, serve a palavra-passe da Vercel (`GESTAO_PALAVRA_PASSE`).
+- Chaves de acesso (WebAuthn, `@simplewebauthn`): na tabela `chaves_acesso` fica só a chave pública; desafios de uso único na tabela `desafios` (5 minutos). Ficam ligadas ao domínio: as ativadas em justruby.pt não servem na pré-visualização e vice-versa.
+- Palavra-passe: hash PBKDF2 em `config.gestao_pp` (enquanto não existir, vale a da Vercel). Mudar a palavra-passe muda `gestao_versao` e termina as sessões noutros aparelhos.
+- Código em `app/gestao/lib/digital.ts`, `palavra.ts`, `sessao.ts`, `app/gestao/componentes/Digital.tsx`, `app/gestao/conta` e `app/gestao/recuperar`.
 
 ## Calendário sincronizado com o Airbnb e o Booking
 

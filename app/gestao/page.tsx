@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { exigirSessao } from "./lib/acesso";
+import { haAparelhos } from "./lib/digital";
 import { MESES, calcular, dataPT, eur, hojeISO, inteiro, pct, resumir, type Linha } from "./lib/calculos";
 import { lerConfig, temBaseDados } from "./lib/db";
 import { listarAlojamentos, listarReservas } from "./lib/reservas";
@@ -72,11 +73,11 @@ export default async function Painel({ searchParams }: { searchParams: Promise<R
   const hoje = hojeISO();
   const ano = Number(sp.ano) || Number(hoje.slice(0, 4));
   const al = sp.al || "Todos";
-  const [todas, als, ultima, codigoRec] = await Promise.all([
+  const [todas, als, ultima, comDigital] = await Promise.all([
     listarReservas(),
     listarAlojamentos(),
     lerConfig("ultima_sincronizacao"),
-    lerConfig("gestao_recuperacao"),
+    haAparelhos(),
   ]);
   const nomesAL = als.map((a) => a.nome);
   const R = resumir(todas, ano, al, nomesAL);
@@ -101,13 +102,14 @@ export default async function Painel({ searchParams }: { searchParams: Promise<R
 
   return (
     <div className="min-w-0 space-y-6">
-      {!codigoRec && (
+      {!comDigital && (
         <p className="rounded-md bg-[#fde8b8] p-3 text-sm text-[#7a4b00]">
-          Ainda não tem código de recuperação da palavra-passe.{" "}
+          Ative a entrada com impressão digital no telemóvel (serve também para repor a palavra-passe se se esquecer
+          dela):{" "}
           <Link href="/gestao/conta" className="font-semibold underline">
-            Criar agora
-          </Link>{" "}
-          (serve para repor a palavra-passe se se esquecer dela).
+            Gestão → Acesso
+          </Link>
+          .
         </p>
       )}
       <div className="flex flex-wrap items-end justify-between gap-4">
