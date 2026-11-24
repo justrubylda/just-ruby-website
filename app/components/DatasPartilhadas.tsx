@@ -61,7 +61,7 @@ export function CalendarioDaCasa({ l, ocupado, precos }: { l: Lingua; ocupado: I
     const p = q.get("partida") ?? "";
     const livres = !ocupado.some((i) => c < i.fim && p > i.inicio);
     queueMicrotask(() => {
-      if (Number.isInteger(n) && n >= 1 && n <= 30) d.mudarPessoas(n);
+      if (Number.isInteger(n) && n >= 1 && n <= 8) d.mudarPessoas(n);
       if (DATA.test(c) && DATA.test(p) && p > c && c >= hojeLocal() && livres) {
         d.mudar(c, p);
         setVersao(1); // volta a abrir o calendário no mês da chegada

@@ -112,7 +112,7 @@ export const casas: Casa[] = [
       "Forno a lenha e churrasqueira",
       "Quinta com cerca de 5 hectares",
     ],
-    capacidade: "",
+    capacidade: "Até 8 hóspedes",
     piscina: true,
     quartos: 4,
     checkOut: "",
@@ -174,7 +174,7 @@ export const casas: Casa[] = [
         "Estate of about 5 hectares",
       ],
       comodidades: ["Swimming pool", "Air conditioning", "Wood-fired oven", "Barbecue", "Garden", "Fireplace", "Wi-Fi"],
-      capacidade: "",
+      capacidade: "Up to 8 guests",
       verLabel: "See the estate",
       perto: [
         {
@@ -216,7 +216,7 @@ export const casas: Casa[] = [
         "Chimenea",
         "Wi-Fi",
       ],
-      capacidade: "",
+      capacidade: "Hasta 8 huéspedes",
       verLabel: "Ver la finca",
       perto: [
         { nome: "Convento de Cristo", nota: "Patrimonio Mundial de la UNESCO y antigua sede de los templarios, en Tomar." },
@@ -249,7 +249,7 @@ export const casas: Casa[] = [
         "Cheminée",
         "Wi-Fi",
       ],
-      capacidade: "",
+      capacidade: "Jusqu'à 8 personnes",
       verLabel: "Voir le domaine",
       perto: [
         { nome: "Couvent du Christ", nota: "Classé au patrimoine mondial de l'UNESCO, ancien siège des Templiers, à Tomar." },

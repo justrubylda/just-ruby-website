@@ -128,7 +128,7 @@ export default function PesquisaDatas({
           <div className="flex gap-2">
             {[
               { rotulo: t.menos, sinal: "−", delta: -1, off: pessoas <= 1 },
-              { rotulo: t.mais, sinal: "+", delta: 1, off: pessoas >= 16 },
+              { rotulo: t.mais, sinal: "+", delta: 1, off: pessoas >= 8 },
             ].map((b) => (
               <button
                 key={b.sinal}

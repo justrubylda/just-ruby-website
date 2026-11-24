@@ -205,7 +205,7 @@ export default function PedidoForm({
             type="number"
             inputMode="numeric"
             min={1}
-            max={30}
+            max={8}
             defaultValue={daPagina?.pessoas ?? 2}
             className={campo}
             required
