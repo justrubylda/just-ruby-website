@@ -109,6 +109,27 @@ export function descricaoFatura(r: Pick<Reserva, "al" | "checkin" | "checkout">,
   return t + a.final;
 }
 
+// ---------- CentralGest Cloud (programa de faturação) ----------
+// Sem API no plano atual: a fatura emite-se lá à mão, com estes dados copiados da gestão.
+
+export const CENTRALGEST_VENDAS = "https://espaco-visual.centralgestcloud.com:9000/#/portal/erp/vendas";
+
+/** Artigos tal como estão no CentralGest (Artigos), todos com IVA a 6 %. */
+export function artigoCentralGest(al: string | null | undefined) {
+  if (al === "Kingdom of Stone") return { codigo: "000001", nome: "Estadia Kingdom" };
+  if (al === "Nosso Cantinho") return { codigo: "000002", nome: "Estadia Nosso Cantinho" };
+  if (al === "Torras") return { codigo: "004", nome: "Cedencia" };
+  return { codigo: "003", nome: "Estadia" };
+}
+
+/** Número à portuguesa, sem símbolo (para colar nos campos do CentralGest). */
+export const numPT = (n: number, casas = 2) =>
+  new Intl.NumberFormat("pt-PT", { minimumFractionDigits: casas, maximumFractionDigits: casas, useGrouping: false }).format(n);
+
+/** Preço sem IVA com 4 casas, para o total da fatura bater certo com o valor recebido. */
+export const precoSemIva = (r: Pick<Reserva, "total" | "taxa_iva">) =>
+  r.total == null ? null : Math.round((r.total / (1 + (r.taxa_iva ?? 0))) * 10_000) / 10_000;
+
 export const eur = (n: number | null | undefined, casas = 2) =>
   n == null
     ? "—"
