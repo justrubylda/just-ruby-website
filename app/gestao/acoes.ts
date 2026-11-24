@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { exigirSessao } from "./lib/acesso";
 import { AL_DO_SLUG, apagarBloqueio, criarBloqueio } from "./lib/calendario";
 import { garantirTabelas, sql } from "./lib/db";
+import { apagarPeriodo, criarPeriodo, guardarComissoes, guardarPrecosCasa } from "./lib/precos";
 import { lerFicheiro } from "./lib/ficheiros";
 import { importarFolhas, numero } from "./lib/importar";
 import { apagarReserva, atualizarReserva, criarReserva, listarAlojamentos, type NovaReserva } from "./lib/reservas";
@@ -35,7 +36,7 @@ export async function entrar(_: string | null, form: FormData): Promise<string |
 export async function sair() {
   const c = await cookies();
   c.delete(COOKIE);
-  redirect("/gestao/entrar");
+  redirect("/"); // ao sair, volta ao site normal
 }
 
 // ---------- reservas ----------
@@ -191,13 +192,10 @@ export async function sincronizarAgora(): Promise<Relatorio> {
 
 // Páginas públicas que mostram a disponibilidade. Revalidar só estas (e não o "layout" todo):
 // as páginas das casas são estáticas e revalidar a árvore inteira deixava-as em 404.
+// Todas as páginas com o calendário ou os preços (as 4 línguas, casas, contactos,
+// páginas de destino) voltam a ser geradas no próximo acesso.
 function revalidarDisponibilidade() {
-  for (const slug of Object.keys(AL_DO_SLUG)) {
-    revalidatePath(`/alojamentos/${slug}`);
-    revalidatePath(`/en/accommodation/${slug}`);
-  }
-  for (const p of ["/", "/en", "/contactos", "/en/contact"]) revalidatePath(p);
-  revalidatePath("/gestao/calendario");
+  revalidatePath("/", "layout");
 }
 
 export async function criarBloqueioAcao(_: string | null, f: FormData): Promise<string | null> {
@@ -251,4 +249,64 @@ export async function guardarAlojamentos(f: FormData) {
   revalidatePath("/gestao", "layout");
   for (const slug of Object.keys(AL_DO_SLUG)) revalidatePath(`/guia/${slug}`);
   redirect("/gestao/alojamentos?ok=1");
+}
+
+// ---------- preços ----------
+
+const euro = (f: FormData, k: string) => {
+  const n = num(f, k);
+  return n == null ? null : Math.round(n * 100) / 100;
+};
+
+export async function guardarPrecosAcao(_: string | null, f: FormData): Promise<string | null> {
+  await exigirSessao();
+  const al = txt(f, "al");
+  if (!al || !Object.values(AL_DO_SLUG).includes(al)) return "Casa desconhecida.";
+  const base = euro(f, "base");
+  const fimSemana = euro(f, "fim_semana");
+  const limpeza = euro(f, "limpeza");
+  const minimo = num(f, "noites_min") ?? 1;
+  if (base != null && base <= 0) return "O preço por noite tem de ser maior que zero.";
+  if (fimSemana != null && fimSemana <= 0) return "O preço de sexta e sábado tem de ser maior que zero.";
+  if (limpeza != null && limpeza < 0) return "A limpeza não pode ser negativa.";
+  if (!Number.isInteger(minimo) || minimo < 1 || minimo > 30) return "O mínimo de noites vai de 1 a 30.";
+  await guardarPrecosCasa({ al, base, fim_semana: fimSemana, limpeza, noites_min: minimo });
+  revalidarDisponibilidade();
+  return "ok";
+}
+
+export async function criarPeriodoAcao(_: string | null, f: FormData): Promise<string | null> {
+  await exigirSessao();
+  const al = txt(f, "al");
+  const inicio = data(f, "inicio");
+  const fim = data(f, "fim");
+  const preco = euro(f, "preco");
+  const minimo = num(f, "noites_min");
+  if (!al || !Object.values(AL_DO_SLUG).includes(al)) return "Escolha a casa.";
+  if (!inicio || !fim) return "Indique a primeira noite e o dia a seguir à última noite.";
+  if (fim <= inicio) return "O fim tem de ser depois da primeira noite.";
+  if (preco == null || preco <= 0) return "Indique o preço por noite.";
+  if (minimo != null && (!Number.isInteger(minimo) || minimo < 1 || minimo > 30)) return "O mínimo de noites vai de 1 a 30.";
+  await criarPeriodo({ al, nome: txt(f, "nome"), inicio, fim, preco, noites_min: minimo });
+  revalidarDisponibilidade();
+  redirect("/gestao/precos?periodo=1");
+}
+
+export async function apagarPeriodoAcao(f: FormData) {
+  await exigirSessao();
+  const id = num(f, "id");
+  if (id) await apagarPeriodo(id);
+  revalidarDisponibilidade();
+  redirect("/gestao/precos?apagado=1");
+}
+
+export async function guardarComissoesAcao(_: string | null, f: FormData): Promise<string | null> {
+  await exigirSessao();
+  const airbnb = num(f, "airbnb");
+  const booking = num(f, "booking");
+  if (airbnb == null || booking == null) return "Indique as duas comissões.";
+  if (airbnb < 0 || airbnb >= 50 || booking < 0 || booking >= 50) return "As comissões vão de 0 a 50 %.";
+  await guardarComissoes(airbnb, booking);
+  revalidatePath("/gestao/precos");
+  return "ok";
 }

@@ -3,12 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avaliacao from "@/app/components/Avaliacao";
-import Calendario from "@/app/components/Calendario";
 import CasaVisual from "@/app/components/CasaVisual";
+import { CalendarioDaCasa, DatasPartilhadas } from "@/app/components/DatasPartilhadas";
 import JsonLd from "@/app/components/JsonLd";
 import PedidoForm from "@/app/components/PedidoForm";
 import { alternativas, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
+import { tabelasPrecos } from "@/app/gestao/lib/precos";
 import { ocupacaoDe, temCalendario } from "@/app/lib/disponibilidade";
+import { euros, precoDesde } from "@/app/lib/orcamento";
 import { casaEm, casas, getCasa, site } from "@/app/site";
 import { zonas } from "@/app/zona";
 
@@ -22,6 +24,9 @@ const TEXTOS = {
     comodidades: "Comodidades",
     checkOut: (h: string) => `Check-out até às ${h.replace(":", "h")}`,
     disponibilidade: "Disponibilidade",
+    dispTexto: "Escolha a chegada e a partida. As noites riscadas já estão ocupadas.",
+    desde: "desde",
+    noite: "noite",
     naZona: "Na zona",
     maisZona: "Mais ideias para a zona",
     comoReservar: "Como reservar",
@@ -36,6 +41,7 @@ const TEXTOS = {
     noBooking: "no Booking.com",
     rnal: "Registo de Alojamento Local n.º",
     pedirTexto: "Diga-nos as datas e respondemos com o preço.",
+    pedirComPreco: "Escolha as datas e envie o pedido. Confirmamos a reserva por mensagem.",
     fotografias: "Fotografias",
     conheca: (cidade: string) => `Conheça também, em ${cidade}`,
     titulo: (nome: string, tipo: string, cidade: string) =>
@@ -52,6 +58,9 @@ const TEXTOS = {
     comodidades: "Amenities",
     checkOut: (h: string) => `Check-out by ${h}`,
     disponibilidade: "Availability",
+    dispTexto: "Choose your arrival and departure. Nights crossed out are already booked.",
+    desde: "from",
+    noite: "night",
     naZona: "In the area",
     maisZona: "More ideas for the area",
     comoReservar: "How to book",
@@ -66,6 +75,7 @@ const TEXTOS = {
     noBooking: "on Booking.com",
     rnal: "Local Accommodation (AL) registration no.",
     pedirTexto: "Tell us your dates and we'll reply with the price.",
+    pedirComPreco: "Choose your dates and send the request. We confirm the booking by message.",
     fotografias: "Photos",
     conheca: (cidade: string) => `Also see, in ${cidade}`,
     titulo: (nome: string, tipo: string, cidade: string) =>
@@ -82,6 +92,9 @@ const TEXTOS = {
     comodidades: "Servicios",
     checkOut: (h: string) => `Salida antes de las ${h}`,
     disponibilidade: "Disponibilidad",
+    dispTexto: "Elija la llegada y la salida. Las noches tachadas ya están ocupadas.",
+    desde: "desde",
+    noite: "noche",
     naZona: "En la zona",
     maisZona: "Más ideas para la zona",
     comoReservar: "Cómo reservar",
@@ -96,6 +109,7 @@ const TEXTOS = {
     noBooking: "en Booking.com",
     rnal: "Registro de Alojamiento Local (AL) n.º",
     pedirTexto: "Díganos las fechas y le respondemos con el precio.",
+    pedirComPreco: "Elija las fechas y envíe la solicitud. Confirmamos la reserva por mensaje.",
     fotografias: "Fotografías",
     conheca: (cidade: string) => `Descubra también, en ${cidade}`,
     titulo: (nome: string, tipo: string, cidade: string) =>
@@ -112,6 +126,9 @@ const TEXTOS = {
     comodidades: "Équipements",
     checkOut: (h: string) => `Départ avant ${h.replace(":", "h")}`,
     disponibilidade: "Disponibilités",
+    dispTexto: "Choisissez l’arrivée et le départ. Les nuits barrées sont déjà réservées.",
+    desde: "à partir de",
+    noite: "nuit",
     naZona: "Dans la région",
     maisZona: "Plus d'idées pour la région",
     comoReservar: "Comment réserver",
@@ -126,6 +143,7 @@ const TEXTOS = {
     noBooking: "sur Booking.com",
     rnal: "N° d'enregistrement d'hébergement local (AL)",
     pedirTexto: "Indiquez-nous vos dates et nous vous répondrons avec le prix.",
+    pedirComPreco: "Choisissez vos dates et envoyez la demande. Nous confirmons la réservation par message.",
     fotografias: "Photos",
     conheca: (cidade: string) => `À découvrir aussi, à ${cidade}`,
     titulo: (nome: string, tipo: string, cidade: string) =>
@@ -173,7 +191,12 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
   const outraOriginal = casas.find((c) => c.slug !== casa.slug);
   const outra = outraOriginal ? casaEm(outraOriginal, l) : undefined;
   const comCalendario = temCalendario(casa.slug);
-  const ocupado = comCalendario ? await ocupacaoDe(casa.slug) : [];
+  const [ocupado, precos] = await Promise.all([
+    comCalendario ? ocupacaoDe(casa.slug) : Promise.resolve([]),
+    tabelasPrecos(),
+  ]);
+  const precosCasa = precos[casa.slug];
+  const desde = precoDesde(precosCasa);
   const galeria = casa.fotos.slice(1);
   const zona = zonas.find((z) => z.casa === casa.slug);
   // Páginas "onde ficar" ligadas a esta zona (Castelo do Bode, Tabuleiros, CNEMA), sem repetir.
@@ -263,6 +286,7 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
         </div>
       </section>
 
+      <DatasPartilhadas>
       <div className="mx-auto grid max-w-7xl gap-14 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-[1.5fr_1fr] lg:gap-20">
         <div className="space-y-16">
           <section>
@@ -310,14 +334,13 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
             )}
           </section>
 
-          {comCalendario && (
-            <section id="disponibilidade" className="scroll-mt-24">
-              <h2 className="text-3xl md:text-4xl">{t.disponibilidade}</h2>
-              <div className="mt-6 max-w-2xl">
-                <Calendario intervalos={ocupado} l={l} />
-              </div>
-            </section>
-          )}
+          <section id="disponibilidade" className="scroll-mt-24">
+            <h2 className="text-3xl md:text-4xl">{t.disponibilidade}</h2>
+            <p className="mt-3 max-w-2xl text-cinza">{t.dispTexto}</p>
+            <div className="mt-6 border-y border-xisto/15 py-6">
+              <CalendarioDaCasa l={l} ocupado={ocupado} precos={precosCasa} />
+            </div>
+          </section>
 
           <section>
             <h2 className="text-3xl md:text-4xl">{t.naZona}</h2>
@@ -388,18 +411,26 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
         </div>
 
         <aside id="pedido" className="scroll-mt-24 self-start bg-pedra p-6 md:p-8 lg:sticky lg:top-24">
-          <h2 className="text-3xl">{ui[l].pedir}</h2>
-          <p className="mt-3 text-cinza">{t.pedirTexto}</p>
+          {desde != null ? (
+            <p className="text-cinza">
+              {t.desde} <span className="font-display text-4xl text-xisto">{euros(desde, l)}</span> / {t.noite}
+            </p>
+          ) : (
+            <h2 className="text-3xl">{ui[l].pedir}</h2>
+          )}
+          <p className="mt-3 text-cinza">{desde != null ? t.pedirComPreco : t.pedirTexto}</p>
           <div className="mt-6">
             <PedidoForm
               casaInicial={casa.slug}
               tema="claro"
-              ocupado={comCalendario ? { [casa.slug]: ocupado } : {}}
+              ocupado={{ [casa.slug]: ocupado }}
+              precos={precosCasa ? { [casa.slug]: precosCasa } : {}}
               l={l}
             />
           </div>
         </aside>
       </div>
+      </DatasPartilhadas>
 
       {galeria.length > 0 && (
         <section className="mx-auto max-w-7xl px-5 pb-20 md:px-8">

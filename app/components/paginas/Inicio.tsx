@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CasaVisual from "@/app/components/CasaVisual";
 import PedidoForm from "@/app/components/PedidoForm";
+import { tabelasPrecos } from "@/app/gestao/lib/precos";
 import { rota, rotaCasa, ui, type Lingua } from "@/app/i18n";
 import { ocupacaoTodas } from "@/app/lib/disponibilidade";
 import { casasEm, site } from "@/app/site";
@@ -173,7 +174,7 @@ export default async function Inicio({ l }: { l: Lingua }) {
             <h2 className="text-4xl md:text-5xl">{t.datasTitulo}</h2>
             <p className="mt-6 max-w-md text-lg text-nevoa">{t.datasTexto}</p>
           </div>
-          <PedidoForm ocupado={await ocupacaoTodas()} l={l} />
+          <PedidoForm ocupado={await ocupacaoTodas()} precos={await tabelasPrecos()} l={l} />
         </div>
       </section>
     </>

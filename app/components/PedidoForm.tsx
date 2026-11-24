@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useId, useState } from "react";
 import type { Ocupacao } from "../lib/disponibilidade";
-import { formulario, rota, type Lingua } from "../i18n";
+import { escolherDatas, formulario, rota, type Lingua } from "../i18n";
+import { euros, orcamento, type TabelaPrecos } from "../lib/orcamento";
 import { casasEm, emailLink, site, whatsappLink } from "../site";
+import { useDatasPartilhadas } from "./DatasPartilhadas";
+import EscolherDatas, { ResumoPreco } from "./EscolherDatas";
 
 // Formulário de pedido de disponibilidade.
 // Prepara a mensagem e abre o WhatsApp ou o email do hóspede. Uma cópia do pedido
@@ -13,17 +16,35 @@ export default function PedidoForm({
   casaInicial = "",
   tema = "escuro",
   ocupado = {},
+  precos = {},
   l = "pt",
 }: {
   casaInicial?: string;
   tema?: "escuro" | "claro";
-  ocupado?: Ocupacao; // noites reservadas no Airbnb/Booking, por casa
+  ocupado?: Ocupacao; // noites ocupadas (Airbnb, Booking e bloqueios do site), por casa
+  precos?: Record<string, TabelaPrecos>; // preços por noite definidos na gestão, por casa
   l?: Lingua;
 }) {
   const id = useId();
   const t = formulario[l];
+  const te = escolherDatas[l];
   const casas = casasEm(l);
   const [erro, setErro] = useState("");
+  const [casaEscolhida, setCasaEscolhida] = useState(casaInicial);
+  const [chegadaLocal, setChegadaLocal] = useState("");
+  const [partidaLocal, setPartidaLocal] = useState("");
+  // Na página da casa as datas escolhem-se no calendário grande da página.
+  const daPagina = useDatasPartilhadas();
+  const chegada = daPagina ? daPagina.chegada : chegadaLocal;
+  const partida = daPagina ? daPagina.partida : partidaLocal;
+  const mudarDatas = (c: string, p: string) => {
+    if (daPagina) daPagina.mudar(c, p);
+    else {
+      setChegadaLocal(c);
+      setPartidaLocal(p);
+    }
+    setErro("");
+  };
   const escuro = tema === "escuro";
 
   const campo = `mt-2 block w-full rounded-sm border px-3 py-3 text-base ${
@@ -41,8 +62,6 @@ export default function PedidoForm({
     const via = (e.nativeEvent as SubmitEvent).submitter?.getAttribute("value") ?? "email";
 
     const casa = casas.find((c) => c.slug === dados.get("casa"));
-    const chegada = String(dados.get("chegada") ?? "");
-    const partida = String(dados.get("partida") ?? "");
     const hospedes = String(dados.get("hospedes") ?? "");
     const nome = String(dados.get("nome") ?? "").trim();
     const mensagem = String(dados.get("mensagem") ?? "").trim();
@@ -66,6 +85,8 @@ export default function PedidoForm({
       `${t.lPartida}: ${dataPT(partida)}`,
       `${t.lHospedes}: ${hospedes}`,
     ];
+    const orc = orcamento(precos[casa.slug], chegada, partida);
+    if (orc) linhas.push(`${te.lPreco}: ${euros(orc.total, l)} (${te.noites(orc.noites)})`);
     if (nome) linhas.push(`${t.lNome}: ${nome}`);
     if (mensagem) linhas.push("", mensagem);
     const texto = linhas.join("\n");
@@ -108,35 +129,66 @@ export default function PedidoForm({
         </label>
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <label htmlFor={`${id}-casa`} className={rotulo}>
-            {t.alojamento}
-          </label>
-          <select id={`${id}-casa`} name="casa" defaultValue={casaInicial} className={campo} required>
-            <option value="" disabled>
-              {t.escolha}
-            </option>
-            {casas.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.nome} ({c.cidade})
+        {daPagina ? (
+          // Na página da casa, a casa já está escolhida.
+          <input type="hidden" name="casa" value={casaEscolhida} />
+        ) : (
+          <div className="sm:col-span-2">
+            <label htmlFor={`${id}-casa`} className={rotulo}>
+              {t.alojamento}
+            </label>
+            <select
+              id={`${id}-casa`}
+              name="casa"
+              value={casaEscolhida}
+              onChange={(e) => {
+                setCasaEscolhida(e.target.value);
+                mudarDatas("", "");
+              }}
+              className={campo}
+              required
+            >
+              <option value="" disabled>
+                {t.escolha}
               </option>
-            ))}
-          </select>
-        </div>
+              {casas.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.nome} ({c.cidade})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-        <div>
-          <label htmlFor={`${id}-chegada`} className={rotulo}>
-            {t.chegada}
-          </label>
-          <input id={`${id}-chegada`} name="chegada" type="date" className={campo} required />
-        </div>
-
-        <div>
-          <label htmlFor={`${id}-partida`} className={rotulo}>
-            {t.partida}
-          </label>
-          <input id={`${id}-partida`} name="partida" type="date" className={campo} required />
-        </div>
+        <fieldset className="sm:col-span-2">
+          <legend className={rotulo}>{te.titulo}</legend>
+          <input type="hidden" name="chegada" value={chegada} />
+          <input type="hidden" name="partida" value={partida} />
+          <div className="mt-3">
+            {daPagina ? (
+              <ResumoDatas
+                chegada={chegada}
+                partida={partida}
+                precos={precos[casaEscolhida]}
+                l={l}
+                escuro={escuro}
+              />
+            ) : casaEscolhida ? (
+              <EscolherDatas
+                key={casaEscolhida}
+                l={l}
+                escuro={escuro}
+                ocupado={ocupado[casaEscolhida] ?? []}
+                precos={precos[casaEscolhida]}
+                chegada={chegada}
+                partida={partida}
+                onChange={mudarDatas}
+              />
+            ) : (
+              <p className={`text-sm ${escuro ? "text-nevoa/80" : "text-cinza"}`}>{te.escolhaCasa}</p>
+            )}
+          </div>
+        </fieldset>
 
         <div>
           <label htmlFor={`${id}-hospedes`} className={rotulo}>
@@ -217,5 +269,50 @@ export default function PedidoForm({
         {t.notaDepois}
       </p>
     </form>
+  );
+}
+
+/** Na página da casa: as duas datas escolhidas no calendário e o total, como no cartão do Airbnb. */
+function ResumoDatas({
+  chegada,
+  partida,
+  precos,
+  l,
+  escuro,
+}: {
+  chegada: string;
+  partida: string;
+  precos?: TabelaPrecos;
+  l: Lingua;
+  escuro: boolean;
+}) {
+  const t = formulario[l];
+  const te = escolherDatas[l];
+  const data = (iso: string) => (iso ? iso.split("-").reverse().join("/") : "");
+  const orc = orcamento(precos, chegada, partida);
+  const caixa = `block px-3 py-2.5 ${escuro ? "text-white" : "text-xisto"}`;
+  return (
+    <>
+      <a
+        href="#disponibilidade"
+        className={`grid grid-cols-2 rounded-sm border transition-colors ${
+          escuro ? "border-white/25 hover:border-ouro" : "border-xisto/25 bg-white hover:border-ouro-escuro"
+        }`}
+      >
+        <span className={caixa}>
+          <span className="block text-xs font-semibold">{t.chegada}</span>
+          <span className={chegada ? "" : "text-cinza"}>{data(chegada) || te.escolher}</span>
+        </span>
+        <span className={`${caixa} border-l ${escuro ? "border-white/25" : "border-xisto/25"}`}>
+          <span className="block text-xs font-semibold">{t.partida}</span>
+          <span className={partida ? "" : "text-cinza"}>{data(partida) || te.escolher}</span>
+        </span>
+      </a>
+      {orc ? (
+        <ResumoPreco orc={orc} l={l} escuro={escuro} />
+      ) : (
+        <p className={`mt-2 text-sm ${escuro ? "text-nevoa/80" : "text-cinza"}`}>{te.noCalendario}</p>
+      )}
+    </>
   );
 }

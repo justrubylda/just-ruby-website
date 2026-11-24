@@ -50,6 +50,18 @@ neste calendário (as plataformas já as trocam entre si).
 
 As páginas públicas das casas juntam Airbnb + Booking + estes bloqueios.
 
+## Preços (/gestao/precos)
+
+- Por casa: preço da noite, de sexta e sábado, limpeza (uma vez por estadia) e mínimo de noites.
+- Épocas especiais (Natal, agosto, festas): substituem os outros preços nessas noites e podem ter outro mínimo.
+- O site mostra o preço por baixo de cada dia livre no calendário, "desde X € / noite" na página da casa e o total da estadia quando o hóspede escolhe as datas. O pedido fica registado com esse total e, ao criar a reserva a partir do pedido, o total já vem preenchido.
+- Ao lado de cada preço aparece o valor a pôr no Airbnb e no Booking para receber o mesmo depois da comissão (as comissões editam-se na mesma página). As plataformas não aceitam mudanças automáticas sem um gestor de canais pago, por isso esses valores passam-se lá à mão (ou pelo Claude, no navegador).
+- Sem preços definidos, o site continua como antes: "respondemos com o preço".
+
+## Sair da gestão
+
+"Ver o site" (no topo) abre o site normal sem sair; "Sair" termina a sessão e volta à página inicial do site.
+
 ## Wi-Fi do guia do hóspede
 
 Em /gestao/alojamentos (campos "Rede Wi-Fi" e "Palavra-passe Wi-Fi"). O guia lê-os da base de dados.

@@ -16,6 +16,7 @@ type Pedido = {
   nome: string | null;
   mensagem: string | null;
   via: string | null;
+  preco: number | null;
   estado: string;
   reserva_id: number | null;
 };
@@ -59,6 +60,13 @@ export default async function Pedidos({ searchParams }: { searchParams: Promise<
               </div>
               <p className="text-sm">
                 {casa?.nome ?? p.casa} · {dataPT(p.chegada)} → {dataPT(p.partida)} · {p.hospedes ?? "?"} pessoa(s)
+                {p.preco != null && (
+                  <>
+                    {" "}
+                    · <b>{Number(p.preco).toLocaleString("pt-PT", { style: "currency", currency: "EUR" })}</b>{" "}
+                    <span className="text-cinza">(preço do site)</span>
+                  </>
+                )}
               </p>
               {p.mensagem && <p className="mt-2 whitespace-pre-line rounded-md bg-pedra/60 p-2 text-sm">{p.mensagem}</p>}
               <div className="mt-3 flex flex-wrap gap-2">

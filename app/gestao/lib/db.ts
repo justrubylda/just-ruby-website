@@ -117,6 +117,26 @@ create table if not exists bloqueios_ignorados (
 );
 alter table bloqueios_ignorados add column if not exists ate date;
 
+-- preços por noite (o site é a referência; Airbnb e Booking calculam-se com a comissão)
+create table if not exists precos (
+  al text primary key,
+  base numeric(10,2),
+  fim_semana numeric(10,2),
+  limpeza numeric(10,2),
+  noites_min integer not null default 2,
+  atualizado_em timestamptz not null default now()
+);
+create table if not exists precos_periodos (
+  id serial primary key,
+  al text not null,
+  nome text,
+  inicio date not null,
+  fim date not null,
+  preco numeric(10,2) not null,
+  noites_min integer
+);
+
+alter table pedidos add column if not exists preco numeric(10,2);
 alter table alojamentos add column if not exists wifi_rede text not null default '';
 alter table alojamentos add column if not exists wifi_senha text not null default '';
 `;

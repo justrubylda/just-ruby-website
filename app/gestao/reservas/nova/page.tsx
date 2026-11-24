@@ -30,6 +30,7 @@ export default async function Nova({ searchParams }: { searchParams: Promise<Rec
         hospedes: p.hospedes,
         notas: p.mensagem ? `Pedido do site: ${p.mensagem}` : "Pedido do site",
         pedido_id: p.id,
+        ...(p.preco != null ? { total: Number(p.preco) } : {}),
       });
     }
   }

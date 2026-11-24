@@ -1,5 +1,6 @@
 import PageIntro from "@/app/components/PageIntro";
 import PedidoForm from "@/app/components/PedidoForm";
+import { tabelasPrecos } from "@/app/gestao/lib/precos";
 import { ui, type Lingua } from "@/app/i18n";
 import { ocupacaoTodas } from "@/app/lib/disponibilidade";
 import { casasEm, site, whatsappLink } from "@/app/site";
@@ -100,7 +101,7 @@ export default async function Contactos({ l }: { l: Lingua }) {
         <section id="pedido" className="scroll-mt-24 bg-preto p-6 text-white md:p-10">
           <h2 className="text-3xl md:text-4xl">{ui[l].pedir}</h2>
           <div className="mt-8">
-            <PedidoForm ocupado={await ocupacaoTodas()} l={l} />
+            <PedidoForm ocupado={await ocupacaoTodas()} precos={await tabelasPrecos()} l={l} />
           </div>
         </section>
       </div>

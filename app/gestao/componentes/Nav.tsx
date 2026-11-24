@@ -7,6 +7,7 @@ const ITENS = [
   { href: "/gestao", label: "Painel" },
   { href: "/gestao/reservas", label: "Reservas" },
   { href: "/gestao/calendario", label: "Calendário" },
+  { href: "/gestao/precos", label: "Preços" },
   { href: "/gestao/faturar", label: "Por faturar" },
   { href: "/gestao/pedidos", label: "Pedidos do site" },
   { href: "/gestao/importar", label: "Importar" },

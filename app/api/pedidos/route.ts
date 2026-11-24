@@ -1,5 +1,7 @@
 import { casas } from "@/app/site";
 import { garantirTabelas, sql, temBaseDados } from "@/app/gestao/lib/db";
+import { tabelasPrecos } from "@/app/gestao/lib/precos";
+import { orcamento } from "@/app/lib/orcamento";
 
 // Guarda os pedidos de disponibilidade feitos no formulário do site, para aparecerem
 // na área de gestão. O formulário continua a abrir o email/WhatsApp como antes.
@@ -24,11 +26,13 @@ export async function POST(request: Request) {
   const hospedes = Math.min(50, Math.max(1, Math.round(Number(d.hospedes) || 1)));
   try {
     await garantirTabelas();
+    // Preço que o site mostrou ao hóspede (calculado aqui, não se confia no navegador).
+    const preco = orcamento((await tabelasPrecos())[casa], String(d.chegada), String(d.partida))?.total ?? null;
     const [{ n }] = await sql()`select count(*)::int as n from pedidos where criado_em > now() - interval '1 hour'`;
     if (n > 30) return new Response(null, { status: 429 });
-    await sql()`insert into pedidos (casa, chegada, partida, hospedes, nome, mensagem, via)
+    await sql()`insert into pedidos (casa, chegada, partida, hospedes, nome, mensagem, via, preco)
       values (${casa}, ${String(d.chegada)}, ${String(d.partida)}, ${hospedes}, ${corta(d.nome, 120) || null},
-        ${corta(d.mensagem, 1500) || null}, ${d.via === "whatsapp" ? "WhatsApp" : "email"})`;
+        ${corta(d.mensagem, 1500) || null}, ${d.via === "whatsapp" ? "WhatsApp" : "email"}, ${preco})`;
   } catch (e) {
     console.error("[pedidos] não consegui guardar", e);
     return new Response(null, { status: 500 });

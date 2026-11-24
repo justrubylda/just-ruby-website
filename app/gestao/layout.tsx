@@ -18,11 +18,21 @@ export default async function GestaoLayout({ children }: { children: React.React
           <Link href="/gestao" className="font-display text-xl tracking-wide text-ouro-claro">
             JUST RUBY <span className="text-sm text-nevoa">· Gestão</span>
           </Link>
-          {logado && (
-            <form action={sair}>
-              <button className="text-sm text-nevoa underline-offset-4 hover:text-white hover:underline">Sair</button>
-            </form>
-          )}
+          <div className="flex items-center gap-2 text-sm">
+            <Link
+              href="/"
+              className="rounded-md border border-white/25 px-3 py-1.5 font-semibold text-white transition-colors hover:border-ouro-claro hover:text-ouro-claro"
+            >
+              Ver o site
+            </Link>
+            {logado && (
+              <form action={sair}>
+                <button className="rounded-md px-3 py-1.5 font-semibold text-nevoa transition-colors hover:text-white">
+                  Sair
+                </button>
+              </form>
+            )}
+          </div>
         </div>
         {logado ? <Nav /> : <div className="h-4" />}
       </header>

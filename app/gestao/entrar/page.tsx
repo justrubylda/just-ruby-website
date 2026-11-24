@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { temSessao } from "../lib/acesso";
 import { palavraPasseConfigurada } from "../lib/sessao";
@@ -17,6 +18,11 @@ export default async function Entrar() {
           <b>GESTAO_PALAVRA_PASSE</b> (Production e Preview) e voltar a publicar.
         </p>
       )}
+      <p className="mt-6 border-t border-black/5 pt-4 text-sm">
+        <Link href="/" className="font-semibold text-ouro-escuro underline-offset-4 hover:underline">
+          Voltar ao site
+        </Link>
+      </p>
     </div>
   );
 }

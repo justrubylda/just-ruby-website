@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import CasaVisual from "@/app/components/CasaVisual";
 import PageIntro from "@/app/components/PageIntro";
 import PedidoForm from "@/app/components/PedidoForm";
+import { tabelasPrecos } from "@/app/gestao/lib/precos";
 import { getDestino } from "@/app/destinos";
 import { alternativas, localeOG, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
 import { ocupacaoTodas } from "@/app/lib/disponibilidade";
@@ -83,7 +84,7 @@ export default async function Destino({ pagina, l }: { pagina: Pagina; l: Lingua
           <h2 className="text-3xl">{t.pedirTitulo}</h2>
           <p className="mt-3 text-cinza">{t.pedirTexto}</p>
           <div className="mt-6">
-            <PedidoForm casaInicial={d.casaInicial} tema="claro" ocupado={await ocupacaoTodas()} l={l} />
+            <PedidoForm casaInicial={d.casaInicial} tema="claro" ocupado={await ocupacaoTodas()} precos={await tabelasPrecos()} l={l} />
           </div>
         </aside>
       </div>
