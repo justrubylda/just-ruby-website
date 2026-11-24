@@ -26,8 +26,19 @@ const somar = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
+// Valor dado pelo Bruno a 24/11/2026: 80 € nas duas casas. Grava-se uma única vez;
+// depois edita-se em /gestao/precos.
+const LIMPEZA_INICIAL = 80;
+
+async function limpezaInicial() {
+  if (await lerConfig("limpeza_inicial")) return;
+  await guardarLimpeza(LIMPEZA_INICIAL);
+  await gravarConfig("limpeza_inicial", String(LIMPEZA_INICIAL));
+}
+
 export async function lerPrecos(): Promise<{ casas: PrecosCasa[]; periodos: Periodo[]; limpeza: number | null }> {
   await garantirTabelas();
+  await limpezaInicial();
   const linhas = (await sql()`select al, base, fim_semana, limpeza, noites_min from precos`) as unknown as PrecosCasa[];
   const casas = Object.values(AL_DO_SLUG).map(
     (al) => linhas.find((l) => l.al === al) ?? { al, base: null, fim_semana: null, limpeza: null, noites_min: 2 },
