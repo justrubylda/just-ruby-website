@@ -37,15 +37,16 @@ export default async function Reservas({ searchParams }: { searchParams: Promise
     })
     .reverse(); // mais recentes primeiro
   const soma = lista.reduce((s, x) => s + (x.r.total ?? 0), 0);
-  const exportar = `/gestao/exportar?ano=${encodeURIComponent(ano)}&al=${encodeURIComponent(al)}`;
+  const filtros = new URLSearchParams({ ano, al, estado, plataforma, q: sp.q ?? "" }).toString();
+  const exportar = `/gestao/exportar?${filtros}`;
 
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <Titulo sub={`${lista.length} reserva(s) · ${eur(soma)} c/ IVA`}>Reservas</Titulo>
         <div className="flex gap-2">
-          <a href={exportar} className={botaoSec}>
-            Exportar CSV
+          <a href={exportar} className={botaoSec} title="Descarrega as reservas desta lista (com os filtros escolhidos)">
+            Descarregar Excel
           </a>
           <Link href="/gestao/reservas/nova" className={botao}>
             + Nova reserva
