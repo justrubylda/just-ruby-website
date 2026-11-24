@@ -199,13 +199,14 @@ export default function PedidoForm({
             {t.pessoas}
           </label>
           <input
+            key={daPagina?.pessoas ?? "pessoas"}
             id={`${id}-hospedes`}
             name="hospedes"
             type="number"
             inputMode="numeric"
             min={1}
             max={30}
-            defaultValue={2}
+            defaultValue={daPagina?.pessoas ?? 2}
             className={campo}
             required
           />
