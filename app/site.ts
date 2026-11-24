@@ -268,8 +268,8 @@ export const casas: Casa[] = [
     tipo: "Vivenda com piscina privada",
     frase: "Uma vivenda com piscina privada e espaço para a família, na Várzea, às portas de Santarém.",
     pesquisa: {
-      titulo: "Alojamento em Santarém com piscina privada: O Nosso Cantinho",
-      descricao: "Vivenda T4 com piscina privada para até 8 pessoas na Várzea, a cerca de 10 km do centro de Santarém e do CNEMA. Peça disponibilidade diretamente aos anfitriões.",
+      titulo: "O Nosso Cantinho: casa com piscina em Santarém",
+      descricao: "Casa com piscina privada em Santarém, na Várzea: 4 quartos para até 8 pessoas, a cerca de 10 km do centro de Santarém e do CNEMA. Peça disponibilidade diretamente aos anfitriões.",
     },
     descricao: [
       "O Nosso Cantinho é uma vivenda T4 com anexos e piscina privada na Várzea, uma aldeia tranquila às portas de Santarém.",
@@ -349,8 +349,8 @@ export const casas: Casa[] = [
       tipo: "Villa with private pool",
       frase: "A villa with a private pool and room for the whole family, in Várzea, on the edge of Santarém.",
       pesquisa: {
-        titulo: "Holiday home with private pool in Santarém, Portugal: O Nosso Cantinho",
-        descricao: "4-bedroom villa with a private pool for up to 8 guests in Várzea, about 10 km from Santarém town centre and CNEMA. Ask the hosts directly for availability.",
+        titulo: "O Nosso Cantinho: house with pool in Santarém, Portugal",
+        descricao: "House with a private pool in Santarém, in Várzea: 4 bedrooms for up to 8 guests, about 10 km from Santarém town centre and CNEMA. Ask the hosts directly for availability.",
       },
       descricao: [
         "O Nosso Cantinho is a four-bedroom villa with outbuildings and a private pool in Várzea, a quiet village on the edge of Santarém.",
@@ -396,8 +396,8 @@ export const casas: Casa[] = [
       tipo: "Villa con piscina privada",
       frase: "Una villa con piscina privada y espacio para toda la familia, en Várzea, a las puertas de Santarém.",
       pesquisa: {
-        titulo: "Alojamiento en Santarém con piscina privada: O Nosso Cantinho",
-        descricao: "Villa de 4 dormitorios con piscina privada para hasta 8 personas en Várzea, a unos 10 km del centro de Santarém y del CNEMA. Consulte la disponibilidad directamente con los anfitriones.",
+        titulo: "O Nosso Cantinho: casa con piscina en Santarém",
+        descricao: "Casa con piscina privada en Santarém, en Várzea: 4 dormitorios para hasta 8 personas, a unos 10 km del centro de Santarém y del CNEMA. Consulte la disponibilidad directamente con los anfitriones.",
       },
       descricao: [
         "O Nosso Cantinho es una villa de cuatro dormitorios con anexos y piscina privada en Várzea, un pueblo tranquilo a las puertas de Santarém.",
@@ -434,8 +434,8 @@ export const casas: Casa[] = [
       tipo: "Villa avec piscine privée",
       frase: "Une villa avec piscine privée et de la place pour toute la famille, à Várzea, aux portes de Santarém.",
       pesquisa: {
-        titulo: "Location de vacances à Santarém avec piscine privée : O Nosso Cantinho",
-        descricao: "Villa de 4 chambres avec piscine privée pour 8 personnes maximum à Várzea, à environ 10 km du centre de Santarém et du CNEMA. Demandez la disponibilité directement aux hôtes.",
+        titulo: "O Nosso Cantinho : maison avec piscine à Santarém",
+        descricao: "Maison avec piscine privée à Santarém, à Várzea : 4 chambres pour 8 personnes maximum, à environ 10 km du centre de Santarém et du CNEMA. Demandez la disponibilité directement aux hôtes.",
       },
       descricao: [
         "O Nosso Cantinho est une villa de quatre chambres avec dépendances et piscine privée à Várzea, un village tranquille aux portes de Santarém.",
