@@ -142,12 +142,12 @@ export async function metadadosCasa(l: Lingua, slug: string, parent: ResolvingMe
   if (!original) return {};
   const casa = casaEm(original, l);
   const t = TEXTOS[l];
-  const descricao = t.descricao(casa.frase);
+  const descricao = casa.pesquisa?.descricao ?? t.descricao(casa.frase);
   const capa = casa.fotos[0];
   const ogAnterior = (await parent).openGraph;
 
   return {
-    title: t.titulo(casa.nome, casa.tipo, casa.cidade),
+    title: casa.pesquisa?.titulo ?? t.titulo(casa.nome, casa.tipo, casa.cidade),
     description: descricao,
     alternates: alternativas(l, "alojamentos", casa.slug),
     openGraph: {

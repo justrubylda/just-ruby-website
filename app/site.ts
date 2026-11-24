@@ -47,7 +47,12 @@ export type CasaTextos = {
   capacidade: string;
   verLabel: string;
   perto: { nome: string; nota: string }[];
+  pesquisa?: Pesquisa;
 };
+
+// Título e descrição para o Google, quando devem ser diferentes do modelo geral.
+// Escrever com as palavras que as pessoas pesquisam (ex.: "alojamento em Santarém").
+export type Pesquisa = { titulo: string; descricao: string };
 
 export type Casa = {
   slug: string;
@@ -67,6 +72,7 @@ export type Casa = {
   comodidades: string[]; // lista curta (aparece na página da casa e vai para o Google)
   verLabel: string; // texto do link "Ver a quinta" / "Ver a casa"
   perto: { nome: string; nota: string }[];
+  pesquisa?: Pesquisa; // título e descrição para o Google (opcional)
 
   // Fotos: coloque os ficheiros em /public/fotos/ e escreva aqui o caminho.
   // "alt" descreve a foto em português; "en", "es" e "fr" em inglês, espanhol e francês.
@@ -261,6 +267,10 @@ export const casas: Casa[] = [
     freguesia: "Várzea",
     tipo: "Vivenda com piscina privada",
     frase: "Uma vivenda com piscina privada e espaço para a família, na Várzea, às portas de Santarém.",
+    pesquisa: {
+      titulo: "Alojamento em Santarém com piscina privada: O Nosso Cantinho",
+      descricao: "Vivenda T4 com piscina privada para até 8 pessoas na Várzea, a cerca de 10 km do centro de Santarém e do CNEMA. Peça disponibilidade diretamente aos anfitriões.",
+    },
     descricao: [
       "O Nosso Cantinho é uma vivenda T4 com anexos e piscina privada na Várzea, uma aldeia tranquila às portas de Santarém.",
       "Tem espaço para famílias e grupos: 4 quartos, 2 casas de banho, jardim, churrasqueira e estacionamento privado.",
@@ -338,6 +348,10 @@ export const casas: Casa[] = [
       local: "Várzea, Santarém",
       tipo: "Villa with private pool",
       frase: "A villa with a private pool and room for the whole family, in Várzea, on the edge of Santarém.",
+      pesquisa: {
+        titulo: "Holiday home with private pool in Santarém, Portugal: O Nosso Cantinho",
+        descricao: "4-bedroom villa with a private pool for up to 8 guests in Várzea, about 10 km from Santarém town centre and CNEMA. Ask the hosts directly for availability.",
+      },
       descricao: [
         "O Nosso Cantinho is a four-bedroom villa with outbuildings and a private pool in Várzea, a quiet village on the edge of Santarém.",
         "There is room for families and groups: 4 bedrooms, 2 bathrooms, a garden, a barbecue and private parking.",
@@ -381,6 +395,10 @@ export const casas: Casa[] = [
       local: "Várzea, Santarém",
       tipo: "Villa con piscina privada",
       frase: "Una villa con piscina privada y espacio para toda la familia, en Várzea, a las puertas de Santarém.",
+      pesquisa: {
+        titulo: "Alojamiento en Santarém con piscina privada: O Nosso Cantinho",
+        descricao: "Villa de 4 dormitorios con piscina privada para hasta 8 personas en Várzea, a unos 10 km del centro de Santarém y del CNEMA. Consulte la disponibilidad directamente con los anfitriones.",
+      },
       descricao: [
         "O Nosso Cantinho es una villa de cuatro dormitorios con anexos y piscina privada en Várzea, un pueblo tranquilo a las puertas de Santarém.",
         "Hay espacio para familias y grupos: 4 dormitorios, 2 baños, jardín, barbacoa y aparcamiento privado.",
@@ -415,6 +433,10 @@ export const casas: Casa[] = [
       local: "Várzea, Santarém",
       tipo: "Villa avec piscine privée",
       frase: "Une villa avec piscine privée et de la place pour toute la famille, à Várzea, aux portes de Santarém.",
+      pesquisa: {
+        titulo: "Location de vacances à Santarém avec piscine privée : O Nosso Cantinho",
+        descricao: "Villa de 4 chambres avec piscine privée pour 8 personnes maximum à Várzea, à environ 10 km du centre de Santarém et du CNEMA. Demandez la disponibilité directement aux hôtes.",
+      },
       descricao: [
         "O Nosso Cantinho est une villa de quatre chambres avec dépendances et piscine privée à Várzea, un village tranquille aux portes de Santarém.",
         "Il y a de la place pour les familles et les groupes : 4 chambres, 2 salles de bains, un jardin, un barbecue et un parking privé.",
@@ -452,7 +474,7 @@ export const getCasa = (slug: string) => casas.find((c) => c.slug === slug);
 // A casa com os textos na língua pedida (as fotos ficam com o "alt" dessa língua).
 export function casaEm(casa: Casa, l: "pt" | "en" | "es" | "fr"): Casa {
   if (l === "pt") return casa;
-  const { doNome, local, tipo, frase, descricao, destaques, comodidades, capacidade, verLabel, perto } = casa[l];
+  const { doNome, local, tipo, frase, descricao, destaques, comodidades, capacidade, verLabel, perto, pesquisa } = casa[l];
   return {
     ...casa,
     doNome,
@@ -465,6 +487,7 @@ export function casaEm(casa: Casa, l: "pt" | "en" | "es" | "fr"): Casa {
     capacidade,
     verLabel,
     perto,
+    pesquisa,
     fotos: casa.fotos.map((f) => ({ ...f, alt: f[l] })),
   };
 }
