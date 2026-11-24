@@ -8,7 +8,7 @@ import { AL_DO_SLUG } from "../lib/calendario";
 import { dataPT, hojeISO } from "../lib/calculos";
 import { temBaseDados } from "../lib/db";
 import { lerComissoes, lerPrecos, precoNaPlataforma } from "../lib/precos";
-import { FormComissoes, FormPeriodo, FormPrecosCasa } from "./Formularios";
+import { FormComissoes, FormLimpeza, FormPeriodo, FormPrecosCasa } from "./Formularios";
 
 const eur = (v: number) => {
   const n = Number(v);
@@ -20,7 +20,7 @@ export default async function Precos({ searchParams }: { searchParams: Promise<R
   await exigirSessao();
   if (!temBaseDados()) return <SemBaseDados />;
   const sp = await searchParams;
-  const [{ casas, periodos }, comissoes] = await Promise.all([lerPrecos(), lerComissoes()]);
+  const [{ casas, periodos, limpeza }, comissoes] = await Promise.all([lerPrecos(), lerComissoes()]);
   const slugDe = Object.fromEntries(Object.entries(AL_DO_SLUG).map(([slug, al]) => [al, slug]));
   const hoje = hojeISO();
 
@@ -50,13 +50,20 @@ export default async function Precos({ searchParams }: { searchParams: Promise<R
               inicial={{
                 base: texto(c.base),
                 fim_semana: texto(c.fim_semana),
-                limpeza: texto(c.limpeza),
                 noites_min: String(c.noites_min ?? 2),
               }}
             />
           </section>
         ))}
       </div>
+
+      <section className={cartao}>
+        <h2 className="font-display text-2xl">Taxa de limpeza</h2>
+        <p className="mt-1 mb-4 text-sm text-cinza">
+          Igual nas duas casas, cobrada uma vez por estadia. O site mostra-a no cartão de cada casa e soma-a ao total.
+        </p>
+        <FormLimpeza inicial={texto(limpeza)} comissoes={comissoes} />
+      </section>
 
       <section className={cartao}>
         <h2 className="font-display text-2xl">Épocas e datas especiais</h2>

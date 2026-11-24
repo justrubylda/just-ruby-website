@@ -26,7 +26,7 @@ const somar = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-export async function lerPrecos(): Promise<{ casas: PrecosCasa[]; periodos: Periodo[] }> {
+export async function lerPrecos(): Promise<{ casas: PrecosCasa[]; periodos: Periodo[]; limpeza: number | null }> {
   await garantirTabelas();
   const linhas = (await sql()`select al, base, fim_semana, limpeza, noites_min from precos`) as unknown as PrecosCasa[];
   const casas = Object.values(AL_DO_SLUG).map(
@@ -35,15 +35,26 @@ export async function lerPrecos(): Promise<{ casas: PrecosCasa[]; periodos: Peri
   const periodos = (await sql()`
     select id, al, nome, inicio, fim, preco, noites_min from precos_periodos
     where fim > ${hoje()} order by inicio`) as unknown as Periodo[];
-  return { casas, periodos };
+  // A taxa de limpeza é a mesma nas duas casas (decisão do Bruno, 24/11/2026).
+  const limpeza = casas.map((c) => c.limpeza).find((v) => v != null) ?? null;
+  return { casas, periodos, limpeza: limpeza == null ? null : Number(limpeza) };
 }
 
-export async function guardarPrecosCasa(p: PrecosCasa) {
+export async function guardarPrecosCasa(p: Omit<PrecosCasa, "limpeza">) {
   await garantirTabelas();
-  await sql()`insert into precos (al, base, fim_semana, limpeza, noites_min, atualizado_em)
-    values (${p.al}, ${p.base}, ${p.fim_semana}, ${p.limpeza}, ${p.noites_min}, now())
+  await sql()`insert into precos (al, base, fim_semana, noites_min, atualizado_em)
+    values (${p.al}, ${p.base}, ${p.fim_semana}, ${p.noites_min}, now())
     on conflict (al) do update set base = excluded.base, fim_semana = excluded.fim_semana,
-      limpeza = excluded.limpeza, noites_min = excluded.noites_min, atualizado_em = now()`;
+      noites_min = excluded.noites_min, atualizado_em = now()`;
+}
+
+/** Taxa de limpeza (uma vez por estadia), igual nas duas casas. */
+export async function guardarLimpeza(valor: number | null) {
+  await garantirTabelas();
+  for (const al of Object.values(AL_DO_SLUG)) {
+    await sql()`insert into precos (al, limpeza, atualizado_em) values (${al}, ${valor}, now())
+      on conflict (al) do update set limpeza = excluded.limpeza, atualizado_em = now()`;
+  }
 }
 
 export async function criarPeriodo(p: Omit<Periodo, "id">) {

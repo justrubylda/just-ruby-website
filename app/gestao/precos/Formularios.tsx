@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { precoNaPlataforma } from "@/app/lib/orcamento";
-import { criarPeriodoAcao, guardarComissoesAcao, guardarPrecosAcao } from "../acoes";
+import { criarPeriodoAcao, guardarComissoesAcao, guardarLimpezaAcao, guardarPrecosAcao } from "../acoes";
 import { botao, campo, rotulo } from "../componentes/ui";
 
 type Comissoes = { airbnb: number; booking: number };
@@ -67,7 +67,7 @@ export function FormPrecosCasa({
   comissoes,
 }: {
   al: string;
-  inicial: { base: string; fim_semana: string; limpeza: string; noites_min: string };
+  inicial: { base: string; fim_semana: string; noites_min: string };
   comissoes: Comissoes;
 }) {
   const [estado, acao, aEnviar] = useActionState(guardarPrecosAcao, null);
@@ -76,7 +76,7 @@ export function FormPrecosCasa({
   return (
     <form action={acao} className="space-y-4">
       <input type="hidden" name="al" value={al} />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 items-end gap-4">
         <label className="block">
           <span className={rotulo}>Noite (€)</span>
           <input name="base" inputMode="decimal" value={v.base} onChange={mudar("base")} placeholder="ex.: 120" className={campo} />
@@ -91,10 +91,6 @@ export function FormPrecosCasa({
             placeholder="igual"
             className={campo}
           />
-        </label>
-        <label className="block">
-          <span className={rotulo}>Limpeza (€)</span>
-          <input name="limpeza" inputMode="decimal" value={v.limpeza} onChange={mudar("limpeza")} placeholder="0" className={campo} />
         </label>
         <label className="block">
           <span className={rotulo}>Mínimo de noites</span>
@@ -114,7 +110,6 @@ export function FormPrecosCasa({
         linhas={[
           { rotulo: "Noite", preco: valor(v.base) },
           { rotulo: "Sexta e sábado", preco: valor(v.fim_semana) ?? valor(v.base) },
-          { rotulo: "Limpeza", preco: valor(v.limpeza) },
         ]}
       />
       <div className="flex flex-wrap items-center gap-4">
@@ -203,6 +198,28 @@ export function FormComissoes({ inicial }: { inicial: Comissoes }) {
         {aEnviar ? "A guardar…" : "Guardar comissões"}
       </button>
       <Mensagem estado={aEnviar ? null : estado} ok="Guardado." />
+    </form>
+  );
+}
+
+export function FormLimpeza({ inicial, comissoes }: { inicial: string; comissoes: Comissoes }) {
+  const [estado, acao, aEnviar] = useActionState(guardarLimpezaAcao, null);
+  const [v, setV] = useState(inicial);
+  return (
+    <form action={acao} className="space-y-4">
+      <label className="block max-w-48">
+        <span className={rotulo}>Taxa de limpeza (€)</span>
+        <input name="limpeza" inputMode="decimal" value={v} onChange={(e) => setV(e.target.value)} placeholder="ex.: 40" className={campo} />
+      </label>
+      <div className="max-w-xl">
+        <TabelaEquivalentes c={comissoes} linhas={[{ rotulo: "Por estadia", preco: valor(v) }]} />
+      </div>
+      <div className="flex flex-wrap items-center gap-4">
+        <button className={botao} disabled={aEnviar}>
+          {aEnviar ? "A guardar…" : "Guardar taxa de limpeza"}
+        </button>
+        <Mensagem estado={aEnviar ? null : estado} ok="Guardado nas duas casas. O site já soma a taxa ao total." />
+      </div>
     </form>
   );
 }

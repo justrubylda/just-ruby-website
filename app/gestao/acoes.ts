@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { exigirSessao } from "./lib/acesso";
 import { AL_DO_SLUG, apagarBloqueio, criarBloqueio } from "./lib/calendario";
 import { garantirTabelas, sql } from "./lib/db";
-import { apagarPeriodo, criarPeriodo, guardarComissoes, guardarPrecosCasa } from "./lib/precos";
+import { apagarPeriodo, criarPeriodo, guardarComissoes, guardarLimpeza, guardarPrecosCasa } from "./lib/precos";
 import { lerFicheiro } from "./lib/ficheiros";
 import { importarFolhas, numero } from "./lib/importar";
 import { apagarReserva, atualizarReserva, criarReserva, listarAlojamentos, type NovaReserva } from "./lib/reservas";
@@ -264,13 +264,20 @@ export async function guardarPrecosAcao(_: string | null, f: FormData): Promise<
   if (!al || !Object.values(AL_DO_SLUG).includes(al)) return "Casa desconhecida.";
   const base = euro(f, "base");
   const fimSemana = euro(f, "fim_semana");
-  const limpeza = euro(f, "limpeza");
   const minimo = num(f, "noites_min") ?? 1;
   if (base != null && base <= 0) return "O preço por noite tem de ser maior que zero.";
   if (fimSemana != null && fimSemana <= 0) return "O preço de sexta e sábado tem de ser maior que zero.";
-  if (limpeza != null && limpeza < 0) return "A limpeza não pode ser negativa.";
   if (!Number.isInteger(minimo) || minimo < 1 || minimo > 30) return "O mínimo de noites vai de 1 a 30.";
-  await guardarPrecosCasa({ al, base, fim_semana: fimSemana, limpeza, noites_min: minimo });
+  await guardarPrecosCasa({ al, base, fim_semana: fimSemana, noites_min: minimo });
+  revalidarDisponibilidade();
+  return "ok";
+}
+
+export async function guardarLimpezaAcao(_: string | null, f: FormData): Promise<string | null> {
+  await exigirSessao();
+  const limpeza = euro(f, "limpeza");
+  if (limpeza != null && limpeza < 0) return "A taxa de limpeza não pode ser negativa.";
+  await guardarLimpeza(limpeza);
   revalidarDisponibilidade();
   return "ok";
 }

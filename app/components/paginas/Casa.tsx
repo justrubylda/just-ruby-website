@@ -7,7 +7,7 @@ import CasaVisual from "@/app/components/CasaVisual";
 import { CalendarioDaCasa, DatasPartilhadas } from "@/app/components/DatasPartilhadas";
 import JsonLd from "@/app/components/JsonLd";
 import PedidoForm from "@/app/components/PedidoForm";
-import { alternativas, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
+import { alternativas, escolherDatas, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
 import { tabelasPrecos } from "@/app/gestao/lib/precos";
 import { ocupacaoDe, temCalendario } from "@/app/lib/disponibilidade";
 import { euros, precoDesde } from "@/app/lib/orcamento";
@@ -412,9 +412,14 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
 
         <aside id="pedido" className="scroll-mt-24 self-start bg-pedra p-6 md:p-8 lg:sticky lg:top-24">
           {desde != null ? (
-            <p className="text-cinza">
-              {t.desde} <span className="font-display text-4xl text-xisto">{euros(desde, l)}</span> / {t.noite}
-            </p>
+            <>
+              <p className="text-cinza">
+                {t.desde} <span className="font-display text-4xl text-xisto">{euros(desde, l)}</span> / {t.noite}
+              </p>
+              {precosCasa && precosCasa.limpeza > 0 && (
+                <p className="mt-1 text-sm text-cinza">{escolherDatas[l].maisLimpeza(euros(precosCasa.limpeza, l))}</p>
+              )}
+            </>
           ) : (
             <h2 className="text-3xl">{ui[l].pedir}</h2>
           )}

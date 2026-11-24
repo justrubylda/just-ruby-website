@@ -86,7 +86,11 @@ export default function PedidoForm({
       `${t.lHospedes}: ${hospedes}`,
     ];
     const orc = orcamento(precos[casa.slug], chegada, partida);
-    if (orc) linhas.push(`${te.lPreco}: ${euros(orc.total, l)} (${te.noites(orc.noites)})`);
+    if (orc) {
+      linhas.push(`${te.lEstadia} (${te.noites(orc.noites)}): ${euros(orc.estadia, l)}`);
+      if (orc.limpeza > 0) linhas.push(`${te.limpeza}: ${euros(orc.limpeza, l)}`);
+      linhas.push(`${te.lPreco}: ${euros(orc.total, l)}`);
+    }
     if (nome) linhas.push(`${t.lNome}: ${nome}`);
     if (mensagem) linhas.push("", mensagem);
     const texto = linhas.join("\n");

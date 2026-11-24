@@ -52,7 +52,8 @@ As páginas públicas das casas juntam Airbnb + Booking + estes bloqueios.
 
 ## Preços (/gestao/precos)
 
-- Por casa: preço da noite, de sexta e sábado, limpeza (uma vez por estadia) e mínimo de noites.
+- Por casa: preço da noite, de sexta e sábado e mínimo de noites.
+- Taxa de limpeza: um só valor, igual nas duas casas, cobrado uma vez por estadia (aparece no cartão da casa, no total e na mensagem do pedido).
 - Épocas especiais (Natal, agosto, festas): substituem os outros preços nessas noites e podem ter outro mínimo.
 - O site mostra o preço por baixo de cada dia livre no calendário, "desde X € / noite" na página da casa e o total da estadia quando o hóspede escolhe as datas. O pedido fica registado com esse total e, ao criar a reserva a partir do pedido, o total já vem preenchido.
 - Ao lado de cada preço aparece o valor a pôr no Airbnb e no Booking para receber o mesmo depois da comissão (as comissões editam-se na mesma página). As plataformas não aceitam mudanças automáticas sem um gestor de canais pago, por isso esses valores passam-se lá à mão (ou pelo Claude, no navegador).
