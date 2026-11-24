@@ -65,6 +65,14 @@ Para mostrar a hora de check-out, preencha `checkOut`.
 **Wi-Fi:** escreve-se em `justruby.pt/gestao` → Alojamentos (rede e palavra-passe de cada casa).
 Fica na base de dados: nem no código público nem na Vercel. Sem rede preenchida, a secção do Wi-Fi não aparece.
 
+## Palavra-passe da gestão
+
+- Em `justruby.pt/gestao` → **Palavra-passe**: mudar a palavra-passe e criar o **código de recuperação** (aparece uma só vez; guardar no telemóvel).
+- Esqueceu-se? Na entrada, **Esqueci-me da palavra-passe**: código de recuperação + palavra-passe nova. O código usado deixa de servir e aparece logo outro.
+- Na base de dados (tabela `config`) só ficam hashes PBKDF2 (`gestao_pp`, `gestao_recuperacao`), nunca o texto. Mudar a palavra-passe muda `gestao_versao` e termina as sessões noutros aparelhos.
+- Enquanto não se mudar a palavra-passe no site, vale a da Vercel (`GESTAO_PALAVRA_PASSE`). Essa serve sempre como código de recuperação de reserva.
+- Código em `app/gestao/lib/palavra.ts`, `app/gestao/lib/sessao.ts`, `app/gestao/conta` e `app/gestao/recuperar`.
+
 ## Calendário sincronizado com o Airbnb e o Booking
 
 Cada casa mostra as noites ocupadas, e o formulário de pedido avisa se alguém pedir datas já reservadas.

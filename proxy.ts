@@ -5,7 +5,8 @@ import { COOKIE, tokenValido } from "@/app/gestao/lib/sessao";
 // (As páginas e ações voltam a verificar a sessão; isto é só a primeira barreira.)
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname === "/gestao/entrar") {
+  // Entrar e "Esqueci-me da palavra-passe" abrem sem sessão.
+  if (pathname === "/gestao/entrar" || pathname === "/gestao/recuperar") {
     const r = NextResponse.next();
     r.headers.set("X-Robots-Tag", "noindex, nofollow");
     return r;

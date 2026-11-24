@@ -72,7 +72,12 @@ export default async function Painel({ searchParams }: { searchParams: Promise<R
   const hoje = hojeISO();
   const ano = Number(sp.ano) || Number(hoje.slice(0, 4));
   const al = sp.al || "Todos";
-  const [todas, als, ultima] = await Promise.all([listarReservas(), listarAlojamentos(), lerConfig("ultima_sincronizacao")]);
+  const [todas, als, ultima, codigoRec] = await Promise.all([
+    listarReservas(),
+    listarAlojamentos(),
+    lerConfig("ultima_sincronizacao"),
+    lerConfig("gestao_recuperacao"),
+  ]);
   const nomesAL = als.map((a) => a.nome);
   const R = resumir(todas, ano, al, nomesAL);
   const g = R.geral;
@@ -96,6 +101,15 @@ export default async function Painel({ searchParams }: { searchParams: Promise<R
 
   return (
     <div className="min-w-0 space-y-6">
+      {!codigoRec && (
+        <p className="rounded-md bg-[#fde8b8] p-3 text-sm text-[#7a4b00]">
+          Ainda não tem código de recuperação da palavra-passe.{" "}
+          <Link href="/gestao/conta" className="font-semibold underline">
+            Criar agora
+          </Link>{" "}
+          (serve para repor a palavra-passe se se esquecer dela).
+        </p>
+      )}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <form className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-[24rem]">
           <SelectAuto name="ano" rotulo="Ano" value={String(ano)} opcoes={anosDisp.map((a) => ({ valor: String(a), texto: String(a) }))} />

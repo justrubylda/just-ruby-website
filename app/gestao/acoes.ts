@@ -5,31 +5,46 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirSessao } from "./lib/acesso";
 import { AL_DO_SLUG, apagarBloqueio, criarBloqueio } from "./lib/calendario";
-import { garantirTabelas, sql } from "./lib/db";
+import { garantirTabelas, sql, temBaseDados } from "./lib/db";
 import { apagarPeriodo, criarPeriodo, guardarComissoes, guardarLimpeza, guardarPrecosCasa } from "./lib/precos";
 import { lerFicheiro } from "./lib/ficheiros";
 import { importarFolhas, numero } from "./lib/importar";
 import { apagarReserva, atualizarReserva, criarReserva, listarAlojamentos, type NovaReserva } from "./lib/reservas";
-import { COOKIE, DIAS_SESSAO, criarToken, palavraPasseCerta, palavraPasseConfigurada } from "./lib/sessao";
+import {
+  codigoCerto,
+  definirPalavraPasse,
+  erroNova,
+  novoCodigo,
+  palavraPasseCerta,
+  palavraPasseDefinida,
+  versaoAtual,
+} from "./lib/palavra";
+import { COOKIE, DIAS_SESSAO, criarToken } from "./lib/sessao";
 import { sincronizar } from "./lib/sincronizar";
 
-// ---------- entrar / sair ----------
+// ---------- entrar / sair / palavra-passe ----------
 
-export async function entrar(_: string | null, form: FormData): Promise<string | null> {
-  if (!palavraPasseConfigurada()) return "Falta definir a palavra-passe na Vercel (variável GESTAO_PALAVRA_PASSE).";
-  const ok = await palavraPasseCerta(String(form.get("palavra") ?? ""));
-  if (!ok) {
-    await new Promise((r) => setTimeout(r, 900)); // trava tentativas em série
-    return "Palavra-passe errada.";
-  }
+const travar = () => new Promise((r) => setTimeout(r, 900)); // trava tentativas em série
+
+async function abrirSessao(versao: string) {
   const c = await cookies();
-  c.set(COOKIE, await criarToken(), {
+  c.set(COOKIE, await criarToken(versao), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: DIAS_SESSAO * 86_400,
   });
+}
+
+export async function entrar(_: string | null, form: FormData): Promise<string | null> {
+  if (!(await palavraPasseDefinida())) return "Falta definir a palavra-passe na Vercel (variável GESTAO_PALAVRA_PASSE).";
+  const ok = await palavraPasseCerta(String(form.get("palavra") ?? ""));
+  if (!ok) {
+    await travar();
+    return "Palavra-passe errada.";
+  }
+  await abrirSessao(await versaoAtual());
   redirect("/gestao");
 }
 
@@ -37,6 +52,49 @@ export async function sair() {
   const c = await cookies();
   c.delete(COOKIE);
   redirect("/"); // ao sair, volta ao site normal
+}
+
+/** Resultado das ações de palavra-passe: erro, ou o código novo para mostrar uma única vez. */
+export type EstadoPalavra = { erro?: string; ok?: string; codigo?: string } | null;
+
+/** "Esqueci-me da palavra-passe": código de recuperação + palavra-passe nova. Entra logo a seguir. */
+export async function recuperar(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
+  if (!temBaseDados()) return { erro: "Falta ligar a base de dados." };
+  const nova = String(form.get("nova") ?? "");
+  const erro = erroNova(nova, String(form.get("repetir") ?? ""));
+  if (erro) return { erro };
+  if (!(await codigoCerto(String(form.get("codigo") ?? "")))) {
+    await travar();
+    return { erro: "O código de recuperação não está certo." };
+  }
+  await abrirSessao(await definirPalavraPasse(nova));
+  // O código usado deixa de servir: cria-se logo outro, para a próxima vez.
+  return { codigo: await novoCodigo() };
+}
+
+export async function mudarPalavraPasse(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
+  await exigirSessao();
+  if (!(await palavraPasseCerta(String(form.get("atual") ?? "")))) {
+    await travar();
+    return { erro: "A palavra-passe atual não está certa." };
+  }
+  const nova = String(form.get("nova") ?? "");
+  const erro = erroNova(nova, String(form.get("repetir") ?? ""));
+  if (erro) return { erro };
+  await abrirSessao(await definirPalavraPasse(nova));
+  revalidatePath("/gestao/conta");
+  return { ok: "Palavra-passe mudada. As outras sessões abertas (noutros aparelhos) terminaram." };
+}
+
+export async function criarCodigo(_: EstadoPalavra, form: FormData): Promise<EstadoPalavra> {
+  await exigirSessao();
+  if (!(await palavraPasseCerta(String(form.get("atual") ?? "")))) {
+    await travar();
+    return { erro: "A palavra-passe atual não está certa." };
+  }
+  const codigo = await novoCodigo();
+  revalidatePath("/gestao", "layout");
+  return { codigo };
 }
 
 // ---------- reservas ----------

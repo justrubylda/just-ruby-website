@@ -12,6 +12,7 @@ const ITENS = [
   { href: "/gestao/pedidos", label: "Pedidos do site" },
   { href: "/gestao/importar", label: "Importar" },
   { href: "/gestao/alojamentos", label: "Alojamentos" },
+  { href: "/gestao/conta", label: "Palavra-passe" },
 ];
 
 export default function Nav() {
