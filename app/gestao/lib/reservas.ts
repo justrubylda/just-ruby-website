@@ -73,8 +73,13 @@ export function encontrar(nova: NovaReserva, existentes: Reserva[]): Reserva | u
   const esboco = () =>
     nova.al && nova.checkin ? ativas.find((x) => ehEsboco(x) && x.al === nova.al && sobrepoe(x, nova)) : undefined;
   if (nova.origem) {
-    // linhas do Excel: cada uma tem a sua origem (folha e linha) — só se juntam a esboços do calendário
-    return existentes.find((x) => x.origem === nova.origem) ?? esboco();
+    // linhas do Excel: cada uma tem a sua origem (folha e linha); juntam-se a esboços do calendário
+    // e à reserva do mesmo alojamento com a mesma entrada (vinda de outro ficheiro ou do site)
+    return (
+      existentes.find((x) => x.origem === nova.origem) ??
+      esboco() ??
+      (nova.al && nova.checkin ? ativas.find((x) => x.al === nova.al && x.checkin === nova.checkin) : undefined)
+    );
   }
   if (nova.ical_uid) {
     const e = existentes.find((x) => x.ical_uid === nova.ical_uid);
@@ -96,6 +101,7 @@ export function encontrar(nova: NovaReserva, existentes: Reserva[]): Reserva | u
 /** Campos que uma importação pode completar numa reserva já existente (só se estiverem vazios). */
 const COMPLETAVEIS: Campo[] = [
   "checkout", "hospede", "nif", "morada", "cod_reserva", "hospedes", "total", "comissao", "limpeza", "ical_uid", "plataforma",
+  "fatura", "recibo",
 ];
 
 export async function importarLote(novas: NovaReserva[], substituirNomeGenerico = true): Promise<ResultadoLote> {
