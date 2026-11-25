@@ -73,6 +73,29 @@ Em /gestao/alojamentos (campos "Rede Wi-Fi" e "Palavra-passe Wi-Fi"). O guia lê
 copiar para o CentralGest Cloud. A emissão automática fica para quando houver acesso à
 API do CentralGest.
 
+## Despesas, banco e resumo
+
+- **/gestao/despesas** — faturas de fornecedores: data, fornecedor, NIFs, nº, casa, categoria, total, IVA,
+  quem pagou e estado (Pendente, Pago pela empresa, Por repor, Reposto). IVA dedutível = faturas com o NIF da
+  empresa (518785483). "Foi paga por um sócio?" passa a despesa para Por repor.
+- **/gestao/banco** — movimentos da conta do Millennium. Carrega-se o extrato em Excel (ou a folha de acerto
+  `Acerto_Particular_Empresa_JustRuby.xlsx`, que traz o extrato classificado e as faturas); repetir períodos
+  não duplica. Cada movimento tem tipo (Despesa, Receita Airbnb/Booking/direta, Reposição aos sócios, …),
+  categoria e casa, pelas **regras** (texto da descrição → tipo/categoria/casa; os códigos de contrato da
+  Endesa, Águas de Santarém e Tranquilidade já dizem a casa). O que se muda à mão não é alterado pelas regras.
+- **Conferência automática** (ao importar e com "Conferir agora"), só quando não há dúvida:
+  saída ↔ fatura (mesmo valor, 7 dias antes a 75 depois da fatura); transferência para os sócios ↔ conjunto
+  único de despesas Por repor com essa soma; entrada ↔ reserva (valor recebido ou total, 90 dias antes da
+  entrada a 60 depois da saída). O resto liga-se à mão em cada movimento.
+- **/gestao/resumo** — por ano: recebido e pago no banco por mês, faturas de despesa e IVA dedutível,
+  despesas por categoria e casa, saídas sem fatura (documentos em falta para o contabilista), recebido sem
+  fatura, valor a repor aos sócios. "Por faturar" avisa das entradas no banco sem reserva.
+- Excel para o contabilista: `/gestao/exportar/contas?tipo=despesas|banco&ano=…`.
+- Linhas coladas (separadas por tabulações) com cabeçalho também entram — é assim que a tarefa no portátil
+  passa as faturas lidas das pastas do OneDrive.
+- Código: `app/gestao/lib/contas.ts` (tabelas `despesas`, `movimentos`, `regras_banco`; leitura, regras,
+  conferência), `lib/contas-comum.ts`, `acoes-contas.ts`.
+
 ## Código
 
 - `proxy.ts` — protege /gestao (cookie assinado; `app/gestao/lib/sessao.ts`)

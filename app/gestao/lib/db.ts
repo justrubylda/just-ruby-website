@@ -166,6 +166,66 @@ create table if not exists faturas_cg (
   estado text,
   atualizado_em timestamptz not null default now()
 );
+
+-- despesas da empresa (faturas de fornecedores), com a ligação ao pagamento no banco
+create table if not exists despesas (
+  id serial primary key,
+  data date,
+  fornecedor text,
+  nif_fornecedor text,
+  documento text,
+  nif_cliente text,
+  casa text,
+  categoria text,
+  base numeric(12,2),
+  iva numeric(12,2),
+  total numeric(12,2) not null,
+  pago_por text not null default 'Empresa',
+  estado text not null default 'Pendente',
+  movimento_id integer,
+  reposicao_id integer,
+  ficheiro text,
+  notas text,
+  origem text,
+  chave text,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+create unique index if not exists despesas_chave on despesas (chave) where chave is not null;
+create index if not exists despesas_data on despesas (data);
+
+-- movimentos da conta da empresa (extratos do Millennium bcp)
+create table if not exists movimentos (
+  id serial primary key,
+  conta text not null default 'Millennium',
+  data date not null,
+  data_valor date,
+  descricao text not null default '',
+  montante numeric(12,2) not null,
+  saldo numeric(12,2),
+  classe text not null default 'Por classificar',
+  categoria text,
+  casa text,
+  reserva_id integer,
+  notas text,
+  manual boolean not null default false,
+  origem text,
+  chave text not null,
+  criado_em timestamptz not null default now()
+);
+create unique index if not exists movimentos_chave on movimentos (chave);
+create index if not exists movimentos_data on movimentos (data);
+
+-- regras para classificar os movimentos pelo texto da descrição
+create table if not exists regras_banco (
+  id serial primary key,
+  texto text not null,
+  sentido text,
+  classe text not null,
+  categoria text,
+  casa text,
+  ordem integer not null default 100
+);
 `;
 
 /** Cria as tabelas na primeira utilização (não apaga nada se já existirem). */
