@@ -719,6 +719,8 @@ export async function conciliarContas(): Promise<Conferencia> {
   const parR = new Map<number, number>();
   for (const l of parE.values()) for (const r of l) parR.set(r.id, (parR.get(r.id) ?? 0) + 1);
   let ligadasE = 0;
+  const feitasE = new Set<number>();
+  const feitasR = new Set<number>();
   for (const m of entradas) {
     const l = parE.get(m.id)!;
     if (l.length !== 1 || parR.get(l[0].id) !== 1) continue;
@@ -727,6 +729,41 @@ export async function conciliarContas(): Promise<Conferencia> {
       m.classe !== "Por classificar" ? m.classe : r.plataforma === "Airbnb" ? "Receita Airbnb" : r.plataforma === "Booking" ? "Receita Booking" : "Receita direta";
     await s`update movimentos set reserva_id = ${r.id}, classe = ${classe}, casa = coalesce(casa, ${r.al}) where id = ${m.id}`;
     ligadasE++;
+    feitasE.add(m.id);
+    feitasR.add(r.id);
+  }
+
+  // valores repetidos (ex.: duas estadias de 448,14 € e dois pagamentos de 448,14 €): liga cada entrada
+  // à estadia mais próxima na data, só quando a escolha é recíproca e sem empate
+  const distancia = (m: Movimento, r: Reserva) => {
+    const ent = Math.abs(diasEntre(r.checkin!, m.data));
+    const sai = Math.abs(diasEntre(r.checkout ?? r.checkin!, m.data));
+    return r.plataforma === "Airbnb" ? ent : r.plataforma === "Booking" ? sai : Math.min(ent, sai);
+  };
+  const melhor = <T,>(l: { x: T; d: number }[]) => {
+    const o = [...l].sort((a, b) => a.d - b.d);
+    return o.length && o[0].d <= 45 && (o.length === 1 || o[1].d > o[0].d) ? o[0].x : null;
+  };
+  for (let volta = 0; volta < 20; volta++) {
+    let mudou = false;
+    const restE = entradas.filter((m) => !feitasE.has(m.id));
+    const melhorDeE = new Map<number, Reserva | null>();
+    for (const m of restE)
+      melhorDeE.set(m.id, melhor(parE.get(m.id)!.filter((r) => !feitasR.has(r.id)).map((r) => ({ x: r, d: distancia(m, r) }))));
+    for (const m of restE) {
+      const r = melhorDeE.get(m.id);
+      if (!r || feitasR.has(r.id)) continue;
+      const rivais = restE.filter((e) => !feitasE.has(e.id) && parE.get(e.id)!.some((x) => x.id === r.id));
+      if (melhor(rivais.map((e) => ({ x: e, d: distancia(e, r) })))?.id !== m.id) continue;
+      const classe: Classe =
+        m.classe !== "Por classificar" ? m.classe : r.plataforma === "Airbnb" ? "Receita Airbnb" : r.plataforma === "Booking" ? "Receita Booking" : "Receita direta";
+      await s`update movimentos set reserva_id = ${r.id}, classe = ${classe}, casa = coalesce(casa, ${r.al}) where id = ${m.id}`;
+      ligadasE++;
+      feitasE.add(m.id);
+      feitasR.add(r.id);
+      mudou = true;
+    }
+    if (!mudou) break;
   }
 
   const linhas = [
