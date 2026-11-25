@@ -224,8 +224,7 @@ export async function importarMapas(folhas: Folha[]) {
   for (const f of folhas) {
     const nome = semAcentos(f.nome);
     if (nome.includes("exemplo")) continue;
-    const pessoa = PESSOAS.find((p) => nome.includes(semAcentos(p)));
-    if (!pessoa) continue;
+    const pessoaFolha = PESSOAS.find((p) => nome.includes(semAcentos(p)));
     const iCab = f.linhas.findIndex(
       (l) => semAcentos(String(l[0]?.v ?? "")) === "data" && l.some((c) => semAcentos(String(c?.v ?? "")).includes("percurso"))
     );
@@ -244,7 +243,10 @@ export async function importarMapas(folhas: Folha[]) {
       jan: col("jantar"),
       noites: col("noites"),
       prova: col("prova"),
+      pessoa: col("pessoa", "socio"),
     };
+    // sem a pessoa no nome da folha (ex.: Excel descarregado do site ou CSV), lê-se a coluna Sócio-gerente
+    if (!pessoaFolha && C.pessoa < 0) continue;
     let nestaFolha = 0;
     for (const l of f.linhas.slice(iCab + 1)) {
       const v = (i: number) => (i >= 0 ? l[i]?.v ?? null : null);
@@ -255,6 +257,8 @@ export async function importarMapas(folhas: Folha[]) {
       }
       const percurso = String(v(C.percurso) ?? "").trim();
       if (!percurso) continue;
+      const pessoa = pessoaFolha ?? PESSOAS.find((p) => semAcentos(String(v(C.pessoa) ?? "")).includes(semAcentos(p)));
+      if (!pessoa) continue;
       if (await mesFechado(data.slice(0, 7), pessoa)) {
         repetidas++;
         continue;
@@ -280,9 +284,9 @@ export async function importarMapas(folhas: Folha[]) {
         nestaFolha++;
       } else repetidas++;
     }
-    if (nestaFolha) linhas.push(`${f.nome}: ${nestaFolha} deslocação(ões).`);
+    if (nestaFolha) linhas.push(`${pessoaFolha ? f.nome : "Ficheiro"}: ${nestaFolha} deslocação(ões).`);
   }
   if (!novas && !repetidas)
-    return { ok: false, titulo: "Não encontrei folhas de mapa (ex.: \"Jul Bruno\", \"Ago Rúbia\") neste ficheiro.", linhas };
+    return { ok: false, titulo: "Não encontrei mapas neste ficheiro (folhas \"Jul Bruno\", \"Ago Rúbia\"… ou uma coluna Sócio-gerente).", linhas };
   return { ok: true, titulo: `${novas} deslocação(ões) importadas, ${repetidas} já existiam.`, linhas };
 }
