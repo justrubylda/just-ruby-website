@@ -221,7 +221,7 @@ export default async function Deslocacoes({ searchParams }: { searchParams: Prom
       <details className={cartao}>
         <summary className="cursor-pointer font-display text-xl">Importar os mapas em Excel já feitos</summary>
         <p className="mt-2 text-sm text-cinza">
-          O ficheiro Mapa_Deslocacoes_JUST_RUBY (uma folha por mês e por pessoa, ex.: “Jul Bruno”). Pode repetir-se: o que já
+          O ficheiro Mapa_Deslocacoes_JUST_RUBY (uma folha por mês e por pessoa, ex.: “Jul Bruno”), o Excel descarregado aqui ou um CSV com a coluna Sócio-gerente. Pode repetir-se: o que já
           existe não é duplicado. As folhas de exemplo são ignoradas.
         </p>
         <form action={importarMapasAcao} className="mt-3 flex flex-wrap items-end gap-3">
