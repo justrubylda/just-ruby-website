@@ -13,6 +13,7 @@ const ITENS = [
   { href: "/gestao/banco", label: "Banco" },
   { href: "/gestao/recebimentos", label: "Recebimentos" },
   { href: "/gestao/resumo", label: "Resumo" },
+  { href: "/gestao/deslocacoes", label: "Deslocações" },
   { href: "/gestao/pedidos", label: "Pedidos do site" },
   { href: "/gestao/importar", label: "Importar" },
   { href: "/gestao/alojamentos", label: "Alojamentos" },

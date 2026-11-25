@@ -96,6 +96,25 @@ API do CentralGest.
 - Código: `app/gestao/lib/contas.ts` (tabelas `despesas`, `movimentos`, `regras_banco`; leitura, regras,
   conferência), `lib/contas-comum.ts`, `acoes-contas.ts`.
 
+## Deslocações dos sócios-gerentes (/gestao/deslocacoes)
+
+Mapas mensais de km e ajudas de custo do Bruno e da Rúbia (gerentes não remunerados).
+- **Propostas automáticas**: "Propor a partir das reservas" cria uma deslocação por cada saída de hóspedes
+  com fatura (ou por faturar) no destino habitual do alojamento (Kingdom of Stone → Montes (Tomar), 180 km,
+  almoço e jantar; Nosso Cantinho → Várzea Santarém, 16 km). Sem fatura, canceladas e Torras não contam.
+  Uma proposta excluída não volta a ser proposta.
+- **À mão**: manutenção, obras, compras (Nova deslocação).
+- **Avisos**: refeição paga pela empresa no mesmo dia (banco ou despesa da categoria Refeições), horas que não
+  cobrem o almoço (13h–14h) ou o jantar (20h–21h), sem prova, deslocação repetida.
+- **Fechar mês** por pessoa (só sem propostas por confirmar): bloqueia alterações. **Mapa para imprimir**
+  (A4 horizontal, com total, assinaturas e referência à ata), **Excel** (`/gestao/exportar/deslocacoes?mes=…`),
+  **Marcar pago** (data e transferência do banco com o mesmo valor).
+- **Parâmetros** (na base de dados, nunca no código): €/km, ajuda de custo diária e percentagens, domicílio,
+  nomes, NIF e matrículas, quem autoriza e a ata, destino de cada alojamento.
+- **Importar** os mapas Excel já feitos (uma folha por mês e pessoa, ex.: "Jul Bruno").
+- Código: `app/gestao/lib/deslocacoes.ts`, `lib/deslocacoes-comum.ts`, `acoes-deslocacoes.ts`; tabelas
+  `deslocacoes` e `deslocacoes_meses`.
+
 ## Código
 
 - `proxy.ts` — protege /gestao (cookie assinado; `app/gestao/lib/sessao.ts`)
