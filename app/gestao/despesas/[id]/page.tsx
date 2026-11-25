@@ -19,7 +19,8 @@ export default async function EditarDespesa({ params }: { params: Promise<{ id: 
   const d = await obterDespesa(Number(id));
   if (!d) notFound();
   const [als, movs, desp] = await Promise.all([listarAlojamentos(), listarMovimentos(), listarDespesas()]);
-  const ocupados = new Set(desp.map((x) => x.movimento_id).filter(Boolean) as number[]);
+  const ocupados = new Set([...desp.map((x) => x.movimento_id), ...movs.map((m) => (m.parte_de ? m.id : null))].filter(Boolean) as number[]);
+  const partes = movs.filter((m) => m.parte_de === d.id);
   const casas = [...new Set([...als.map((a) => a.nome), GERAL, ...(d.casa ? [d.casa] : [])])];
   const repos = d.reposicao_id ? movs.find((m) => m.id === d.reposicao_id) : null;
   return (
@@ -27,7 +28,17 @@ export default async function EditarDespesa({ params }: { params: Promise<{ id: 
       <Link href="/gestao/despesas" className="text-sm text-cinza hover:underline">
         ← Despesas
       </Link>
-      <Titulo sub={[d.origem && `origem: ${d.origem}`, repos && `reposta a ${dataPT(repos.data)} (${eur(-repos.montante)})`].filter(Boolean).join(" · ") || undefined}>
+      <Titulo
+        sub={
+          [
+            d.origem && `origem: ${d.origem}`,
+            repos && `reposta a ${dataPT(repos.data)} (${eur(-repos.montante)})`,
+            partes.length && `mais ${partes.length} pagamento(s): ${partes.map((m) => `${dataPT(m.data)} ${eur(-m.montante)}`).join(", ")}`,
+          ]
+            .filter(Boolean)
+            .join(" · ") || undefined
+        }
+      >
         {d.fornecedor || "Despesa"}
       </Titulo>
       <div className={cartao}>

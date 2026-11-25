@@ -74,6 +74,12 @@ export default function FormDespesa({
           <input name="iva" inputMode="decimal" value={iva} onChange={(e) => setIva(e.target.value)} className={campo} />
           <span className="mt-0.5 block text-xs text-cinza">{t != null && i != null ? `Base s/ IVA: ${eur(t - i)}` : "Opcional"}</span>
         </label>
+        {C({
+          nome: "iva_dedutivel",
+          texto: "IVA dedutível",
+          inputMode: "decimal",
+          dica: "Só se não for o IVA todo (ex.: carro a GPL, 50%)",
+        })}
         <label className="block">
           <span className={rotulo}>Pago por</span>
           <select name="pago_por" value={pagoPor} onChange={(e) => setPagoPor(e.target.value)} className={campo}>

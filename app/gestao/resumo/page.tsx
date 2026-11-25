@@ -24,7 +24,7 @@ export default async function Resumo({ searchParams }: { searchParams: Promise<R
 
   const movAno = movs.filter((m) => m.data.startsWith(ano));
   const despAno = desp.filter((d) => d.data?.startsWith(ano));
-  const ligadas = new Set(desp.map((d) => d.movimento_id).filter(Boolean));
+  const ligadas = new Set([...desp.map((d) => d.movimento_id), ...movs.map((m) => (m.parte_de ? m.id : null))].filter(Boolean));
   const resPorId = new Map(reservas.map((r) => [r.id, r]));
 
   const receita = (m: (typeof movs)[number]) => m.montante > 0 && CLASSES_RECEITA.includes(m.classe);

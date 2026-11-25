@@ -12,7 +12,7 @@ export default async function NovaDespesa() {
   await exigirSessao();
   if (!temBaseDados()) return <SemBaseDados />;
   const [als, movs, desp] = await Promise.all([listarAlojamentos(), listarMovimentos(), listarDespesas()]);
-  const ocupados = new Set(desp.map((d) => d.movimento_id).filter(Boolean) as number[]);
+  const ocupados = new Set([...desp.map((d) => d.movimento_id), ...movs.map((m) => (m.parte_de ? m.id : null))].filter(Boolean) as number[]);
   const nova = { nif_cliente: NIF_EMPRESA, pago_por: "Empresa", estado: "Pendente" as const };
   return (
     <div>

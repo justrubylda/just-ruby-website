@@ -20,6 +20,7 @@ export const CATEGORIAS = [
   "Banco",
   "Impostos e taxas",
   "Deslocações",
+  "Compra de viatura",
   "Refeições",
   "Rendas",
   "Outros",
@@ -58,6 +59,8 @@ export type Despesa = {
   categoria: string | null;
   base: number | null;
   iva: number | null;
+  /** IVA dedutível quando não é o IVA todo da fatura (vazio = regra normal). */
+  iva_dedutivel: number | null;
   total: number;
   pago_por: string;
   estado: EstadoDespesa;
@@ -80,6 +83,8 @@ export type Movimento = {
   categoria: string | null;
   casa: string | null;
   reserva_id: number | null;
+  /** Mais uma parte do pagamento desta despesa (a despesa tem várias saídas no banco). */
+  parte_de: number | null;
   notas: string | null;
   manual: boolean;
   origem: string | null;
@@ -102,9 +107,12 @@ export const CORES_ESTADO: Record<EstadoDespesa, string> = {
   Reposto: "bg-[#e3ecf7] text-[#1f4e79]",
 };
 
-/** IVA que a empresa pode deduzir: só faturas com o NIF da empresa. */
-export const dedutivel = (d: Pick<Despesa, "nif_cliente" | "iva">) =>
-  (d.nif_cliente ?? "").replace(/\D/g, "") === NIF_EMPRESA ? d.iva ?? 0 : 0;
+/**
+ * IVA que a empresa pode deduzir: só faturas com o NIF da empresa; o valor indicado na despesa
+ * quando é só uma parte (ex.: viatura ligeira a GPL, 50% — art. 21.º do CIVA).
+ */
+export const dedutivel = (d: Pick<Despesa, "nif_cliente" | "iva"> & { iva_dedutivel?: number | null }) =>
+  (d.nif_cliente ?? "").replace(/\D/g, "") === NIF_EMPRESA ? d.iva_dedutivel ?? d.iva ?? 0 : 0;
 
 /** Texto normalizado para comparar descrições (maiúsculas, sem acentos nem pontuação). */
 export function normalizar(s: string | null | undefined) {

@@ -41,6 +41,11 @@ export default async function Banco({ searchParams }: { searchParams: Promise<Re
   for (const d of desp) {
     for (const id of [d.movimento_id, d.reposicao_id]) if (id) despDoMov.set(id, [...(despDoMov.get(id) ?? []), d]);
   }
+  const despPorId = new Map(desp.map((d) => [d.id, d]));
+  for (const m of movs) {
+    const d = m.parte_de ? despPorId.get(m.parte_de) : undefined;
+    if (d) despDoMov.set(m.id, [...(despDoMov.get(m.id) ?? []), d]);
+  }
   const resPorId = new Map(reservas.map((r) => [r.id, r]));
 
   const semFatura = (m: Movimento) => m.montante < 0 && m.classe === "Despesa" && m.categoria !== "Banco" && !despDoMov.has(m.id);
@@ -216,14 +221,14 @@ function LinhaMovimento({
   reservas: Reserva[];
 }) {
   const entrada = m.montante > 0;
-  const pagas = ligadas.filter((d) => d.movimento_id === m.id);
+  const pagas = ligadas.filter((d) => d.movimento_id === m.id || d.id === m.parte_de);
   const repostas = ligadas.filter((d) => d.reposicao_id === m.id);
   const ligacao = entrada
     ? reserva
       ? `Reserva: ${reserva.hospede || "—"} (${dataPT(reserva.checkin)}${reserva.fatura ? ` · ${reserva.fatura}` : " · sem fatura"})`
       : null
     : pagas.length
-      ? `Fatura: ${pagas.map((d) => `${d.fornecedor} ${d.documento ?? ""}`.trim()).join(", ")}`
+      ? `${m.parte_de ? "Parte do pagamento de" : "Fatura:"} ${pagas.map((d) => `${d.fornecedor} ${d.documento ?? ""}`.trim()).join(", ")}`
       : repostas.length
         ? `Repõe ${repostas.length} despesa(s)`
         : null;
@@ -301,6 +306,7 @@ function LinhaMovimento({
                 {candD.map((d) => (
                   <option key={d.id} value={d.id}>
                     {dataPT(d.data)} · {d.fornecedor} {d.documento ?? ""} · {eur(d.total)} · {d.estado}
+                    {d.movimento_id && d.movimento_id !== m.id ? " · já tem pagamento: junta este como parte" : ""}
                   </option>
                 ))}
               </select>

@@ -28,6 +28,11 @@ export async function GET(request: Request) {
       if (d.movimento_id) docs.set(d.movimento_id, [...(docs.get(d.movimento_id) ?? []), `${d.fornecedor ?? ""} ${d.documento ?? ""}`.trim()]);
       if (d.reposicao_id) docs.set(d.reposicao_id, [...(docs.get(d.reposicao_id) ?? []), `repõe ${d.fornecedor ?? ""} ${d.documento ?? ""}`.trim()]);
     }
+    const despPorId = new Map(desp.map((d) => [d.id, d]));
+    for (const m of movs) {
+      const d = m.parte_de ? despPorId.get(m.parte_de) : undefined;
+      if (d) docs.set(m.id, [...(docs.get(m.id) ?? []), `parte de ${d.fornecedor ?? ""} ${d.documento ?? ""}`.trim()]);
+    }
     const res = new Map(reservas.map((r) => [r.id, r]));
     colunas = [
       { titulo: "Data", tipo: "data", largura: 11 },

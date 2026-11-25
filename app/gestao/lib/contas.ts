@@ -133,7 +133,7 @@ export async function apagarRegra(id: number) {
  */
 export async function classificar() {
   const regras = await listarRegras();
-  const movs = (await sql()`select * from movimentos m where not manual
+  const movs = (await sql()`select * from movimentos m where not manual and parte_de is null
     and not exists (select 1 from despesas d where d.movimento_id = m.id)`) as unknown as Movimento[];
   let mudados = 0;
   for (const m of movs) {
@@ -153,7 +153,7 @@ export async function classificar() {
 // ---------- despesas ----------
 
 export const CAMPOS_DESPESA = [
-  "data", "fornecedor", "nif_fornecedor", "documento", "nif_cliente", "casa", "categoria", "base", "iva", "total",
+  "data", "fornecedor", "nif_fornecedor", "documento", "nif_cliente", "casa", "categoria", "base", "iva", "iva_dedutivel", "total",
   "pago_por", "estado", "movimento_id", "reposicao_id", "ficheiro", "notas", "origem",
 ] as const;
 export type NovaDespesa = Partial<Pick<Despesa, (typeof CAMPOS_DESPESA)[number]>>;
@@ -293,13 +293,13 @@ export async function listarMovimentos(): Promise<Movimento[]> {
 
 export async function atualizarMovimento(
   id: number,
-  m: Partial<Pick<Movimento, "classe" | "categoria" | "casa" | "reserva_id" | "notas" | "manual">>
+  m: Partial<Pick<Movimento, "classe" | "categoria" | "casa" | "reserva_id" | "parte_de" | "notas" | "manual">>
 ) {
   await garantirTabelas();
   await sql()`update movimentos set ${sql()(m as Record<string, unknown>)} where id = ${id}`;
 }
 
-type NovoMovimento = Omit<Movimento, "id" | "conta" | "reserva_id"> & { chave: string };
+type NovoMovimento = Omit<Movimento, "id" | "conta" | "reserva_id" | "parte_de"> & { chave: string };
 
 async function gravarMovimentos(lista: NovoMovimento[]) {
   let novos = 0;
@@ -652,7 +652,7 @@ export async function conciliarContas(): Promise<Conferencia> {
   // 1. pagamentos de despesas
   const movPagou = new Set(desp.map((d) => d.movimento_id).filter(Boolean));
   const saidas = movs.filter(
-    (m) => m.montante < 0 && !movPagou.has(m.id) && (m.classe === "Despesa" || m.classe === "Por classificar")
+    (m) => m.montante < 0 && !movPagou.has(m.id) && !m.parte_de && (m.classe === "Despesa" || m.classe === "Por classificar")
   );
   const semPag = desp.filter((d) => !d.movimento_id && d.data && d.estado !== "Reposto" && d.estado !== "Por repor");
   const parD = new Map<number, Movimento[]>();
@@ -741,12 +741,21 @@ export async function conciliarContas(): Promise<Conferencia> {
 
 /** Despesas que podem corresponder a uma saída do banco (por proximidade de valor e data). */
 export function despesasCandidatas(m: Movimento, desp: Despesa[]) {
-  return desp
-    .filter((d) => d.data && Math.abs(diasEntre(d.data, m.data)) <= 120)
+  const perto = desp.filter((d) => d.data && Math.abs(diasEntre(d.data, m.data)) <= 120);
+  const porValor = perto
     .map((d) => ({ d, dif: Math.abs(d.total + m.montante), dias: Math.abs(diasEntre(d.data!, m.data)) }))
     .sort((a, b) => a.dif - b.dif || a.dias - b.dias)
     .slice(0, 8)
     .map((x) => x.d);
+  // pagamento parcial (sinal, prestação): faturas maiores do mesmo fornecedor
+  const palavras = new Set(normalizar(m.descricao).split(" ").filter((p) => p.length >= 4));
+  const doFornecedor = perto.filter(
+    (d) =>
+      !porValor.includes(d) &&
+      d.total > -m.montante &&
+      normalizar(d.fornecedor).split(" ").some((p) => p.length >= 4 && palavras.has(p))
+  );
+  return [...porValor, ...doFornecedor.slice(0, 4)];
 }
 
 /** Reservas que podem corresponder a uma entrada (por proximidade de valor e data). */

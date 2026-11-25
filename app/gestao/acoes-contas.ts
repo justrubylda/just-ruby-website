@@ -80,6 +80,7 @@ export async function guardarDespesaAcao(_: string | null, f: FormData): Promise
     categoria: txt(f, "categoria"),
     total,
     iva,
+    iva_dedutivel: num(f, "iva_dedutivel"),
     base: iva != null ? Math.round((total - iva) * 100) / 100 : null,
     pago_por,
     estado: pago_por !== "Empresa" && estado === "Pago pela empresa" ? ("Por repor" as EstadoDespesa) : estado,
@@ -136,10 +137,19 @@ export async function guardarMovimentoAcao(f: FormData) {
     if (despesa) await s`update despesas set reposicao_id = ${id}, estado = 'Reposto', atualizado_em = now() where id = ${despesa}`;
   } else if (despesa) {
     await s`update despesas set movimento_id = null, estado = 'Pendente' where movimento_id = ${id} and id <> ${despesa}`;
-    await s`update despesas set movimento_id = ${id}, estado = 'Pago pela empresa', pago_por = 'Empresa',
-      casa = coalesce(casa, ${casa}), categoria = coalesce(categoria, ${categoria}), atualizado_em = now() where id = ${despesa}`;
+    const [d] = await s`select movimento_id from despesas where id = ${despesa}`;
+    const outro = d?.movimento_id && d.movimento_id !== id ? (await s`select 1 from movimentos where id = ${d.movimento_id}`).length > 0 : false;
+    if (outro) {
+      // a fatura já tem um pagamento: este é mais uma parte (sinal, prestação, resto)
+      await s`update movimentos set parte_de = ${despesa} where id = ${id}`;
+    } else {
+      await s`update movimentos set parte_de = null where id = ${id}`;
+      await s`update despesas set movimento_id = ${id}, estado = 'Pago pela empresa', pago_por = 'Empresa',
+        casa = coalesce(casa, ${casa}), categoria = coalesce(categoria, ${categoria}), atualizado_em = now() where id = ${despesa}`;
+    }
   } else if (f.get("despesa_id") === "0") {
     await s`update despesas set movimento_id = null, estado = 'Pendente' where movimento_id = ${id}`;
+    await s`update movimentos set parte_de = null where id = ${id}`;
   }
 
   if (f.get("regra") === "on") {
