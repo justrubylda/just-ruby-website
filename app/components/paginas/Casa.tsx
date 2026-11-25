@@ -4,13 +4,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avaliacao from "@/app/components/Avaliacao";
 import CasaVisual from "@/app/components/CasaVisual";
-import { CalendarioDaCasa, DatasPartilhadas } from "@/app/components/DatasPartilhadas";
+import { CalendarioDaCasa, CartaoReserva, DatasPartilhadas } from "@/app/components/DatasPartilhadas";
 import JsonLd from "@/app/components/JsonLd";
 import PedidoForm from "@/app/components/PedidoForm";
-import { alternativas, escolherDatas, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
+import { alternativas, rota, rotaCasa, ui, type Lingua, type Pagina } from "@/app/i18n";
 import { tabelasPrecos } from "@/app/gestao/lib/precos";
 import { ocupacaoDe, temCalendario } from "@/app/lib/disponibilidade";
-import { euros, precoDesde } from "@/app/lib/orcamento";
 import { casaEm, casas, getCasa, site } from "@/app/site";
 import { zonas } from "@/app/zona";
 
@@ -24,7 +23,10 @@ const TEXTOS = {
     comodidades: "Comodidades",
     checkOut: (h: string) => `Check-out até às ${h.replace(":", "h")}`,
     disponibilidade: "Disponibilidade",
-    dispTexto: "Escolha a chegada e a partida. As noites riscadas já estão ocupadas.",
+    dispTexto: "Escolha a chegada e a partida, veja o preço e envie logo o pedido de reserva. Confirmamos por mensagem.",
+    dispTitulo: "Disponibilidade e reserva",
+    pedidoTitulo: "Pedido de reserva",
+    pedirReserva: "Pedir reserva",
     desde: "desde",
     noite: "noite",
     naZona: "Na zona",
@@ -58,7 +60,10 @@ const TEXTOS = {
     comodidades: "Amenities",
     checkOut: (h: string) => `Check-out by ${h}`,
     disponibilidade: "Availability",
-    dispTexto: "Choose your arrival and departure. Nights crossed out are already booked.",
+    dispTexto: "Choose your arrival and departure, see the price and send your booking request straight away. We confirm by message.",
+    dispTitulo: "Availability and booking",
+    pedidoTitulo: "Booking request",
+    pedirReserva: "Request to book",
     desde: "from",
     noite: "night",
     naZona: "In the area",
@@ -92,7 +97,10 @@ const TEXTOS = {
     comodidades: "Servicios",
     checkOut: (h: string) => `Salida antes de las ${h}`,
     disponibilidade: "Disponibilidad",
-    dispTexto: "Elija la llegada y la salida. Las noches tachadas ya están ocupadas.",
+    dispTexto: "Elija la llegada y la salida, vea el precio y envíe la solicitud de reserva en el momento. Confirmamos por mensaje.",
+    dispTitulo: "Disponibilidad y reserva",
+    pedidoTitulo: "Solicitud de reserva",
+    pedirReserva: "Solicitar reserva",
     desde: "desde",
     noite: "noche",
     naZona: "En la zona",
@@ -126,7 +134,10 @@ const TEXTOS = {
     comodidades: "Équipements",
     checkOut: (h: string) => `Départ avant ${h.replace(":", "h")}`,
     disponibilidade: "Disponibilités",
-    dispTexto: "Choisissez l’arrivée et le départ. Les nuits barrées sont déjà réservées.",
+    dispTexto: "Choisissez l’arrivée et le départ, voyez le prix et envoyez tout de suite la demande de réservation. Nous confirmons par message.",
+    dispTitulo: "Disponibilités et réservation",
+    pedidoTitulo: "Demande de réservation",
+    pedirReserva: "Demander la réservation",
     desde: "à partir de",
     noite: "nuit",
     naZona: "Dans la région",
@@ -196,7 +207,6 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
     tabelasPrecos(),
   ]);
   const precosCasa = precos[casa.slug];
-  const desde = precoDesde(precosCasa);
   const galeria = casa.fotos.slice(1);
   const zona = zonas.find((z) => z.casa === casa.slug);
   // Páginas "onde ficar" ligadas a esta zona (Castelo do Bode, Tabuleiros, CNEMA), sem repetir.
@@ -277,7 +287,7 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
             <p className="mt-6 max-w-2xl text-lg text-nevoa md:text-xl">{casa.frase}</p>
             {casa.avaliacao && <Avaliacao avaliacao={casa.avaliacao} l={l} claro className="mt-5" />}
             <Link
-              href="#pedido"
+              href="#disponibilidade"
               className="mt-8 inline-block rounded-sm bg-ouro px-6 py-3.5 font-semibold text-preto transition-colors hover:bg-ouro-claro lg:hidden"
             >
               {ui[l].pedir}
@@ -334,11 +344,24 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
             )}
           </section>
 
+          {/* Calendário e pedido no mesmo sítio: escolhe as datas e avança logo para a reserva. */}
           <section id="disponibilidade" className="scroll-mt-24">
-            <h2 className="text-3xl md:text-4xl">{t.disponibilidade}</h2>
+            <h2 className="text-3xl md:text-4xl">{t.dispTitulo}</h2>
             <p className="mt-3 max-w-2xl text-cinza">{t.dispTexto}</p>
-            <div className="mt-6 border-y border-xisto/15 py-6">
+            <div className="mt-6 border-t border-xisto/15 pt-6">
               <CalendarioDaCasa l={l} ocupado={ocupado} precos={precosCasa} />
+            </div>
+            <div id="pedido" className="mt-8 scroll-mt-24 bg-pedra p-6 md:p-8">
+              <h3 className="text-2xl md:text-3xl">{t.pedidoTitulo}</h3>
+              <div className="mt-5">
+                <PedidoForm
+                  casaInicial={casa.slug}
+                  tema="claro"
+                  ocupado={{ [casa.slug]: ocupado }}
+                  precos={precosCasa ? { [casa.slug]: precosCasa } : {}}
+                  l={l}
+                />
+              </div>
             </div>
           </section>
 
@@ -410,29 +433,12 @@ export default async function Casa({ l, slug }: { l: Lingua; slug: string }) {
           </section>
         </div>
 
-        <aside id="pedido" className="scroll-mt-24 self-start bg-pedra p-6 md:p-8 lg:sticky lg:top-24">
-          {desde != null ? (
-            <>
-              <p className="text-cinza">
-                {t.desde} <span className="font-display text-4xl text-xisto">{euros(desde, l)}</span> / {t.noite}
-              </p>
-              {precosCasa && precosCasa.limpeza > 0 && (
-                <p className="mt-1 text-sm text-cinza">{escolherDatas[l].maisLimpeza(euros(precosCasa.limpeza, l))}</p>
-              )}
-            </>
-          ) : (
-            <h2 className="text-3xl">{ui[l].pedir}</h2>
-          )}
-          <p className="mt-3 text-cinza">{desde != null ? t.pedirComPreco : t.pedirTexto}</p>
-          <div className="mt-6">
-            <PedidoForm
-              casaInicial={casa.slug}
-              tema="claro"
-              ocupado={{ [casa.slug]: ocupado }}
-              precos={precosCasa ? { [casa.slug]: precosCasa } : {}}
-              l={l}
-            />
-          </div>
+        <aside className="hidden self-start border border-xisto/15 bg-white p-6 shadow-sm lg:sticky lg:top-24 lg:block md:p-8">
+          <CartaoReserva
+            l={l}
+            precos={precosCasa}
+            textos={{ desde: t.desde, noite: t.noite, titulo: ui[l].pedir, botao: t.pedirReserva }}
+          />
         </aside>
       </div>
       </DatasPartilhadas>

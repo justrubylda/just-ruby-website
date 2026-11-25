@@ -74,7 +74,8 @@ export default function PesquisaDatas({
       q.set("partida", partida);
     }
     q.set("pessoas", String(pessoas));
-    router.push(`${c.href}?${q}#disponibilidade`);
+    // Com datas escolhidas, vai direto ao pedido (logo abaixo do calendário da casa).
+    router.push(`${c.href}?${q}#${chegada && partida ? "pedido" : "disponibilidade"}`);
   }
 
   const segmento = "block px-5 py-3 text-left";
@@ -191,7 +192,7 @@ export default function PesquisaDatas({
               </div>
             </div>
           )}
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-4">
             <button
               type="button"
               onClick={() => setAberto(false)}
@@ -199,6 +200,14 @@ export default function PesquisaDatas({
             >
               {t.fechar}
             </button>
+            {casa && chegada && partida && (
+              <button
+                type="submit"
+                className="rounded-sm bg-ouro px-6 py-3 font-semibold text-preto transition-colors hover:bg-ouro-claro"
+              >
+                {t.avancar}
+              </button>
+            )}
           </div>
         </div>
       )}

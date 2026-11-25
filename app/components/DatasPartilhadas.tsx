@@ -1,10 +1,11 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import type { Lingua } from "../i18n";
+import { escolherDatas, type Lingua } from "../i18n";
 import type { Intervalo } from "../lib/disponibilidade";
-import type { TabelaPrecos } from "../lib/orcamento";
+import { euros, precoDesde, type TabelaPrecos } from "../lib/orcamento";
 import EscolherDatas from "./EscolherDatas";
+import ResumoDatas from "./ResumoDatas";
 
 // Na página de cada casa, o calendário grande (coluna principal) e o pedido
 // (coluna do lado) partilham as mesmas datas, como no Airbnb. Quem vem da barra da
@@ -82,5 +83,44 @@ export function CalendarioDaCasa({ l, ocupado, precos }: { l: Lingua; ocupado: I
       onChange={d.mudar}
       semResumo
     />
+  );
+}
+
+/** Cartão do lado (computador), como no Airbnb: preço, datas escolhidas, total e botão para o pedido. */
+export function CartaoReserva({
+  l,
+  precos,
+  textos,
+}: {
+  l: Lingua;
+  precos?: TabelaPrecos;
+  textos: { desde: string; noite: string; titulo: string; botao: string };
+}) {
+  const d = useDatasPartilhadas();
+  const desde = precoDesde(precos);
+  return (
+    <div>
+      {desde != null ? (
+        <>
+          <p className="text-cinza">
+            {textos.desde} <span className="font-display text-4xl text-xisto">{euros(desde, l)}</span> / {textos.noite}
+          </p>
+          {precos && precos.limpeza > 0 && (
+            <p className="mt-1 text-sm text-cinza">{escolherDatas[l].maisLimpeza(euros(precos.limpeza, l))}</p>
+          )}
+        </>
+      ) : (
+        <p className="font-display text-3xl">{textos.titulo}</p>
+      )}
+      <div className="mt-5">
+        <ResumoDatas chegada={d?.chegada ?? ""} partida={d?.partida ?? ""} precos={precos} l={l} escuro={false} />
+      </div>
+      <a
+        href="#pedido"
+        className="mt-5 block rounded-sm bg-ouro px-6 py-3.5 text-center font-semibold text-preto transition-colors hover:bg-ouro-claro"
+      >
+        {textos.botao}
+      </a>
+    </div>
   );
 }
