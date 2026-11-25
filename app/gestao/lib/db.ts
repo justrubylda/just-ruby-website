@@ -167,6 +167,16 @@ create table if not exists faturas_cg (
   atualizado_em timestamptz not null default now()
 );
 
+-- recibos (RG) do CentralGest: pagamentos das faturas FT; os anulados ficam marcados
+create table if not exists recibos_cg (
+  doc text primary key,
+  data date not null,
+  cliente text,
+  total numeric(12,2) not null,
+  anulado boolean not null default false,
+  atualizado_em timestamptz not null default now()
+);
+
 -- despesas da empresa (faturas de fornecedores), com a ligação ao pagamento no banco
 create table if not exists despesas (
   id serial primary key,

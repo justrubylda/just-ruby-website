@@ -60,6 +60,56 @@ export function lerVendas(texto: string): DocCG[] {
   return [...docs.values()];
 }
 
+export type ReciboCG = { doc: string; data: string; cliente: string; total: number; anulado: boolean };
+
+const RE_RG = /^RG\s+[\w.]+\/\d+$/i;
+
+/**
+ * Lê a grelha de Recebimentos do CentralGest (Nº recibo, Conta, Cliente, Data, Total…).
+ * Um recibo anulado tem de vir marcado com a palavra "anulado" na linha.
+ */
+export function lerRecibos(texto: string): ReciboCG[] {
+  const out = new Map<string, ReciboCG>();
+  for (const linha of texto.split(/\r?\n/)) {
+    const c = linha
+      .split(/\t|\s{3,}|\|/)
+      .map((x) => x.trim())
+      .filter(Boolean);
+    const i = c.findIndex((x) => RE_RG.test(x));
+    if (i < 0) continue;
+    const j = c.findIndex((x, k) => k > i && RE_DATA.test(x));
+    if (j < 0) continue;
+    const m = c[j].match(RE_DATA)!;
+    const num = c.slice(j + 1).find((x) => /^-?[\d\s\u00a0\u202f]+,\d{2}$/.test(x));
+    if (!num) continue;
+    const cliente = c.slice(i + 1, j).filter((x) => !/^\d{6,}$/.test(x)).join(" ");
+    const doc = c[i].replace(/\s+/g, " ").toUpperCase();
+    out.set(doc, {
+      doc,
+      data: `${m[3]}-${m[2]}-${m[1]}`,
+      cliente,
+      total: numero(num.replace(/[\s\u00a0\u202f]/g, "")) ?? 0,
+      anulado: /anulad/i.test(linha),
+    });
+  }
+  return [...out.values()];
+}
+
+export async function guardarRecibos(lista: ReciboCG[]) {
+  await garantirTabelas();
+  for (const r of lista) {
+    await sql()`insert into recibos_cg (doc, data, cliente, total, anulado)
+      values (${r.doc}, ${r.data}, ${r.cliente}, ${r.total}, ${r.anulado})
+      on conflict (doc) do update set data = excluded.data, cliente = excluded.cliente, total = excluded.total,
+        anulado = excluded.anulado, atualizado_em = now()`;
+  }
+}
+
+export async function listarRecibos(): Promise<ReciboCG[]> {
+  await garantirTabelas();
+  return (await sql()`select * from recibos_cg order by data desc, doc desc`) as unknown as ReciboCG[];
+}
+
 export async function guardarDocs(docs: DocCG[]) {
   await garantirTabelas();
   for (const d of docs) {
