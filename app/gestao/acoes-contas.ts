@@ -20,7 +20,7 @@ import {
   importarContas,
   type RelatorioContas,
 } from "./lib/contas";
-import { CLASSES, ESTADOS_DESPESA, NIF_EMPRESA, sugerirTextoRegra, type Classe, type EstadoDespesa } from "./lib/contas-comum";
+import { CLASSES, ESTADOS_DESPESA, NIF_EMPRESA, PAGO_POR, sugerirTextoRegra, type Classe, type EstadoDespesa } from "./lib/contas-comum";
 
 const txt = (f: FormData, k: string) => {
   const v = String(f.get(k) ?? "").trim();
@@ -191,6 +191,26 @@ export async function despesaDoMovimentoAcao(f: FormData) {
   });
   atualizar();
   redirect(`/gestao/despesas/${nova}`);
+}
+
+/** Recebimento de uma estadia faturada: liga à entrada do banco ou regista quem recebeu a título particular. */
+export async function guardarRecebimentoAcao(f: FormData) {
+  await exigirSessao();
+  const id = num(f, "id");
+  if (!id) return;
+  const s = sql();
+  const mov = num(f, "movimento_id");
+  if (f.get("movimento_id") === "0") {
+    await s`update movimentos set reserva_id = null where reserva_id = ${id}`;
+  } else if (mov) {
+    await s`update movimentos set reserva_id = ${id}, manual = true,
+      classe = case when classe = 'Por classificar' then 'Receita direta' else classe end
+      where id = ${Math.round(mov)} and montante > 0`;
+  }
+  const quem = txt(f, "recebido_por");
+  const valido = quem && (quem === "Empresa" || PAGO_POR.includes(quem)) ? quem : null;
+  await s`update reservas set recebido_por = ${mov ? null : valido}, atualizado_em = now() where id = ${id}`;
+  atualizar();
 }
 
 export async function apagarRegraAcao(f: FormData) {

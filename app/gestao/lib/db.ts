@@ -216,6 +216,8 @@ create table if not exists movimentos (
 create unique index if not exists movimentos_chave on movimentos (chave);
 -- pagamento parcial: o movimento é mais uma parte do pagamento desta despesa (ex.: sinal + resto de um carro)
 alter table movimentos add column if not exists parte_de integer;
+-- recebimento de uma estadia faturada que não entrou na conta da empresa (a título particular)
+alter table reservas add column if not exists recebido_por text;
 -- IVA que se pode deduzir, quando não é o IVA todo da fatura (ex.: viatura a GPL, 50%)
 alter table despesas add column if not exists iva_dedutivel numeric(12,2);
 create index if not exists movimentos_data on movimentos (data);

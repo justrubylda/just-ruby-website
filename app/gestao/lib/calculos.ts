@@ -30,6 +30,8 @@ export type Reserva = {
   ical_uid: string | null;
   pedido_id: number | null;
   cancelada: boolean;
+  /** Quem recebeu o pagamento quando não entrou na conta da empresa (ex.: "Bruno"); "Empresa" = ainda sem extrato. */
+  recebido_por?: string | null;
 };
 
 export type Estado = "Faturado" | "Por faturar" | "Futura" | "Sem fatura" | "Cancelada";

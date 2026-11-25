@@ -11,6 +11,7 @@ const ITENS = [
   { href: "/gestao/faturar", label: "Por faturar" },
   { href: "/gestao/despesas", label: "Despesas" },
   { href: "/gestao/banco", label: "Banco" },
+  { href: "/gestao/recebimentos", label: "Recebimentos" },
   { href: "/gestao/resumo", label: "Resumo" },
   { href: "/gestao/pedidos", label: "Pedidos do site" },
   { href: "/gestao/importar", label: "Importar" },
