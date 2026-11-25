@@ -89,15 +89,26 @@ const REGRAS_INICIAIS: RegraInicial[] = [
   ["SEGURANCA SOCIAL", null, "Impostos e Estado", "Impostos e taxas", GERAL, 70],
 ];
 
+const gr = globalThis as unknown as { __jrRegrasLimpas?: boolean };
+
 export async function garantirRegras() {
   await garantirTabelas();
-  if (await lerConfig("regras_banco_iniciais")) return;
+  if (await lerConfig("regras_banco_iniciais")) {
+    // dois pedidos ao mesmo tempo na primeira utilização podem ter gravado as regras duas vezes
+    if (!gr.__jrRegrasLimpas) {
+      await sql()`delete from regras_banco a using regras_banco b where a.id > b.id and a.texto = b.texto
+        and coalesce(a.sentido, '') = coalesce(b.sentido, '') and a.classe = b.classe
+        and coalesce(a.categoria, '') = coalesce(b.categoria, '') and coalesce(a.casa, '') = coalesce(b.casa, '')`;
+      gr.__jrRegrasLimpas = true;
+    }
+    return;
+  }
+  await gravarConfig("regras_banco_iniciais", new Date().toISOString());
   const s = sql();
   for (const [texto, sentido, classe, categoria, casa, ordem] of REGRAS_INICIAIS) {
     await s`insert into regras_banco (texto, sentido, classe, categoria, casa, ordem)
       values (${texto}, ${sentido}, ${classe}, ${categoria}, ${casa}, ${ordem})`;
   }
-  await gravarConfig("regras_banco_iniciais", new Date().toISOString());
 }
 
 export async function listarRegras(): Promise<Regra[]> {
