@@ -294,6 +294,15 @@ async function gravarMovimentos(lista: NovoMovimento[]) {
   let novos = 0;
   let existentes = 0;
   for (const m of lista) {
+    // o mesmo movimento vindo de outra exportação (texto um pouco diferente): data, valor e saldo iguais
+    if (m.saldo != null) {
+      const [igual] = await sql()`select id from movimentos where data = ${m.data} and montante = ${m.montante}
+        and saldo = ${m.saldo} and chave <> ${m.chave} limit 1`;
+      if (igual) {
+        existentes++;
+        continue;
+      }
+    }
     const [r] = await sql()`insert into movimentos ${sql()(m as unknown as Record<string, unknown>)}
       on conflict (chave) do update set
         saldo = coalesce(movimentos.saldo, excluded.saldo),
