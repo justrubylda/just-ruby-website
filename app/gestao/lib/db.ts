@@ -232,6 +232,39 @@ create table if not exists regras_banco (
   casa text,
   ordem integer not null default 100
 );
+
+-- mapas de deslocações dos sócios-gerentes (km e ajudas de custo)
+create table if not exists deslocacoes (
+  id serial primary key,
+  data date not null,
+  pessoa text not null,
+  saida text,
+  regresso text,
+  percurso text not null default '',
+  motivo text not null default '',
+  matricula text,
+  km numeric(8,1) not null default 0,
+  almocos integer not null default 0,
+  jantares integer not null default 0,
+  noites integer not null default 0,
+  prova text,
+  reserva_id integer,
+  estado text not null default 'Confirmada',
+  auto boolean not null default false,
+  chave text,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+create unique index if not exists deslocacoes_chave on deslocacoes (chave) where chave is not null;
+create index if not exists deslocacoes_data on deslocacoes (data);
+create table if not exists deslocacoes_meses (
+  mes text not null,
+  pessoa text not null,
+  fechado_em timestamptz,
+  pago_em date,
+  movimento_id integer,
+  primary key (mes, pessoa)
+);
 `;
 
 /** Cria as tabelas na primeira utilização (não apaga nada se já existirem). */
