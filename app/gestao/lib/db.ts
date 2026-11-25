@@ -166,6 +166,105 @@ create table if not exists faturas_cg (
   estado text,
   atualizado_em timestamptz not null default now()
 );
+
+-- despesas da empresa (faturas de fornecedores), com a ligação ao pagamento no banco
+create table if not exists despesas (
+  id serial primary key,
+  data date,
+  fornecedor text,
+  nif_fornecedor text,
+  documento text,
+  nif_cliente text,
+  casa text,
+  categoria text,
+  base numeric(12,2),
+  iva numeric(12,2),
+  total numeric(12,2) not null,
+  pago_por text not null default 'Empresa',
+  estado text not null default 'Pendente',
+  movimento_id integer,
+  reposicao_id integer,
+  ficheiro text,
+  notas text,
+  origem text,
+  chave text,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+create unique index if not exists despesas_chave on despesas (chave) where chave is not null;
+create index if not exists despesas_data on despesas (data);
+
+-- movimentos da conta da empresa (extratos do Millennium bcp)
+create table if not exists movimentos (
+  id serial primary key,
+  conta text not null default 'Millennium',
+  data date not null,
+  data_valor date,
+  descricao text not null default '',
+  montante numeric(12,2) not null,
+  saldo numeric(12,2),
+  classe text not null default 'Por classificar',
+  categoria text,
+  casa text,
+  reserva_id integer,
+  notas text,
+  manual boolean not null default false,
+  origem text,
+  chave text not null,
+  criado_em timestamptz not null default now()
+);
+create unique index if not exists movimentos_chave on movimentos (chave);
+-- pagamento parcial: o movimento é mais uma parte do pagamento desta despesa (ex.: sinal + resto de um carro)
+alter table movimentos add column if not exists parte_de integer;
+-- recebimento de uma estadia faturada que não entrou na conta da empresa (a título particular)
+alter table reservas add column if not exists recebido_por text;
+-- IVA que se pode deduzir, quando não é o IVA todo da fatura (ex.: viatura a GPL, 50%)
+alter table despesas add column if not exists iva_dedutivel numeric(12,2);
+create index if not exists movimentos_data on movimentos (data);
+
+-- regras para classificar os movimentos pelo texto da descrição
+create table if not exists regras_banco (
+  id serial primary key,
+  texto text not null,
+  sentido text,
+  classe text not null,
+  categoria text,
+  casa text,
+  ordem integer not null default 100
+);
+
+-- mapas de deslocações dos sócios-gerentes (km e ajudas de custo)
+create table if not exists deslocacoes (
+  id serial primary key,
+  data date not null,
+  pessoa text not null,
+  saida text,
+  regresso text,
+  percurso text not null default '',
+  motivo text not null default '',
+  matricula text,
+  km numeric(8,1) not null default 0,
+  almocos integer not null default 0,
+  jantares integer not null default 0,
+  noites integer not null default 0,
+  prova text,
+  reserva_id integer,
+  estado text not null default 'Confirmada',
+  auto boolean not null default false,
+  chave text,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+create unique index if not exists deslocacoes_chave on deslocacoes (chave) where chave is not null;
+create index if not exists deslocacoes_data on deslocacoes (data);
+create table if not exists deslocacoes_meses (
+  mes text not null,
+  pessoa text not null,
+  fechado_em timestamptz,
+  pago_em date,
+  movimento_id integer,
+  primary key (mes, pessoa)
+);
 `;
 
 /** Cria as tabelas na primeira utilização (não apaga nada se já existirem). */
