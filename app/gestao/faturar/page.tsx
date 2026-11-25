@@ -14,6 +14,8 @@ import {
   precoSemIva,
 } from "../lib/calculos";
 import { lerConfig, temBaseDados } from "../lib/db";
+import { listarMovimentos } from "../lib/contas";
+import { CLASSES_RECEITA } from "../lib/contas-comum";
 import { listarAlojamentos, listarReservas } from "../lib/reservas";
 import Copiar from "../componentes/Copiar";
 import FormCentralGest from "../componentes/FormCentralGest";
@@ -40,6 +42,10 @@ export default async function Faturar({ searchParams }: { searchParams: Promise<
     .filter(({ r, c }) => c.estado === "Por faturar" && (ano === "Todos" || r.checkin?.slice(0, 4) === ano));
   const anos = [...new Set(todas.map((r) => r.checkin?.slice(0, 4)).filter(Boolean) as string[])].sort().reverse();
   const soma = pendentes.reduce((s, x) => s + (x.r.total ?? 0), 0);
+  // dinheiro que entrou no banco e não está ligado a nenhuma reserva: pode ser uma estadia por faturar
+  const entradasSoltas = (await listarMovimentos()).filter(
+    (m) => m.montante > 0 && !m.reserva_id && (m.classe === "Por classificar" || CLASSES_RECEITA.includes(m.classe))
+  );
 
   return (
     <div>
@@ -57,6 +63,15 @@ export default async function Faturar({ searchParams }: { searchParams: Promise<
           Abrir o CentralGest ↗
         </a>
       </div>
+      {entradasSoltas.length > 0 && (
+        <Link
+          href="/gestao/banco?ano=Todos&ver=Entradas+sem+reserva"
+          className="mb-5 block max-w-3xl rounded-md bg-[#fde8b8] p-3 text-sm text-[#7a4b00] hover:underline"
+        >
+          {entradasSoltas.length} entrada(s) no banco sem reserva ({eur(entradasSoltas.reduce((s, m) => s + m.montante, 0))}): podem ser
+          estadias por registar e faturar → ver no Banco
+        </Link>
+      )}
       <section className={`${cartao} mb-6 max-w-3xl`}>
         <h2 className="font-display text-xl">Conferência com o CentralGest</h2>
         <p className="mt-1 text-sm text-cinza">
