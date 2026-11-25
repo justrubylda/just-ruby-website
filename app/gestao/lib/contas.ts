@@ -162,6 +162,7 @@ function chaveDespesa(d: NovaDespesa) {
   const doc = normalizar(d.documento);
   const nif = (d.nif_fornecedor ?? "").replace(/\D/g, "");
   if (doc && nif) return `${nif}|${doc}`;
+  if (doc && d.total != null) return `${doc}|${r2(d.total)}`;
   if (doc) return `${normalizar(d.fornecedor)}|${doc}`;
   if (d.data && d.total != null) return `${d.data}|${r2(d.total)}|${normalizar(d.fornecedor)}`;
   return null;
@@ -221,6 +222,35 @@ export async function importarDespesasLote(lista: NovaDespesa[], origem: string)
         delete resto.pago_por;
         delete resto.movimento_id;
         await sql()`update despesas set ${sql()({ ...limparDespesa(resto), chave, origem, atualizado_em: new Date() })} where id = ${ph[0].id}`;
+        existentes++;
+        continue;
+      }
+    }
+    // a mesma fatura já registada de outra forma (ex.: na folha de acerto, sem nº ou com outro nome):
+    // mesmo valor, até 3 dias de diferença, mesmo fornecedor (ou NIF) e nº igual ou em falta → completa-a
+    if (d.data && d.total != null) {
+      const cands = (await sql()`select * from despesas where abs(total - ${d.total}) < 0.011
+        and data between ${d.data}::date - 3 and ${d.data}::date + 3`) as unknown as Despesa[];
+      const f1 = normalizar(d.fornecedor).slice(0, 4);
+      const nif = (d.nif_fornecedor ?? "").replace(/\D/g, "");
+      const iguais = cands.filter(
+        (c) =>
+          (!c.documento || !d.documento || normalizar(c.documento) === normalizar(d.documento)) &&
+          ((f1 && normalizar(c.fornecedor).slice(0, 4) === f1) || (nif && c.nif_fornecedor === nif))
+      );
+      if (iguais.length === 1) {
+        const c = iguais[0];
+        await sql()`update despesas set
+          documento = coalesce(documento, ${d.documento ?? null}),
+          nif_fornecedor = coalesce(nif_fornecedor, ${d.nif_fornecedor ?? null}),
+          nif_cliente = coalesce(nif_cliente, ${d.nif_cliente ?? null}),
+          iva = coalesce(iva, ${d.iva ?? null}),
+          base = coalesce(base, ${d.iva != null ? r2(d.total - d.iva) : null}),
+          casa = coalesce(casa, ${d.casa ?? null}),
+          categoria = coalesce(categoria, ${d.categoria ?? null}),
+          ficheiro = coalesce(ficheiro, ${d.ficheiro ?? null}),
+          atualizado_em = now()
+          where id = ${c.id}`;
         existentes++;
         continue;
       }
@@ -308,18 +338,28 @@ function acharCabecalho(f: Folha, obrigatorias: Testes, opcionais: Testes) {
 const dataDe = (c: Celula | undefined) => datas(c?.v)[0] ?? null;
 const numDe = (c: Celula | undefined) => numero(c?.v);
 
-function classeDeTexto(t: string, montante: number): Classe | null {
+function classeDeTexto(t: string, montante: number, descricao = ""): Classe | null {
   const s = normalizar(t);
-  if (!s) return null;
+  const d = normalizar(descricao);
+  if (!s || /^(A CONFIRMAR|POR CLASSIFICAR|NAO IDENTIFICADO|PENDENTE)$/.test(s)) return null;
   const exata = CLASSES.find((c) => normalizar(c) === s);
   if (exata) return exata;
   if (/CANCEL|ANULAD|ESTORN/.test(s)) return "Outro";
-  if (/REPOSI|TRF P|SOCIO|SUPRIMENT/.test(s)) return montante < 0 ? "Reposição aos sócios" : "Entrada dos sócios";
+  if (/SUPRIMENT|CAPITAL/.test(s)) return montante < 0 ? "Reposição aos sócios" : "Entrada dos sócios";
+  // folha de acerto: "Movimento Particular↔Empresa" = dinheiro entre os sócios e a empresa
+  if (/PARTICULAR EMPRESA|EMPRESA PARTICULAR|SOCIO/.test(s)) {
+    if (montante > 0) return "Entrada dos sócios";
+    if (/JUSTINO|RUBIA|BRUNO/.test(d)) return "Reposição aos sócios";
+    return "Particular";
+  }
+  if (/REPOSI|TRF P/.test(s)) return montante < 0 ? "Reposição aos sócios" : "Entrada dos sócios";
   if (/PARTICULAR|PESSOAL/.test(s)) return "Particular";
-  if (/AIRBNB/.test(s) && montante > 0) return "Receita Airbnb";
-  if (/BOOKING/.test(s) && montante > 0) return "Receita Booking";
-  if (/RECEITA|CLIENTE|ESTADIA|RECEBIMENTO/.test(s)) return "Receita direta";
-  if (/IMPOSTO|ESTADO|IVA|SEG SOCIAL|SEGURANCA SOCIAL|\bAT\b/.test(s)) return "Impostos e Estado";
+  if (/RECEITA|CLIENTE|ESTADIA|RECEBIMENTO|AIRBNB|BOOKING/.test(s) && montante > 0) {
+    if (/AIRBNB/.test(d) || /AIRBNB/.test(s)) return "Receita Airbnb";
+    if (/BOOKING/.test(d) || /BOOKING/.test(s)) return "Receita Booking";
+    return "Receita direta";
+  }
+  if (/IMPOSTO|ESTADO|\bIVA\b|SEG SOCIAL|SEGURANCA SOCIAL|\bAT\b/.test(s)) return "Impostos e Estado";
   if (/INTERNA|ENTRE CONTAS/.test(s)) return "Transferência interna";
   if (/DESPESA|FORNECEDOR|COMPRA/.test(s)) return "Despesa";
   return "Outro";
@@ -372,7 +412,7 @@ export function estadoDeTexto(t: string): EstadoDespesa | null {
   if (!s) return null;
   if (/REPOSTO|REEMBOLSAD/.test(s)) return "Reposto";
   if (/POR REPOR|A REPOR|REPOR/.test(s)) return "Por repor";
-  if (/PAGO|PAGA/.test(s)) return "Pago pela empresa";
+  if (/PAGO|PAGA|NAO APLICAVEL/.test(s)) return "Pago pela empresa";
   if (/PENDENTE|CONFERIR|CONFIRMAR/.test(s)) return "Pendente";
   return null;
 }
@@ -414,7 +454,7 @@ function lerMovimentosDaFolha(f: Folha, casas: string[], origem: string): NovoMo
     const tNotas = col.notas != null ? txt(l[col.notas]) : "";
     const tCasa = col.casa != null ? txt(l[col.casa]) : "";
     const tCat = col.categoria != null ? txt(l[col.categoria]) : "";
-    const classe = classeDeTexto(tClasse, montante);
+    const classe = classeDeTexto(tClasse, montante, descricao);
     const notas = [tClasse && classe !== tClasse ? tClasse : "", tEstado, tNotas].filter(Boolean).join(" · ") || null;
     lista.push({
       data,
@@ -449,9 +489,10 @@ function lerDespesasDaFolha(f: Folha, casas: string[]): NovaDespesa[] | null {
       casa: /^casa|alojamento|^al$/,
       categoria: /categoria|^tipo/,
       estado: /^estado|situacao/,
-      pagoPor: /pago por|pagador|quem pagou/,
+      pagoPor: /pago por|pagador|quem pagou|meio de pagamento/,
       ficheiro: /ficheiro|^pdf|anexo|^caminho/,
       notas: /observa|^notas?$|comentar|reparo/,
+      descricao: /^descri/,
     }
   );
   if (!cab) return null;
@@ -460,7 +501,7 @@ function lerDespesasDaFolha(f: Folha, casas: string[]): NovaDespesa[] | null {
   for (const l of f.linhas.slice(linha + 1)) {
     const fornecedor = txt(l[col.fornecedor]);
     const total = numDe(l[col.total]);
-    if (!fornecedor || total == null || /^total/i.test(fornecedor)) continue;
+    if (!fornecedor || total == null || total === 0 || /^total/i.test(fornecedor)) continue;
     const g = (k: string) => (col[k] != null ? txt(l[col[k]]) : "");
     const estado = estadoDeTexto(g("estado"));
     const pagoPor = normalizar(g("pagoPor"));
@@ -469,17 +510,22 @@ function lerDespesasDaFolha(f: Folha, casas: string[]): NovaDespesa[] | null {
       data: col.data != null ? dataDe(l[col.data]) : null,
       fornecedor,
       nif_fornecedor: g("nifFornecedor").replace(/\D/g, "") || null,
-      documento: g("documento") || null,
+      documento: /sem n/i.test(g("documento")) ? null : g("documento") || null,
       nif_cliente: nifCliente ?? NIF_EMPRESA,
       casa: casaDeTexto(g("casa"), casas),
-      categoria: categoriaDeTexto(g("categoria")) ?? categoriaDeTexto(`${fornecedor} ${g("notas")}`) ?? (g("categoria") || null),
+      categoria:
+        categoriaDeTexto(g("categoria")) ?? categoriaDeTexto(`${fornecedor} ${g("descricao")}`) ?? (g("categoria") || null),
       base: col.base != null ? numDe(l[col.base]) : null,
       iva: col.iva != null ? numDe(l[col.iva]) : null,
-      total: r2(Math.abs(total)),
-      pago_por: /RUBIA/.test(pagoPor) ? "Rúbia" : /BRUNO/.test(pagoPor) ? "Bruno" : estado === "Por repor" || estado === "Reposto" ? "Bruno" : "Empresa",
+      total: r2(total), // negativo = nota de crédito
+      pago_por: /RUBIA/.test(pagoPor)
+        ? "Rúbia"
+        : /BRUNO|PESSOAL|PARTICULAR/.test(pagoPor) || estado === "Por repor" || estado === "Reposto"
+          ? "Bruno"
+          : "Empresa",
       estado: estado ?? "Pendente",
       ficheiro: g("ficheiro") || null,
-      notas: g("notas") || null,
+      notas: [g("descricao"), g("notas")].filter(Boolean).join(" — ") || null,
     });
   }
   return lista;
@@ -495,8 +541,11 @@ export async function importarContas(folhas: Folha[], casas: string[], origem: s
   for (const f of folhas) {
     // folha de faturas ou de movimentos? pelo nome da folha; sem pistas, pelo saldo/débito do extrato
     const nome = normalizar(f.nome);
-    const cabTxt = f.linhas.slice(0, 30).map((l) => l.map(chaveCab).join("|")).join("\n");
-    const pareceFaturas = /FATURA|DESPESA|FORNECEDOR/.test(nome) || (!/EXTRATO|BANCO|MOVIMENT/.test(nome) && !/saldo|debito/.test(cabTxt) && /fornecedor/.test(cabTxt));
+    const cabF = acharCabecalho(f, { fornecedor: /fornecedor|entidade|emitente|comerciante|^empresa$/, total: /^total|^valor|^montante/ }, {});
+    const linhaCab = cabF ? (f.linhas[cabF.linha] ?? []).map(chaveCab).join("|") : "";
+    const pareceFaturas =
+      /FATURA|DESPESA|FORNECEDOR/.test(nome) ||
+      (!/EXTRATO|BANCO|MOVIMENT/.test(nome) && Boolean(cabF) && !/saldo|debito|credito/.test(linhaCab));
     const movs = pareceFaturas ? null : lerMovimentosDaFolha(f, casas, origem);
     if (movs?.length) {
       const r = await gravarMovimentos(movs);

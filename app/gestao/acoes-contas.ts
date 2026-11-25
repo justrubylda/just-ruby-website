@@ -63,7 +63,7 @@ export async function conferirContasAcao(): Promise<RelatorioContas> {
 export async function guardarDespesaAcao(_: string | null, f: FormData): Promise<string | null> {
   await exigirSessao();
   const total = num(f, "total");
-  if (total == null || total <= 0) return "Indique o total da fatura.";
+  if (total == null || total === 0) return "Indique o total da fatura (negativo numa nota de crédito).";
   const fornecedor = txt(f, "fornecedor");
   if (!fornecedor) return "Indique o fornecedor.";
   const iva = num(f, "iva");
