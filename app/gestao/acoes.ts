@@ -22,7 +22,7 @@ import {
 } from "./lib/palavra";
 import { COOKIE, DIAS_SESSAO, criarToken } from "./lib/sessao";
 import { sincronizar } from "./lib/sincronizar";
-import { conciliar, guardarDocs, lerVendas } from "./lib/centralgest";
+import { conciliar, guardarDocs, guardarRecibos, lerRecibos, lerVendas } from "./lib/centralgest";
 
 // ---------- entrar / sair / palavra-passe ----------
 
@@ -233,15 +233,19 @@ export type ResultadoCG = { ok: boolean; texto: string };
 /** Recebe a lista de Vendas do CentralGest (texto copiado) e cruza-a com as reservas. */
 export async function conferirCentralGest(_: ResultadoCG | null, f: FormData): Promise<ResultadoCG> {
   await exigirSessao();
-  const docs = lerVendas(String(f.get("vendas") ?? ""));
-  if (!docs.length) return { ok: false, texto: "Não encontrei faturas no texto. Copie a lista de Vendas do CentralGest (com os nºs FR/FT)." };
-  await guardarDocs(docs);
+  const texto = String(f.get("vendas") ?? "");
+  const docs = lerVendas(texto);
+  const recibos = lerRecibos(texto);
+  if (!docs.length && !recibos.length)
+    return { ok: false, texto: "Não encontrei faturas no texto. Copie a lista de Vendas do CentralGest (com os nºs FR/FT) ou a de Recebimentos (RG)." };
+  if (docs.length) await guardarDocs(docs);
+  if (recibos.length) await guardarRecibos(recibos);
   const c = await conciliar(await listarReservas());
   revalidatePath("/gestao", "layout");
   return {
     ok: true,
     texto:
-      `${docs.length} documento(s) lidos do CentralGest. ${c.ligadas.length} fatura(s) ligadas agora às reservas` +
+      `${docs.length} documento(s) e ${recibos.length} recibo(s) lidos do CentralGest. ${c.ligadas.length} fatura(s) ligadas agora às reservas` +
       (c.porConfirmar.length ? `, ${c.porConfirmar.length} por confirmar` : "") +
       (c.repetidas.length ? `, ${c.repetidas.length} nº repetido(s)` : "") +
       ".",
