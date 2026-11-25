@@ -32,6 +32,8 @@ export type Reserva = {
   cancelada: boolean;
   /** Quem recebeu o pagamento quando não entrou na conta da empresa (ex.: "Bruno"); "Empresa" = ainda sem extrato. */
   recebido_por?: string | null;
+  /** false: quem recebeu é só uma referência, ainda por confirmar. */
+  recebido_confirmado?: boolean;
 };
 
 export type Estado = "Faturado" | "Por faturar" | "Futura" | "Sem fatura" | "Cancelada";

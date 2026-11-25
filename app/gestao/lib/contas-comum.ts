@@ -30,6 +30,8 @@ export const ESTADOS_DESPESA = ["Pendente", "Pago pela empresa", "Por repor", "R
 export type EstadoDespesa = (typeof ESTADOS_DESPESA)[number];
 
 export const PAGO_POR = ["Empresa", "Bruno", "Rúbia"];
+/** Onde pode ter ficado um recebimento que não entrou na conta da empresa. */
+export const RECEBIDO_POR = ["Conta em comum", "Bruno", "Rúbia"];
 
 /** O que é cada movimento do banco. */
 export const CLASSES = [

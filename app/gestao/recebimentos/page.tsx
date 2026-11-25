@@ -3,7 +3,7 @@ import { guardarRecebimentoAcao } from "../acoes-contas";
 import { exigirSessao } from "../lib/acesso";
 import { calcular, dataPT, diasEntre, eur, hojeISO, type Reserva } from "../lib/calculos";
 import { docsDaReserva, listarDocs, listarRecibos, type DocCG, type ReciboCG } from "../lib/centralgest";
-import { CLASSES_RECEITA, PAGO_POR, normalizar, type Movimento } from "../lib/contas-comum";
+import { CLASSES_RECEITA, RECEBIDO_POR, normalizar, type Movimento } from "../lib/contas-comum";
 import { listarDespesas, listarMovimentos } from "../lib/contas";
 import { temBaseDados } from "../lib/db";
 import { listarReservas } from "../lib/reservas";
@@ -15,7 +15,6 @@ import { SemBaseDados, Titulo, botao, cartao, rotulo } from "../componentes/ui";
 // ou foi recebido a título particular por um sócio.
 
 const pequeno = "mt-1 block w-full rounded-md border border-black/15 bg-white px-2 py-2 text-sm text-xisto";
-const SOCIOS = PAGO_POR.filter((p) => p !== "Empresa");
 
 type Estado = "Na conta da empresa" | "A título particular" | "Por receber" | "Por confirmar";
 type Linha = {
@@ -66,7 +65,7 @@ export default async function Recebimentos({ searchParams }: { searchParams: Pro
       const estado: Estado =
         entradas.length || r?.recebido_por === "Empresa"
           ? "Na conta da empresa"
-          : r?.recebido_por
+          : r?.recebido_por && r.recebido_confirmado !== false
             ? "A título particular"
             : porReceber
               ? "Por receber"
@@ -106,7 +105,7 @@ export default async function Recebimentos({ searchParams }: { searchParams: Pro
   const cartoes = [
     { t: "Faturado", l: linhas, d: "FR e FT emitidas no CentralGest" },
     { t: "Na conta da empresa", l: de("Na conta da empresa"), d: "entrada no extrato do Millennium" },
-    { t: "A título particular", l: particular, d: SOCIOS.map((s) => `${s} ${eur(recebeu(s))}`).join(" · ") },
+    { t: "A título particular", l: particular, d: RECEBIDO_POR.map((s) => `${s} ${eur(recebeu(s))}`).join(" · ") },
     { t: "Por confirmar", l: de("Por confirmar"), d: "sem entrada no banco" },
   ];
   const ordem: Estado[] = ["Por confirmar", "Por receber", "A título particular", "Na conta da empresa"];
@@ -152,30 +151,47 @@ export default async function Recebimentos({ searchParams }: { searchParams: Pro
           O que um sócio recebeu a título particular é da empresa; o que pagou do seu bolso, a empresa repõe-lhe. Despesas de todos os anos;
           recebimentos do ano escolhido.
         </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {SOCIOS.map((s) => {
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {RECEBIDO_POR.map((s) => {
             const pagou = porRepor(s);
             const r = recebeu(s);
             const saldo = pagou - r;
             return (
               <div key={s} className="rounded-md bg-pedra/40 p-3 text-sm">
-                <div className="font-semibold">{s}</div>
-                <div className="mt-1 flex justify-between">
-                  <span>A empresa tem de repor (despesas)</span>
-                  <span className="tabular-nums">{eur(pagou)}</span>
-                </div>
+                <div className="font-semibold">{s === "Conta em comum" ? "Conta em comum (Bruno e Rúbia)" : s}</div>
+                {s !== "Conta em comum" && (
+                  <div className="mt-1 flex justify-between">
+                    <span>A empresa tem de repor (despesas)</span>
+                    <span className="tabular-nums">{eur(pagou)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <span>Recebeu a título particular</span>
+                  <span>Recebido a título particular</span>
                   <span className="tabular-nums">− {eur(r)}</span>
                 </div>
                 <div className="mt-1 flex justify-between border-t border-black/10 pt-1 font-semibold">
-                  <span>{saldo >= 0 ? "A empresa deve-lhe" : "Deve à empresa"}</span>
+                  <span>{saldo >= 0 ? "A empresa deve" : "Deve à empresa"}</span>
                   <span className="tabular-nums">{eur(Math.abs(saldo))}</span>
                 </div>
               </div>
             );
           })}
         </div>
+        {(() => {
+          const total = RECEBIDO_POR.reduce((t, s) => t + porRepor(s) - recebeu(s), 0);
+          const ref = de("Por confirmar").filter((x) => x.r?.recebido_por && x.r.recebido_confirmado === false);
+          return (
+            <p className="mt-3 text-sm">
+              <strong>No total:</strong> {total >= 0 ? "a empresa deve aos sócios" : "os sócios devem à empresa"} {eur(Math.abs(total))}
+              {ref.length > 0 && (
+                <span className="text-cinza">
+                  {" "}
+                  · {ref.length} recebimento(s) como referência ainda por confirmar ({eur(ref.reduce((t, x) => t + x.liquido, 0))}), não contam
+                </span>
+              )}
+            </p>
+          );
+        })()}
       </div>
 
       {ordem.map((e) => {
@@ -222,10 +238,22 @@ function LinhaRecebimento({ x, cand }: { x: Linha; cand: Movimento[] }) {
             {recibos && <div className="truncate text-xs text-cinza">Recibo: {recibos}</div>}
             {banco && <div className="truncate text-xs text-[#1f5f2b]">Banco: {banco}</div>}
             {x.semRecibo && <div className="text-xs text-[#7a4b00]">Falta o recibo no CentralGest</div>}
-            {x.estado === "A título particular" && <div className="text-xs text-[#7a4b00]">Recebido por {r?.recebido_por}</div>}
+            {x.estado === "A título particular" && <div className="text-xs text-[#7a4b00]">Recebido por: {r?.recebido_por}</div>}
+            {x.estado === "Por confirmar" && r?.recebido_por && r.recebido_confirmado === false && (
+              <div className="text-xs text-[#7a4b00]">Referência: {r.recebido_por} — falta confirmar</div>
+            )}
           </div>
           <div className="text-right font-semibold tabular-nums">{eur(d.total)}</div>
         </summary>
+        {r?.recebido_por && r.recebido_confirmado === false && x.estado === "Por confirmar" && (
+          <form action={guardarRecebimentoAcao} className="mt-3 flex flex-wrap items-center gap-2 rounded-md bg-[#fbf3df] p-3 text-sm">
+            <input type="hidden" name="id" value={r.id} />
+            <input type="hidden" name="confirmar" value="1" />
+            <span>Recebido na {r.recebido_por === "Conta em comum" ? "conta em comum" : `conta de ${r.recebido_por}`}?</span>
+            <button className={botao}>Confirmar</button>
+            <span className="text-xs text-cinza">ou corrija abaixo</span>
+          </form>
+        )}
         {r ? (
           <form action={guardarRecebimentoAcao} className="mt-3 grid gap-3 rounded-md bg-pedra/40 p-3 sm:grid-cols-3">
             <input type="hidden" name="id" value={r.id} />
@@ -243,12 +271,12 @@ function LinhaRecebimento({ x, cand }: { x: Linha; cand: Movimento[] }) {
             </label>
             <label className="block">
               <span className={rotulo}>Recebido por</span>
-              <select name="recebido_por" defaultValue={r.recebido_por ?? ""} className={pequeno}>
+              <select name="recebido_por" defaultValue={r.recebido_confirmado === false ? "" : r.recebido_por ?? ""} className={pequeno}>
                 <option value="">— conta da empresa —</option>
                 <option value="Empresa">Empresa (ainda não está no extrato)</option>
-                {SOCIOS.map((s) => (
+                {RECEBIDO_POR.map((s) => (
                   <option key={s} value={s}>
-                    {s} (a título particular)
+                    {s === "Conta em comum" ? "Conta em comum (Bruno e Rúbia)" : `${s} (a título particular)`}
                   </option>
                 ))}
               </select>

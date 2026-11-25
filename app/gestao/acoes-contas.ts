@@ -20,7 +20,7 @@ import {
   importarContas,
   type RelatorioContas,
 } from "./lib/contas";
-import { CLASSES, ESTADOS_DESPESA, NIF_EMPRESA, PAGO_POR, sugerirTextoRegra, type Classe, type EstadoDespesa } from "./lib/contas-comum";
+import { CLASSES, ESTADOS_DESPESA, NIF_EMPRESA, RECEBIDO_POR, sugerirTextoRegra, type Classe, type EstadoDespesa } from "./lib/contas-comum";
 
 const txt = (f: FormData, k: string) => {
   const v = String(f.get(k) ?? "").trim();
@@ -207,9 +207,17 @@ export async function guardarRecebimentoAcao(f: FormData) {
       classe = case when classe = 'Por classificar' then 'Receita direta' else classe end
       where id = ${Math.round(mov)} and montante > 0`;
   }
+  if (f.get("confirmar") === "1") {
+    await s`update reservas set recebido_confirmado = true, atualizado_em = now() where id = ${id} and recebido_por is not null`;
+    atualizar();
+    return;
+  }
   const quem = txt(f, "recebido_por");
-  const valido = quem && (quem === "Empresa" || PAGO_POR.includes(quem)) ? quem : null;
-  await s`update reservas set recebido_por = ${mov ? null : valido}, atualizado_em = now() where id = ${id}`;
+  const valido = quem && (quem === "Empresa" || RECEBIDO_POR.includes(quem)) ? quem : null;
+  // "referencia=1": fica só como referência, a confirmar uma a uma pelo Bruno
+  const confirmado = f.get("referencia") !== "1";
+  await s`update reservas set recebido_por = ${mov ? null : valido}, recebido_confirmado = ${confirmado},
+    atualizado_em = now() where id = ${id}`;
   atualizar();
 }
 
