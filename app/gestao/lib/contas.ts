@@ -160,8 +160,29 @@ export const CAMPOS_DESPESA = [
 ] as const;
 export type NovaDespesa = Partial<Pick<Despesa, (typeof CAMPOS_DESPESA)[number]>>;
 
+/** Despesas pagas com cartão e ainda sem cidade: a localidade vem da descrição do extrato. */
+export async function preencherCidadesDoBanco() {
+  const s = sql();
+  const semCidade = (await s`select d.id, m.descricao from despesas d join movimentos m on m.id = d.movimento_id
+    where d.cidade is null and m.descricao ~* 'PRT *$'`) as unknown as { id: number; descricao: string }[];
+  let n = 0;
+  for (const x of semCidade) {
+    const c = cidadeDoMovimento(x.descricao);
+    if (c) {
+      await s`update despesas set cidade = ${c} where id = ${x.id} and cidade is null`;
+      n++;
+    }
+  }
+  return n;
+}
+
+const gc = globalThis as unknown as { __jrCidades?: Promise<unknown> };
+
 export async function listarDespesas(): Promise<Despesa[]> {
   await garantirTabelas();
+  // uma vez por arranque do servidor (as novas ficam com cidade na conferência)
+  gc.__jrCidades ??= preencherCidadesDoBanco().catch(() => (gc.__jrCidades = undefined));
+  await gc.__jrCidades;
   return (await sql()`select * from despesas order by data nulls last, id`) as unknown as Despesa[];
 }
 
@@ -773,12 +794,7 @@ export async function conciliarContas(): Promise<Conferencia> {
   }
 
   // localidade das despesas pagas com cartão (o extrato diz onde foi a compra)
-  const semCidade = (await s`select d.id, m.descricao from despesas d join movimentos m on m.id = d.movimento_id
-    where d.cidade is null`) as unknown as { id: number; descricao: string }[];
-  for (const x of semCidade) {
-    const c = cidadeDoMovimento(x.descricao);
-    if (c) await s`update despesas set cidade = ${c} where id = ${x.id} and cidade is null`;
-  }
+  await preencherCidadesDoBanco();
 
   const linhas = [
     `${despesasPagas} fatura(s) de despesa ligadas ao pagamento no banco.`,
