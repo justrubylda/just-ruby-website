@@ -232,6 +232,8 @@ alter table reservas add column if not exists recebido_por text;
 alter table reservas add column if not exists recebido_confirmado boolean not null default true;
 -- IVA que se pode deduzir, quando não é o IVA todo da fatura (ex.: viatura a GPL, 50%)
 alter table despesas add column if not exists iva_dedutivel numeric(12,2);
+-- localidade da compra (filtro nas despesas, para as associar a um alojamento)
+alter table despesas add column if not exists cidade text;
 create index if not exists movimentos_data on movimentos (data);
 
 -- regras para classificar os movimentos pelo texto da descrição

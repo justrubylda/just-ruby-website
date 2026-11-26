@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { guardarDespesaAcao } from "../acoes-contas";
 import { eur } from "../lib/calculos";
-import { CATEGORIAS, ESTADOS_DESPESA, NIF_EMPRESA, PAGO_POR, type Despesa } from "../lib/contas-comum";
+import { CATEGORIAS, ESTADOS_DESPESA, NIF_EMPRESA, NOMES_LOCALIDADES, PAGO_POR, type Despesa } from "../lib/contas-comum";
 import { botao, campo, rotulo } from "./ui";
 
 const num = (s: string) => {
@@ -73,6 +73,15 @@ export default function FormDespesa({
           <span className={rotulo}>IVA</span>
           <input name="iva" inputMode="decimal" value={iva} onChange={(e) => setIva(e.target.value)} className={campo} />
           <span className="mt-0.5 block text-xs text-cinza">{t != null && i != null ? `Base s/ IVA: ${eur(t - i)}` : "Opcional"}</span>
+        </label>
+        <label className="block">
+          <span className={rotulo}>Cidade</span>
+          <input name="cidade" list="localidades" defaultValue={despesa.cidade ?? ""} placeholder="Onde foi a compra" className={campo} />
+          <datalist id="localidades">
+            {NOMES_LOCALIDADES.map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
         </label>
         {C({
           nome: "iva_dedutivel",

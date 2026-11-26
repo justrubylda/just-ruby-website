@@ -10,6 +10,8 @@ import {
   CLASSES_RECEITA,
   GERAL,
   NIF_EMPRESA,
+  cidadeDeTexto,
+  cidadeDoMovimento,
   normalizar,
   regraServe,
   type Classe,
@@ -154,7 +156,7 @@ export async function classificar() {
 
 export const CAMPOS_DESPESA = [
   "data", "fornecedor", "nif_fornecedor", "documento", "nif_cliente", "casa", "categoria", "base", "iva", "iva_dedutivel", "total",
-  "pago_por", "estado", "movimento_id", "reposicao_id", "ficheiro", "notas", "origem",
+  "pago_por", "estado", "movimento_id", "reposicao_id", "ficheiro", "notas", "origem", "cidade",
 ] as const;
 export type NovaDespesa = Partial<Pick<Despesa, (typeof CAMPOS_DESPESA)[number]>>;
 
@@ -260,6 +262,7 @@ export async function importarDespesasLote(lista: NovaDespesa[], origem: string)
           casa = coalesce(casa, ${d.casa ?? null}),
           categoria = coalesce(categoria, ${d.categoria ?? null}),
           ficheiro = coalesce(ficheiro, ${d.ficheiro ?? null}),
+          cidade = coalesce(cidade, ${d.cidade ?? null}),
           atualizado_em = now()
           where id = ${c.id}`;
         existentes++;
@@ -276,7 +279,8 @@ export async function importarDespesasLote(lista: NovaDespesa[], origem: string)
         nif_fornecedor = coalesce(despesas.nif_fornecedor, excluded.nif_fornecedor),
         nif_cliente = coalesce(despesas.nif_cliente, excluded.nif_cliente),
         ficheiro = coalesce(despesas.ficheiro, excluded.ficheiro),
-        notas = coalesce(despesas.notas, excluded.notas)
+        notas = coalesce(despesas.notas, excluded.notas),
+        cidade = coalesce(despesas.cidade, excluded.cidade)
       returning (xmax = 0) as nova`;
     if (r?.nova) novas++;
     else existentes++;
@@ -513,6 +517,7 @@ function lerDespesasDaFolha(f: Folha, casas: string[]): NovaDespesa[] | null {
       ficheiro: /ficheiro|^pdf|anexo|^caminho/,
       notas: /observa|^notas?$|comentar|reparo/,
       descricao: /^descri/,
+      cidade: /^cidade|localidade|^local( da compra)?$/,
     }
   );
   if (!cab) return null;
@@ -546,6 +551,7 @@ function lerDespesasDaFolha(f: Folha, casas: string[]): NovaDespesa[] | null {
       estado: estado ?? "Pendente",
       ficheiro: g("ficheiro") || null,
       notas: [g("descricao"), g("notas")].filter(Boolean).join(" — ") || null,
+      cidade: cidadeDeTexto(g("cidade")),
     });
   }
   return lista;
@@ -764,6 +770,14 @@ export async function conciliarContas(): Promise<Conferencia> {
       mudou = true;
     }
     if (!mudou) break;
+  }
+
+  // localidade das despesas pagas com cartão (o extrato diz onde foi a compra)
+  const semCidade = (await s`select d.id, m.descricao from despesas d join movimentos m on m.id = d.movimento_id
+    where d.cidade is null`) as unknown as { id: number; descricao: string }[];
+  for (const x of semCidade) {
+    const c = cidadeDoMovimento(x.descricao);
+    if (c) await s`update despesas set cidade = ${c} where id = ${x.id} and cidade is null`;
   }
 
   const linhas = [

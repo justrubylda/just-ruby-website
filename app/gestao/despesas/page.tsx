@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { marcarPorReporAcao } from "../acoes-contas";
+import { atribuirCasaAcao, marcarPorReporAcao } from "../acoes-contas";
 import { exigirSessao } from "../lib/acesso";
 import { MESES, dataPT, eur, hojeISO } from "../lib/calculos";
 import { CATEGORIAS, CORES_ESTADO, ESTADOS_DESPESA, GERAL, dedutivel } from "../lib/contas-comum";
@@ -25,6 +25,7 @@ export default async function Despesas({ searchParams }: { searchParams: Promise
   const casa = sp.casa ?? "Todas";
   const categoria = sp.categoria ?? "Todas";
   const estado = sp.estado ?? "Todos";
+  const cidade = sp.cidade ?? "Todas";
   const q = (sp.q ?? "").trim().toLowerCase();
   const casas = [...als.map((a) => a.nome), GERAL];
 
@@ -35,14 +36,20 @@ export default async function Despesas({ searchParams }: { searchParams: Promise
       if (casa !== "Todas" && (casa === "Sem casa" ? d.casa : d.casa !== casa)) return false;
       if (categoria !== "Todas" && (categoria === "Sem categoria" ? d.categoria : d.categoria !== categoria)) return false;
       if (estado !== "Todos" && d.estado !== estado) return false;
-      if (q && ![d.fornecedor, d.documento, d.nif_fornecedor, d.notas, d.ficheiro].join(" ").toLowerCase().includes(q)) return false;
+      if (cidade !== "Todas" && (cidade === "Sem cidade" ? d.cidade : d.cidade !== cidade)) return false;
+      if (q && ![d.fornecedor, d.documento, d.nif_fornecedor, d.notas, d.ficheiro, d.cidade].join(" ").toLowerCase().includes(q)) return false;
       return true;
     })
     .reverse();
   const soma = (f: (d: (typeof lista)[number]) => number) => lista.reduce((s, d) => s + f(d), 0);
   const porRepor = todas.filter((d) => d.estado === "Por repor");
   const pendentes = todas.filter((d) => d.estado === "Pendente");
-  const filtros = new URLSearchParams({ tipo: "despesas", ano, mes, casa, categoria, estado, q: sp.q ?? "" }).toString();
+  const filtros = new URLSearchParams({ tipo: "despesas", ano, mes, casa, categoria, estado, cidade, q: sp.q ?? "" }).toString();
+  // cidades das despesas do ano escolhido, as mais frequentes primeiro
+  const contaCidades = new Map<string, number>();
+  for (const d of todas) if (d.cidade && (ano === "Todos" || d.data?.slice(0, 4) === ano)) contaCidades.set(d.cidade, (contaCidades.get(d.cidade) ?? 0) + 1);
+  const cidades = [...contaCidades].sort((a, b) => b[1] - a[1]);
+  const semCasa = lista.filter((d) => !d.casa);
 
   return (
     <div className="space-y-6">
@@ -73,7 +80,7 @@ export default async function Despesas({ searchParams }: { searchParams: Promise
         </Link>
       </div>
 
-      <form className="grid grid-cols-2 gap-3 sm:grid-cols-6">
+      <form className="grid grid-cols-2 gap-3 sm:grid-cols-7">
         <SelectAuto name="ano" rotulo="Ano" value={ano} opcoes={["Todos", ...anos].map((a) => ({ valor: a, texto: a }))} />
         <SelectAuto
           name="mes"
@@ -89,11 +96,46 @@ export default async function Despesas({ searchParams }: { searchParams: Promise
           opcoes={["Todas", ...CATEGORIAS, "Sem categoria"].map((a) => ({ valor: a, texto: a }))}
         />
         <SelectAuto name="estado" rotulo="Estado" value={estado} opcoes={["Todos", ...ESTADOS_DESPESA].map((a) => ({ valor: a, texto: a }))} />
+        <SelectAuto
+          name="cidade"
+          rotulo="Cidade"
+          value={cidade}
+          opcoes={[
+            { valor: "Todas", texto: "Todas" },
+            ...cidades.map(([c, n]) => ({ valor: c, texto: `${c} (${n})` })),
+            { valor: "Sem cidade", texto: "Sem cidade" },
+          ]}
+        />
         <label className="col-span-2 block sm:col-span-1">
           <span className="block text-xs font-semibold uppercase tracking-wide text-cinza">Procurar</span>
           <input name="q" defaultValue={sp.q ?? ""} placeholder="Fornecedor, nº…" className={campo} />
         </label>
       </form>
+
+      {lista.length > 0 && (cidade !== "Todas" || casa === "Sem casa") && (
+        <form action={atribuirCasaAcao} className={`${cartao} flex flex-wrap items-end gap-3`}>
+          <input type="hidden" name="ids" value={lista.map((d) => d.id).join(",")} />
+          <label className="block">
+            <span className="block text-xs font-semibold uppercase tracking-wide text-cinza">Pôr a casa</span>
+            <select name="casa" className={campo} defaultValue="">
+              <option value="" disabled>
+                Escolher…
+              </option>
+              {casas.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <span className="pb-2 text-sm">
+            nas {semCasa.length} despesa(s) desta lista sem casa{cidade !== "Todas" && cidade !== "Sem cidade" ? ` (${cidade})` : ""}
+          </span>
+          <label className="flex items-center gap-2 pb-2 text-sm">
+            <input type="checkbox" name="todas" />
+            também nas que já têm casa ({lista.length - semCasa.length})
+          </label>
+          <button className={botao}>Aplicar</button>
+        </form>
+      )}
 
       {lista.length === 0 ? (
         <p className="text-cinza">Nenhuma despesa com estes filtros.</p>
@@ -105,7 +147,7 @@ export default async function Despesas({ searchParams }: { searchParams: Promise
                 <div className="min-w-0">
                   <div className="truncate font-semibold">{d.fornecedor || "—"}</div>
                   <div className="truncate text-xs text-cinza">
-                    {dataPT(d.data)} · {d.documento || "sem nº"} · {d.casa || "sem casa"} · {d.categoria || "sem categoria"}
+                    {dataPT(d.data)} · {d.documento || "sem nº"} · {d.cidade || "sem cidade"} · {d.casa || "sem casa"} · {d.categoria || "sem categoria"}
                     {d.pago_por !== "Empresa" && ` · pago por ${d.pago_por}`}
                   </div>
                 </div>

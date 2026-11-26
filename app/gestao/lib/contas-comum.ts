@@ -57,6 +57,8 @@ export type Despesa = {
   nif_fornecedor: string | null;
   documento: string | null;
   nif_cliente: string | null;
+  /** Localidade da compra (do extrato, nas compras com cartão, ou da morada na fatura). */
+  cidade: string | null;
   casa: string | null;
   categoria: string | null;
   base: number | null;
@@ -142,6 +144,90 @@ const GENERICAS = new Set([
 ]);
 
 /** Sugere o texto de uma regra a partir da descrição (tira palavras como COMPRA, TRF, números do cartão). */
+// ---------- localidade das despesas ----------
+
+/** Localidades conhecidas (nome como se escreve) e outras formas de as encontrar no texto (OCR, extrato). */
+const LOCALIDADES: [string, RegExp?][] = [
+  ["Santarém", /\bSA[MN]TAR(?:E\s?M|\s?M|EN)O?\b/],
+  ["Várzea", /\bVAR\s?ZEA\b|\bROMEIRA\b/],
+  ["Almeirim", /\bALMEIR?I?M\b/],
+  ["Alpiarça", /\bALPIARCA\b/],
+  ["Alcanede"],
+  ["Perofilho", /\bPEROFI[L]?[I]?HO\b/],
+  ["Arneiro de Tremês", /\bARNEIRO DE TREMES\b/],
+  ["Cartaxo"],
+  ["Rio Maior"],
+  ["Aveiras de Cima", /\bAVEIRAS\s+DE\s+CIMA\b/],
+  ["Tomar", /\bTOMAR\b|\bTONAR\b/],
+  ["Olalhas"],
+  ["Ferreira do Zêzere", /\bFE[R]?REIRA\s+C?[DL]?L?O\s+ZEZERE\b/],
+  ["Torres Novas"],
+  ["Entroncamento"],
+  ["Abrantes"],
+  ["Ourém", /\bOUREM\b/],
+  ["Fátima", /\bFATIMA\b/],
+  ["Linda-a-Velha", /\bLINDA A ?VELHA/],
+  ["Algés", /\bALGES\b/],
+  ["Carnaxide", /\b[CL]ARNAXIDE\b/],
+  ["Alfragide"],
+  ["Oeiras"],
+  ["Paço de Arcos", /\bPACO DE ARCOS\b/],
+  ["Queluz"],
+  ["Mem Martins"],
+  ["Sintra"],
+  ["Cascais"],
+  ["Carcavelos"],
+  ["Golegã", /\bGOLEGA\b/],
+  ["Seixal"],
+  ["Matosinhos", /\bMATOSINHOS\b|\bSENHORA DA HORA\b/],
+  ["Faro"],
+  ["Amadora"],
+  ["Odivelas"],
+  ["Frielas"],
+  ["Loures"],
+  ["Lisboa", /\b(LISBOA|LTSBOA|ITSBOA|LISTBOA|LISB|LSBO)\b/],
+  ["Vila Nova de Gaia", /\bVILA\s+NOVA\s+DE(\s+GA)?|\bGAIA\b/],
+  ["Maia"],
+  ["Porto"],
+  ["Castro Daire"],
+  ["Alcobaça", /\bALCOBACA\b/],
+  ["Gafanha da Nazaré", /\bGAFANHA DA NAZARE\b/],
+  ["Coimbra"],
+  ["Leiria"],
+  ["Setúbal", /\bSETUBAL\b/],
+  ["Almada"],
+];
+
+export const NOMES_LOCALIDADES = LOCALIDADES.map(([n]) => n);
+
+/**
+ * A localidade conhecida que aparece no texto. Numa morada ("VILA NOVA DE GAIA - PORTO") vale a primeira;
+ * no extrato ("LOJA SANTAREM  SANTAREM  PRT") vale a última, que vem depois do nome da loja.
+ */
+export function cidadeDeTexto(texto: string | null | undefined, lado: "primeira" | "ultima" = "primeira"): string | null {
+  const n = normalizar(texto);
+  if (!n) return null;
+  let melhor: { nome: string; ini: number; fim: number } | null = null;
+  for (const [nome, re] of LOCALIDADES) {
+    const r = re ?? new RegExp(`\\b${normalizar(nome)}\\b`);
+    const todas = [...n.matchAll(new RegExp(r.source, "g"))];
+    const m = lado === "ultima" ? todas.at(-1) : todas[0];
+    if (!m || m.index == null) continue;
+    const ini = m.index;
+    const fim = ini + m[0].length;
+    const melhorQue = !melhor || (lado === "ultima" ? fim > melhor.fim : ini < melhor.ini) || (ini === melhor.ini && fim > melhor.fim);
+    if (melhorQue) melhor = { nome, ini, fim };
+  }
+  return melhor?.nome ?? null;
+}
+
+/** Compras com cartão no extrato do Millennium: "LOJA  CIDADE  PRT". Só estas dizem onde foi a compra. */
+export function cidadeDoMovimento(descricao: string | null | undefined) {
+  const d = String(descricao ?? "").trim();
+  if (!/PRT$/i.test(d)) return null;
+  return cidadeDeTexto(d.replace(/\s*PRT$/i, "").slice(-32), "ultima");
+}
+
 export function sugerirTextoRegra(descricao: string) {
   const palavras = normalizar(descricao)
     .split(" ")

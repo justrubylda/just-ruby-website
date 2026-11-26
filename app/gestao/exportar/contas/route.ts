@@ -61,6 +61,7 @@ export async function GET(request: Request) {
     const casa = p("casa", "Todas");
     const categoria = p("categoria", "Todas");
     const estado = p("estado", "Todos");
+    const cidade = p("cidade", "Todas");
     const q = (u.searchParams.get("q") ?? "").trim().toLowerCase();
     const [desp, movs] = await Promise.all([listarDespesas(), listarMovimentos()]);
     const mov = new Map(movs.map((m) => [m.id, m]));
@@ -70,6 +71,7 @@ export async function GET(request: Request) {
       { titulo: "NIF fornecedor", tipo: "texto", largura: 13 },
       { titulo: "Nº documento", tipo: "texto", largura: 20 },
       { titulo: "NIF na fatura", tipo: "texto", largura: 12 },
+      { titulo: "Cidade", tipo: "texto", largura: 16 },
       { titulo: "Casa", tipo: "texto", largura: 17 },
       { titulo: "Categoria", tipo: "texto", largura: 24 },
       { titulo: "Base s/ IVA", tipo: "euro", largura: 12, somar: true },
@@ -88,9 +90,10 @@ export async function GET(request: Request) {
       if (casa !== "Todas" && (casa === "Sem casa" ? d.casa : d.casa !== casa)) continue;
       if (categoria !== "Todas" && (categoria === "Sem categoria" ? d.categoria : d.categoria !== categoria)) continue;
       if (estado !== "Todos" && d.estado !== estado) continue;
-      if (q && ![d.fornecedor, d.documento, d.nif_fornecedor, d.notas, d.ficheiro].join(" ").toLowerCase().includes(q)) continue;
+      if (cidade !== "Todas" && (cidade === "Sem cidade" ? d.cidade : d.cidade !== cidade)) continue;
+      if (q && ![d.fornecedor, d.documento, d.nif_fornecedor, d.notas, d.ficheiro, d.cidade].join(" ").toLowerCase().includes(q)) continue;
       linhas.push([
-        d.data, d.fornecedor, d.nif_fornecedor, d.documento, d.nif_cliente, d.casa, d.categoria,
+        d.data, d.fornecedor, d.nif_fornecedor, d.documento, d.nif_cliente, d.cidade, d.casa, d.categoria,
         d.base ?? (d.iva != null ? d.total - d.iva : null), d.iva, dedutivel(d) || null, d.total, d.pago_por, d.estado,
         d.movimento_id ? mov.get(d.movimento_id)?.data ?? null : null, d.reposicao_id ? mov.get(d.reposicao_id)?.data ?? null : null,
         d.ficheiro, d.notas,

@@ -20,7 +20,7 @@ import {
   importarContas,
   type RelatorioContas,
 } from "./lib/contas";
-import { CLASSES, ESTADOS_DESPESA, NIF_EMPRESA, RECEBIDO_POR, sugerirTextoRegra, type Classe, type EstadoDespesa } from "./lib/contas-comum";
+import { CLASSES, ESTADOS_DESPESA, GERAL, NIF_EMPRESA, RECEBIDO_POR, sugerirTextoRegra, type Classe, type EstadoDespesa } from "./lib/contas-comum";
 
 const txt = (f: FormData, k: string) => {
   const v = String(f.get(k) ?? "").trim();
@@ -87,6 +87,7 @@ export async function guardarDespesaAcao(_: string | null, f: FormData): Promise
     movimento_id: movimento ? Math.round(movimento) : null,
     ficheiro: txt(f, "ficheiro"),
     notas: txt(f, "notas"),
+    cidade: txt(f, "cidade"),
   };
   const id = num(f, "id");
   if (id) await atualizarDespesa(id, dados);
@@ -104,6 +105,24 @@ export async function apagarDespesaAcao(f: FormData) {
 }
 
 /** Despesa sem pagamento no banco: foi paga por um sócio e a empresa tem de a repor. */
+/** Põe a mesma casa em várias despesas de uma vez (ex.: todas as de Tomar → Kingdom of Stone). */
+export async function atribuirCasaAcao(f: FormData) {
+  await exigirSessao();
+  const casa = txt(f, "casa");
+  const ids = String(f.get("ids") ?? "")
+    .split(",")
+    .map((x) => Number(x))
+    .filter((x) => Number.isInteger(x) && x > 0);
+  if (!casa || !ids.length) return;
+  const validas = [...(await listarAlojamentos()).map((a) => a.nome), GERAL];
+  if (!validas.includes(casa)) return;
+  const todas = f.get("todas") === "on";
+  const s = sql();
+  if (todas) await s`update despesas set casa = ${casa}, atualizado_em = now() where id in ${s(ids)}`;
+  else await s`update despesas set casa = ${casa}, atualizado_em = now() where id in ${s(ids)} and casa is null`;
+  atualizar();
+}
+
 export async function marcarPorReporAcao(f: FormData) {
   await exigirSessao();
   const id = num(f, "id");

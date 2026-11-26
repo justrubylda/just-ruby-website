@@ -25,6 +25,31 @@ def nome_do_texto(t):
     return None
 
 
+# texto onde está a localidade da compra: o cabeçalho (nos talões vem a loja: "PINGO DOCE / SANTAREM") e,
+# a seguir, a localidade do primeiro código postal que não é o da empresa. O site escolhe a localidade
+# conhecida que aparece primeiro (cidadeDeTexto).
+CLIENTE_RE = re.compile(r"JUST\s*RUBY|ANT[OÓ]NIO|EXMO|2005\s?-\s?0|2005\s?-\s?5|2000\s?-\s?222|518785483|^\s*SR\b|CLIENTE", re.I)
+CP_EMPRESA = {"2005-546", "2005-020", "2005-022", "2000-222"}
+
+
+def cidade(texto):
+    segs = []
+    for linha in [l for l in texto.splitlines() if l.strip()][:6]:
+        for s_ in re.split(r"\s{2,}", linha.strip()):
+            if not CLIENTE_RE.search(s_) and not re.search(r"sede|capital|matr", s_, re.I):
+                segs.append(s_)
+    cp = ""
+    for linha in texto.splitlines():
+        if re.search(r"sede|capital|matr[ií]c|c\.?\s?r\.?\s?c|registo|exmo|cliente", linha, re.I):
+            continue
+        m = next((m for m in re.finditer(r"\b(\d{4})\s?-\s?(\d{3})\s*([A-Za-zÀ-ú][A-Za-zÀ-ú .'-]{2,40})", linha)
+                  if f"{m.group(1)}-{m.group(2)}" not in CP_EMPRESA), None)
+        if m:
+            cp = m.group(3)
+            break
+    return " ; ".join(segs) + " ;; " + cp
+
+
 def casa(texto):
     t = texto.upper()
     if re.search(r"VIMIEIRO|SOMBREIREIROS|OLALHAS|MONTES.{0,20}TOMAR", t):
@@ -122,7 +147,7 @@ for x in fs:
     d["data"], d["documento"] = data, doc
     linhas.append([
         d.get("data") or "", fornecedor, nif, d.get("documento") or "", d.get("nif_cliente") or "",
-        total, d.get("iva"), info.get("casa") or casa(texto), categoria, estado, pago_por, rel, nota,
+        total, d.get("iva"), info.get("casa") or casa(texto), categoria, estado, pago_por, rel, nota, cidade(texto),
     ])
     if not x.get("qr"):
         revisao.append((rel, f"{fornecedor} {d.get('data')} {total}"))
@@ -130,7 +155,7 @@ for x in fs:
 wb = openpyxl.Workbook()
 ws = wb.active
 ws.title = "Faturas despesas"
-ws.append(["Data", "Fornecedor", "NIF fornecedor", "Nº documento", "NIF cliente", "Total", "IVA", "Casa", "Categoria", "Estado", "Pago por", "Ficheiro", "Notas"])
+ws.append(["Data", "Fornecedor", "NIF fornecedor", "Nº documento", "NIF cliente", "Total", "IVA", "Casa", "Categoria", "Estado", "Pago por", "Ficheiro", "Notas", "Cidade"])
 for l in linhas:
     ws.append(l)
 wb.save(SAIDA)
